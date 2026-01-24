@@ -410,7 +410,7 @@ function Library:CreateWindow(Config)
     end)
 
     -- 2. Minimize Button
-    local MinBtn, MinIcon = CreateTopBtn("Min", "rbxassetid://10909622591") -- Ícone de traço
+    local MinBtn, MinIcon = CreateTopBtn("Min", "rbxassetid://116382519234568") -- Ícone de traço
     local IsMinimized = false
     local OldSize = MainFrame.Size
 
@@ -443,7 +443,7 @@ function Library:CreateWindow(Config)
     end)
 
     -- 3. Close Button (Com confirmação)
-    local CloseBtn, CloseIcon = CreateTopBtn("Close", "rbxassetid://10909621833", Color3.fromRGB(200, 50, 50))
+    local CloseBtn, CloseIcon = CreateTopBtn("Close", "rbxassetid://101967696350111", Color3.fromRGB(200, 50, 50))
     
     CloseBtn.MouseButton1Click:Connect(function()
         -- Popup de Confirmação
@@ -963,7 +963,7 @@ function Library:CreateWindow(Config)
     ]]
 
     function WindowFunctions:AddConfig()
-        local SettingsTab = WindowFunctions:CreateTab("Settings", "10909621833") -- Ícone de engrenagem
+        local SettingsTab = WindowFunctions:CreateTab("Settings", "11308562750") -- Ícone de engrenagem
         local ConfigFolder = "NeonLibSettings/Configs"
         
         if not isfolder(ConfigFolder) then makefolder(ConfigFolder) end
