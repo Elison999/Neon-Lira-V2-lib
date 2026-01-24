@@ -1201,3 +1201,5 @@ function NeonLib:MakeWindow(options)
 
     return Window
 end
+
+return NeonLib
