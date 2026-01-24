@@ -2,6 +2,8 @@
 -- EXEMPLO DE USO
 --================================================================================--
 
+local Neon = loadstring(game:HttpGet("https://raw.githubusercontent.com/Elison999/Neon-Lira-V2-lib/7f9ca6d43d2588da20ca7f317667a2a46654ffe6/Library.Lua"))()
+
 -- Cria a janela
 local MyWindow = NeonLib:CreateWindow({
     Name = "Neon Hub | Ultimate",
