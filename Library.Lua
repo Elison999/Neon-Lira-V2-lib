@@ -291,11 +291,11 @@ function Library:CreateWindow(Config)
     Shadow.Name = "Shadow"
     Shadow.AnchorPoint = Vector2.new(0.5, 0.5)
     Shadow.Position = UDim2.new(0.5, 0, 0.5, 0)
-    Shadow.Size = UDim2.new(1, 100, 1, 100)
+    Shadow.Size = UDim2.new(1, 95, 1, 95)
     Shadow.BackgroundTransparency = 1
     Shadow.Image = "rbxassetid://6015897843" -- Textura de sombra genérica
     Shadow.ImageColor3 = BaseColor
-    Shadow.ImageTransparency = 0.6
+    Shadow.ImageTransparency = 0.9
     Shadow.ZIndex = -1
 
     -- :: Topbar :: --
