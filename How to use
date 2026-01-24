@@ -1,0 +1,48 @@
+--================================================================================--
+-- EXEMPLO DE USO
+--================================================================================--
+
+-- Cria a janela
+local MyWindow = NeonLib:CreateWindow({
+    Name = "Neon Hub | Ultimate",
+    LoadingTitle = "Carregando Scripts...",
+    KeySystem = {
+        KeyEnable = false,
+        Key = "1234",
+        KeySave = true
+    },
+    Theme = DefaultTheme
+})
+
+-- Injeta as funções da Parte 2
+AddElementsToWindow(MyWindow)
+
+-- Cria abas e elementos
+local HomeTab = MyWindow:CreateTab("Home", MyWindow.Icons.Home)
+local CombatTab = MyWindow:CreateTab("Combat", MyWindow.Icons.Combat)
+local VisualTab = MyWindow:CreateTab("Visual", MyWindow.Icons.Visual)
+
+-- Home Elements
+HomeTab:AddButton("Destroy GUI", function()
+    -- Usa PlayerGui -> mais seguro
+    local gui = Player:FindFirstChild("PlayerGui") and Player.PlayerGui:FindFirstChild("NeonLibUI")
+    if gui then pcall(function() gui:Destroy() end) end
+end)
+
+HomeTab:AddToggle("Auto Farm", false, function(state)
+    print("Auto Farm is now:", state)
+end)
+
+HomeTab:AddMultiDropdown("Select Targets", {"Player", "NPC", "Boss"}, function(selected)
+    print("Selected:", table.concat(selected, ", "))
+end)
+
+-- Combat Elements
+CombatTab:AddToggle("Kill Aura", true, function(v) print("Kill Aura:", v) end)
+CombatTab:AddButton("Silent Aim", function() print("Silent Aim clicked") end)
+
+-- Adiciona Config
+MyWindow:AddConfig()
+
+print("Neon Lib Loaded Successfully!")
+return NeonLib
