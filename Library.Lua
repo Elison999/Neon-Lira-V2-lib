@@ -1,7 +1,7 @@
 --[[ 
-    NEON LIB - MODERN UI LIBRARY (PART 1)
+    NEON LIB - MODERN UI LIBRARY (PART 1) - CORRIGIDO
     Compatible: Mobile/PC
-    Author: AI Assistant
+    Author: AI Assistant (corrigido)
 ]]
 
 local UserInputService = game:GetService("UserInputService")
@@ -15,6 +15,21 @@ local Mouse = Player:GetMouse()
 
 -- Proteção de GUI (Sem CoreGui conforme solicitado, usa PlayerGui)
 local PlayerGui = Player:WaitForChild("PlayerGui")
+
+-- Utility: formata asset ids (aceita número, "12345", "rbxassetid://12345")
+local function FormatAssetId(id)
+    if not id then return "" end
+    local s = tostring(id)
+    if s:find("rbxassetid://") then
+        return s
+    end
+    -- se for apenas número ou string numérica
+    if tonumber(s) then
+        return "rbxassetid://" .. s
+    end
+    -- retorna como veio (pode ser URL ou asset/thumbnail)
+    return s
+end
 
 -- Library Table
 local Library = {
@@ -40,7 +55,7 @@ local Library = {
         Map = "rbxassetid://13549782540",
         Player = "rbxassetid://7199219794",
         Misc = "rbxassetid://114882667336771",
-        Resize = "rbxassetid://12543323087", -- Icon genérico para resize
+        Resize = "rbxassetid://12543323087",
         Warning = "rbxassetid://11401835376"
     }
 }
@@ -86,7 +101,8 @@ local function MakeDraggable(topbarobject, object)
 end
 
 local function CreateRipple(Button)
-    spawn(function()
+    -- spawn substituído por task.spawn para compatibilidade
+    task.spawn(function()
         local Ripple = Instance.new("ImageLabel")
         Ripple.Name = "Ripple"
         Ripple.Parent = Button
@@ -102,13 +118,11 @@ local function CreateRipple(Button)
         local MouseLocation = UserInputService:GetMouseLocation()
         local ButtonPos = Button.AbsolutePosition
         local RelativeX = MouseLocation.X - ButtonPos.X
-        local RelativeY = MouseLocation.Y - ButtonPos.Y - 36 -- Offset topbar
-
+        local RelativeY = MouseLocation.Y - ButtonPos.Y - 36 -- Offset topbar (pode ser ajustado)
         Ripple.Position = UDim2.new(0, RelativeX, 0, RelativeY)
         Ripple.Size = UDim2.new(0, 0, 0, 0)
 
-        local TargetSize = UDim2.new(0, 300, 0, 300) -- Tamanho fixo grande para cobrir
-        
+        local TargetSize = UDim2.new(0, 300, 0, 300)
         local Tween = TweenService:Create(Ripple, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
             Size = TargetSize,
             Position = UDim2.new(0, RelativeX - 150, 0, RelativeY - 150),
@@ -135,7 +149,8 @@ function Library:CreateWindow(Settings)
     Settings = Settings or {}
     Settings.Name = Settings.Name or "Neon Lib"
     Settings.LoadingName = Settings.LoadingName or "Neon Lib"
-    Settings.Icon = Settings.IconLib or Library.Icons.Home
+    -- Normalize icon input: pode ser number, "1234" ou "rbxassetid://..."
+    Settings.Icon = Settings.Icon or Settings.IconLib or Library.Icons.Home
     Settings.KeyEnable = Settings.KeyEnable or false
     Settings.Key = Settings.Key or "1234"
     Settings.KeySite = Settings.KeySite or ""
@@ -145,14 +160,21 @@ function Library:CreateWindow(Settings)
     local KeyFileName = "NeonLib_Key_" .. Settings.Name:gsub(" ", "") .. ".txt"
     local Verified = false
 
-    -- Funções Internas de Verificação
+    -- Funções Internas de Verificação (protegido)
     local function CheckSavedKey()
         if not Settings.KeySave then return false end
-        if isfile and isfile(KeyFileName) then
+        if type(isfile) == "function" and isfile(KeyFileName) then
             local SavedKey = readfile(KeyFileName)
-            if Settings.GetKeyFromSite then
-                local LiveKey = game:HttpGet(Settings.KeySite):gsub("\n", ""):gsub(" ", "")
-                return SavedKey == LiveKey
+            if Settings.GetKeyFromSite and Settings.KeySite and Settings.KeySite ~= "" then
+                local Success, SiteKey = pcall(function()
+                    return game:HttpGet(Settings.KeySite)
+                end)
+                if Success and SiteKey then
+                    SiteKey = SiteKey:gsub("\n", ""):gsub(" ", "")
+                    return SavedKey == SiteKey
+                else
+                    return false
+                end
             else
                 return SavedKey == Settings.Key
             end
@@ -161,7 +183,7 @@ function Library:CreateWindow(Settings)
     end
 
     local function SaveKey(keyToSave)
-        if Settings.KeySave and writefile then
+        if Settings.KeySave and type(writefile) == "function" then
             writefile(KeyFileName, keyToSave)
         end
     end
@@ -193,7 +215,7 @@ function Library:CreateWindow(Settings)
     LoadingIcon.BackgroundTransparency = 1
     LoadingIcon.Position = UDim2.new(0.5, 0, 0.15, 0)
     LoadingIcon.Size = UDim2.new(0, 80, 0, 80)
-    LoadingIcon.Image = "rbxassetid://" .. Settings.Icon
+    LoadingIcon.Image = FormatAssetId(Settings.Icon)
     LoadingIcon.ImageColor3 = Library.Theme.Accent
 
     LoadingTitle.Parent = LoadingFrame
@@ -221,15 +243,10 @@ function Library:CreateWindow(Settings)
 
     -- Animation Sequence Function
     local function PlayLoading()
-        -- Open Frame
         TweenService:Create(LoadingFrame, TweenInfo.new(0.5, Enum.EasingStyle.Back), {Size = UDim2.new(0, 300, 0, 250)}):Play()
         task.wait(0.6)
-        
-        -- Bar Fill
         TweenService:Create(LoadingBarFill, TweenInfo.new(1.5, Enum.EasingStyle.Quad), {Size = UDim2.new(1, 0, 1, 0)}):Play()
         task.wait(1.6)
-        
-        -- Close
         TweenService:Create(LoadingFrame, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.In), {Size = UDim2.new(0, 0, 0, 0)}):Play()
         task.wait(0.4)
         LoadingFrame.Visible = false
@@ -238,11 +255,9 @@ function Library:CreateWindow(Settings)
     -- KEY SYSTEM UI
     if Settings.KeyEnable then
         if CheckSavedKey() then
-            -- Auto Login
             Verified = true
             PlayLoading()
         else
-            -- Show Key UI
             local KeyFrame = Instance.new("Frame")
             KeyFrame.Name = "KeySystem"
             KeyFrame.Parent = NeonLibGui
@@ -297,21 +312,31 @@ function Library:CreateWindow(Settings)
             Instance.new("UICorner", LinkBtn).CornerRadius = UDim.new(0, 6)
             
             LinkBtn.MouseButton1Click:Connect(function()
-                setclipboard(Settings.KeySite)
-                LinkBtn.Text = "Copied!"
-                task.wait(1)
-                LinkBtn.Text = "Get Key"
+                if type(setclipboard) == "function" then
+                    setclipboard(Settings.KeySite)
+                    LinkBtn.Text = "Copied!"
+                    task.wait(1)
+                    LinkBtn.Text = "Get Key"
+                else
+                    -- fallback: tentar abrir no browser não disponível em environment padrão
+                    LinkBtn.Text = "Unavailable"
+                    task.wait(1)
+                    LinkBtn.Text = "Get Key"
+                end
             end)
 
             CheckBtn.MouseButton1Click:Connect(function()
                 local InputKey = KeyBox.Text
                 local Valid = false
                 
-                if Settings.GetKeyFromSite then
+                if Settings.GetKeyFromSite and Settings.KeySite and Settings.KeySite ~= "" then
                     local Success, SiteKey = pcall(function()
-                        return game:HttpGet(Settings.KeySite):gsub("\n", ""):gsub(" ", "")
+                        return game:HttpGet(Settings.KeySite)
                     end)
-                    if Success and InputKey == SiteKey then Valid = true end
+                    if Success and SiteKey then
+                        SiteKey = SiteKey:gsub("\n", ""):gsub(" ", "")
+                        if InputKey == SiteKey then Valid = true end
+                    end
                 else
                     if InputKey == Settings.Key then Valid = true end
                 end
@@ -386,7 +411,7 @@ function Library:CreateWindow(Settings)
     IconImg.Parent = Topbar
     IconImg.Position = UDim2.new(0, 10, 0, 8)
     IconImg.Size = UDim2.new(0, 24, 0, 24)
-    IconImg.Image = "rbxassetid://" .. Settings.Icon
+    IconImg.Image = FormatAssetId(Settings.Icon)
     IconImg.ImageColor3 = Library.Theme.Accent
     IconImg.BackgroundTransparency = 1
 
@@ -421,7 +446,7 @@ function Library:CreateWindow(Settings)
         btn.Parent = ButtonHolder
         btn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
         btn.Size = UDim2.new(0, 24, 0, 24)
-        btn.Image = icon
+        btn.Image = FormatAssetId(icon)
         btn.ImageColor3 = Library.Theme.Text
         btn.AutoButtonColor = false
         Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
@@ -438,7 +463,6 @@ function Library:CreateWindow(Settings)
 
     -- Close Logic with Prompt
     CreateTopBtn("Close", Library.Icons.Close, function()
-        -- Confirmation Modal
         local Prompt = Instance.new("Frame")
         Prompt.Parent = NeonLibGui
         Prompt.Size = UDim2.new(1, 0, 1, 0)
@@ -555,25 +579,23 @@ function Library:CreateWindow(Settings)
     local Tabs = {}
     local FirstTab = true
 
-    -- Fim da Parte 1, continue para a Parte 2 para adicionar Elements e Config...
-    
-    return WindowFunctions, MainFrame, ElementsContainer, TabContainer, Tabs, FirstTab, Library
-end
-
--- [[ CONTINUAÇÃO DA PARTE 1 - DENTRO DE LIBRARY:CREATEWINDOW ]] --
-    
+    -- CONTINUAÇÃO: registry para temas e funções de elemento
     local ElementsRegistry = {} -- Para atualizar temas dinamicamente
 
     -- Função auxiliar para registrar objetos que mudam de cor com o tema
     local function RegisterTheme(obj, prop, themeIndex)
         table.insert(ElementsRegistry, {Object = obj, Property = prop, ThemeIndex = themeIndex})
-        obj[prop] = Library.Theme[themeIndex]
+        if obj and obj[prop] ~= nil and Library.Theme[themeIndex] ~= nil then
+            obj[prop] = Library.Theme[themeIndex]
+        end
     end
 
     local function UpdateAllThemes()
         for _, reg in pairs(ElementsRegistry) do
-            if reg.Object then
-                TweenService:Create(reg.Object, TweenInfo.new(0.3), {[reg.Property] = Library.Theme[reg.ThemeIndex]}):Play()
+            if reg.Object and reg.Object.Parent then
+                local propset = {}
+                propset[reg.Property] = Library.Theme[reg.ThemeIndex]
+                TweenService:Create(reg.Object, TweenInfo.new(0.3), propset):Play()
             end
         end
     end
@@ -585,22 +607,15 @@ end
         local PageLayout = Instance.new("UIListLayout")
         local PagePadding = Instance.new("UIPadding")
 
-        -- Configuração do Botão da Aba
         TabButton.Name = TabName
         TabButton.Parent = TabContainer
         TabButton.BackgroundColor3 = FirstTab and Library.Theme.Accent or Library.Theme.Main
         TabButton.Size = UDim2.new(0, 36, 0, 36)
-        TabButton.Image = "rbxassetid://" .. (TabIconId or "")
+        TabButton.Image = FormatAssetId(TabIconId)
         TabButton.ImageColor3 = FirstTab and Library.Theme.Main or Library.Theme.Text
-        
-        -- Correção para IconIDs numéricos diretos
-        if type(TabIconId) == "number" or (type(TabIconId) == "string" and not TabIconId:find("rbxassetid")) then
-            TabButton.Image = "rbxassetid://" .. tostring(TabIconId)
-        end
         
         Instance.new("UICorner", TabButton).CornerRadius = UDim.new(0, 8)
         
-        -- Tooltip simples (Nome da aba ao passar o mouse)
         local Tooltip = Instance.new("TextLabel")
         Tooltip.Parent = TabButton
         Tooltip.Visible = false
@@ -636,7 +651,6 @@ end
 
         -- Lógica de Troca de Aba
         TabButton.MouseButton1Click:Connect(function()
-            -- Resetar todas as abas
             for _, child in pairs(TabContainer:GetChildren()) do
                 if child:IsA("ImageButton") then
                     TweenService:Create(child, TweenInfo.new(0.2), {BackgroundColor3 = Library.Theme.Main, ImageColor3 = Library.Theme.Text}):Play()
@@ -646,7 +660,6 @@ end
                 if child:IsA("ScrollingFrame") then child.Visible = false end
             end
             
-            -- Ativar atual
             TabPage.Visible = true
             TweenService:Create(TabButton, TweenInfo.new(0.2), {BackgroundColor3 = Library.Theme.Accent, ImageColor3 = Library.Theme.Main}):Play()
         end)
@@ -742,7 +755,6 @@ end
             ToggleFrame.MouseButton1Click:Connect(function()
                 Toggled = not Toggled
                 Callback(Toggled)
-                
                 TweenService:Create(SwitchInfo, TweenInfo.new(0.2), {
                     BackgroundColor3 = Toggled and Library.Theme.Accent or Color3.fromRGB(60,60,60)
                 }):Play()
@@ -876,7 +888,7 @@ end
             Icon.BackgroundTransparency = 1
             Icon.Position = UDim2.new(0.95, -10, 0, 10)
             Icon.Size = UDim2.new(0, 15, 0, 15)
-            Icon.Image = "rbxassetid://6034818372" -- Arrow Down
+            Icon.Image = FormatAssetId("6034818372")
             Icon.ImageColor3 = Library.Theme.Text
             
             local List = Instance.new("Frame")
@@ -972,7 +984,7 @@ end
             Icon.BackgroundTransparency = 1
             Icon.Position = UDim2.new(0.95, -10, 0, 10)
             Icon.Size = UDim2.new(0, 15, 0, 15)
-            Icon.Image = "rbxassetid://6034818372"
+            Icon.Image = FormatAssetId("6034818372")
             Icon.ImageColor3 = Library.Theme.Text
 
             local List = Instance.new("Frame")
@@ -1092,7 +1104,6 @@ end
         
         ConfigTab:AddLabel("Theme Settings")
         
-        -- Theme Logic
         local Themes = {
             ["Neon Green"] = {Accent = Color3.fromRGB(0, 255, 170)},
             ["Blood Red"] = {Accent = Color3.fromRGB(255, 60, 60)},
@@ -1108,9 +1119,7 @@ end
             local NewTheme = Themes[val]
             if NewTheme then
                 Library.Theme.Accent = NewTheme.Accent
-                -- Atualizar Core
                 UpdateAllThemes()
-                -- Atualizar partes específicas que não estão no registro
                 for _, obj in pairs(NeonLibGui:GetDescendants()) do
                     if obj:IsA("ImageLabel") and obj.Name == "Icon" then
                         TweenService:Create(obj, TweenInfo.new(0.3), {ImageColor3 = Library.Theme.Accent}):Play()
@@ -1120,9 +1129,7 @@ end
         end)
         
         ConfigTab:AddToggle("Transparent UI (60%)", false, function(state)
-            local target = state and 0.4 or 0 -- 0.4 transparency = 60% visible or inverse logic depending on interpretation. 
-            -- Prompt says "60% de transferência" likely means 60% Transparency.
-            target = state and 0.6 or 0 
+            local target = state and 0.6 or 0
             TweenService:Create(MainFrame, TweenInfo.new(0.5), {BackgroundTransparency = target}):Play()
         end)
         
@@ -1133,32 +1140,31 @@ end
             SavedKeyName = txt
         end)
         
-        -- Save / Load Logic
-        -- Como é uma library visual, o Save/Load geralmente se refere à configuração da UI (quais toggles estão ativos).
-        -- Mas o prompt pede especificamente "Dropdown pra escolher as Keys Salvas".
-        -- Vou implementar um sistema simples de Configuração JSON.
-        
         local function GetConfigs()
-            if not isfolder("NeonLib") then makefolder("NeonLib") end
-            local files = listfiles("NeonLib")
             local configs = {}
-            for _, f in pairs(files) do
-                table.insert(configs, f:match("NeonLib\\(.+)"):gsub(".json", ""))
+            if type(isfolder) == "function" then
+                if not isfolder("NeonLib") and type(makefolder) == "function" then
+                    makefolder("NeonLib")
+                end
+                if type(listfiles) == "function" then
+                    local files = listfiles("NeonLib")
+                    for _, f in pairs(files) do
+                        local filename = f:match("[^/\\]+$") or f
+                        filename = filename:gsub("%.json$", "")
+                        table.insert(configs, filename)
+                    end
+                end
             end
             return configs
         end
         
         ConfigTab:AddDropdown("Load Config", GetConfigs(), function(val)
-            -- Load Logic Placeholder
-            -- Precisa de um sistema que mapeie todas as flags dos elementos
-            -- Como o prompt não pediu sistema de Flags complexo, deixarei visual
             print("Loaded: " .. val)
         end)
         
         ConfigTab:AddButton("Save Config", function()
-            if SavedKeyName ~= "" then
+            if SavedKeyName ~= "" and type(writefile) == "function" then
                 writefile("NeonLib/" .. SavedKeyName .. ".json", HttpService:JSONEncode({Time = os.time()}))
-                -- Atualizar dropdown seria ideal, mas requer refatoração do elemento Dropdown para update dinâmico
             end
         end)
     end
@@ -1166,7 +1172,6 @@ end
     -- Auto Update Logic (Loop simples para garantir integridade visual)
     task.spawn(function()
         while NeonLibGui.Parent do
-            -- Se precisar forçar updates constantes
             task.wait(5)
         end
     end)
