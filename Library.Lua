@@ -455,8 +455,8 @@ function NexusUI:CreateWindow(config)
     local windowConfig = {
         Name            = config.Name or "NexusUI",
         SubTitle        = config.SubTitle or "v1.0",
-        Size            = config.Size or UDim2.new(0, 620, 0, 480),
-        Position        = config.Position or UDim2.new(0.5, -310, 0.5, -240),
+        Size            = config.Size or UDim2.new(0, 413, 0, 320),
+        Position        = config.Position or UDim2.new(0.5, -207, 0.5, -160),
         Theme           = config.Theme or "Dark",
         LoadingEnabled  = config.LoadingEnabled ~= false,
         LoadingName     = config.LoadingName or "Welcome Back!!",
@@ -531,37 +531,37 @@ function NexusUI:CreateWindow(config)
         local LoadingContainer = Utility.Create("Frame", {
             Name                = "Container",
             AnchorPoint         = Vector2.new(0.5, 0.5),
-            Size                = UDim2.new(0, 300, 0, 220),
+            Size                = UDim2.new(0, 200, 0, 147),
             Position            = UDim2.new(0.5, 0, 0.5, 0),
             BackgroundColor3    = CurrentTheme.Secondary,
             BorderSizePixel     = 0,
             Parent              = LoadingFrame,
         })
-        Utility.Create("UICorner", { CornerRadius = UDim.new(0, 16), Parent = LoadingContainer })
+        Utility.Create("UICorner", { CornerRadius = UDim.new(0, 11), Parent = LoadingContainer })
         Utility.AddShadow(LoadingContainer)
 
         -- Icon
         local IconLabel = Utility.Create("ImageLabel", {
             Name               = "Icon",
             AnchorPoint        = Vector2.new(0.5, 0),
-            Size               = UDim2.new(0, 70, 0, 70),
-            Position           = UDim2.new(0.5, 0, 0, 22),
+            Size               = UDim2.new(0, 47, 0, 47),
+            Position           = UDim2.new(0.5, 0, 0, 15),
             BackgroundTransparency = 1,
             Image              = windowConfig.LoadingIcon,
             Parent             = LoadingContainer,
         })
-        Utility.Create("UICorner", { CornerRadius = UDim.new(0, 12), Parent = IconLabel })
+        Utility.Create("UICorner", { CornerRadius = UDim.new(0, 8), Parent = IconLabel })
 
         -- Title
         Utility.Create("TextLabel", {
             Name               = "Title",
             AnchorPoint        = Vector2.new(0.5, 0),
-            Size               = UDim2.new(1, -20, 0, 28),
-            Position           = UDim2.new(0.5, 0, 0, 102),
+            Size               = UDim2.new(1, -13, 0, 19),
+            Position           = UDim2.new(0.5, 0, 0, 68),
             BackgroundTransparency = 1,
             Text               = windowConfig.LoadingName,
             TextColor3         = CurrentTheme.Text,
-            TextSize           = 15,
+            TextSize           = 11,
             Font               = Enum.Font.GothamBold,
             TextXAlignment     = Enum.TextXAlignment.Center,
             Parent             = LoadingContainer,
@@ -571,12 +571,12 @@ function NexusUI:CreateWindow(config)
         Utility.Create("TextLabel", {
             Name               = "Sub",
             AnchorPoint        = Vector2.new(0.5, 0),
-            Size               = UDim2.new(1, -20, 0, 20),
-            Position           = UDim2.new(0.5, 0, 0, 132),
+            Size               = UDim2.new(1, -13, 0, 13),
+            Position           = UDim2.new(0.5, 0, 0, 88),
             BackgroundTransparency = 1,
             Text               = windowConfig.Name .. " " .. windowConfig.SubTitle,
             TextColor3         = CurrentTheme.SubText,
-            TextSize           = 12,
+            TextSize           = 11,
             Font               = Enum.Font.Gotham,
             TextXAlignment     = Enum.TextXAlignment.Center,
             Parent             = LoadingContainer,
@@ -586,8 +586,8 @@ function NexusUI:CreateWindow(config)
         local ProgressBG = Utility.Create("Frame", {
             Name                = "ProgressBG",
             AnchorPoint         = Vector2.new(0.5, 0),
-            Size                = UDim2.new(1, -40, 0, 6),
-            Position            = UDim2.new(0.5, 0, 0, 168),
+            Size                = UDim2.new(1, -27, 0, 4),
+            Position            = UDim2.new(0.5, 0, 0, 112),
             BackgroundColor3    = CurrentTheme.Tertiary,
             BorderSizePixel     = 0,
             Parent              = LoadingContainer,
@@ -607,8 +607,8 @@ function NexusUI:CreateWindow(config)
         local LoadText = Utility.Create("TextLabel", {
             Name                = "LoadText",
             AnchorPoint         = Vector2.new(0.5, 0),
-            Size                = UDim2.new(1, -20, 0, 18),
-            Position            = UDim2.new(0.5, 0, 0, 183),
+            Size                = UDim2.new(1, -13, 0, 12),
+            Position            = UDim2.new(0.5, 0, 0, 122),
             BackgroundTransparency = 1,
             Text                = "Initializing...",
             TextColor3          = CurrentTheme.SubText,
@@ -692,31 +692,31 @@ function NexusUI:CreateWindow(config)
         local KeyContainer = Utility.Create("Frame", {
             Name                = "Container",
             AnchorPoint         = Vector2.new(0.5, 0.5),
-            Size                = UDim2.new(0, 380, 0, 290),
+            Size                = UDim2.new(0, 253, 0, 193),
             Position            = UDim2.new(0.5, 0, 0.5, 0),
             BackgroundColor3    = CurrentTheme.Secondary,
             BorderSizePixel     = 0,
             ZIndex              = 91,
             Parent              = KeyFrame,
         })
-        Utility.Create("UICorner", { CornerRadius = UDim.new(0, 14), Parent = KeyContainer })
+        Utility.Create("UICorner", { CornerRadius = UDim.new(0, 9), Parent = KeyContainer })
         Utility.AddShadow(KeyContainer)
 
         -- Top bar
         local KeyTopbar = Utility.Create("Frame", {
             Name                = "Topbar",
-            Size                = UDim2.new(1, 0, 0, 44),
+            Size                = UDim2.new(1, 0, 0, 29),
             BackgroundColor3    = CurrentTheme.TopBar,
             BorderSizePixel     = 0,
             ZIndex              = 92,
             Parent              = KeyContainer,
         })
-        Utility.Create("UICorner", { CornerRadius = UDim.new(0, 14), Parent = KeyTopbar })
+        Utility.Create("UICorner", { CornerRadius = UDim.new(0, 9), Parent = KeyTopbar })
 
         -- Fix bottom corners of topbar
         Utility.Create("Frame", {
-            Size                = UDim2.new(1, 0, 0, 14),
-            Position            = UDim2.new(0, 0, 1, -14),
+            Size                = UDim2.new(1, 0, 0, 9),
+            Position            = UDim2.new(0, 0, 1, -9),
             BackgroundColor3    = CurrentTheme.TopBar,
             BorderSizePixel     = 0,
             ZIndex              = 92,
@@ -725,12 +725,12 @@ function NexusUI:CreateWindow(config)
 
         Utility.Create("TextLabel", {
             Name                = "Title",
-            Size                = UDim2.new(1, -20, 1, 0),
-            Position            = UDim2.new(0, 14, 0, 0),
+            Size                = UDim2.new(1, -13, 1, 0),
+            Position            = UDim2.new(0, 9, 0, 0),
             BackgroundTransparency = 1,
             Text                = "🔑 " .. windowConfig.KeyName,
             TextColor3          = CurrentTheme.Text,
-            TextSize            = 14,
+            TextSize            = 11,
             Font                = Enum.Font.GothamBold,
             TextXAlignment      = Enum.TextXAlignment.Left,
             ZIndex              = 93,
@@ -739,12 +739,12 @@ function NexusUI:CreateWindow(config)
 
         Utility.Create("TextLabel", {
             AnchorPoint         = Vector2.new(0.5, 0),
-            Size                = UDim2.new(1, -30, 0, 30),
-            Position            = UDim2.new(0.5, 0, 0, 55),
+            Size                = UDim2.new(1, -20, 0, 20),
+            Position            = UDim2.new(0.5, 0, 0, 37),
             BackgroundTransparency = 1,
             Text                = "Enter the key to continue.",
             TextColor3          = CurrentTheme.SubText,
-            TextSize            = 12,
+            TextSize            = 11,
             Font                = Enum.Font.Gotham,
             TextXAlignment      = Enum.TextXAlignment.Center,
             ZIndex              = 92,
@@ -754,24 +754,24 @@ function NexusUI:CreateWindow(config)
         -- Input box
         local InputBG = Utility.Create("Frame", {
             AnchorPoint         = Vector2.new(0.5, 0),
-            Size                = UDim2.new(1, -40, 0, 44),
-            Position            = UDim2.new(0.5, 0, 0, 95),
+            Size                = UDim2.new(1, -27, 0, 29),
+            Position            = UDim2.new(0.5, 0, 0, 63),
             BackgroundColor3    = CurrentTheme.Tertiary,
             BorderSizePixel     = 0,
             ZIndex              = 92,
             Parent              = KeyContainer,
         })
-        Utility.Create("UICorner", { CornerRadius = UDim.new(0, 8), Parent = InputBG })
+        Utility.Create("UICorner", { CornerRadius = UDim.new(0, 5), Parent = InputBG })
 
         local KeyInput = Utility.Create("TextBox", {
-            Size                = UDim2.new(1, -16, 1, 0),
-            Position            = UDim2.new(0, 8, 0, 0),
+            Size                = UDim2.new(1, -11, 1, 0),
+            Position            = UDim2.new(0, 5, 0, 0),
             BackgroundTransparency = 1,
             PlaceholderText     = "Enter key here...",
             Text                = "",
             TextColor3          = CurrentTheme.Text,
             PlaceholderColor3   = CurrentTheme.SubText,
-            TextSize            = 13,
+            TextSize            = 11,
             Font                = Enum.Font.Gotham,
             ZIndex              = 93,
             ClearTextOnFocus    = false,
@@ -781,12 +781,12 @@ function NexusUI:CreateWindow(config)
         -- Status label
         local StatusLabel = Utility.Create("TextLabel", {
             AnchorPoint         = Vector2.new(0.5, 0),
-            Size                = UDim2.new(1, -30, 0, 24),
-            Position            = UDim2.new(0.5, 0, 0, 148),
+            Size                = UDim2.new(1, -20, 0, 16),
+            Position            = UDim2.new(0.5, 0, 0, 99),
             BackgroundTransparency = 1,
             Text                = "",
             TextColor3          = CurrentTheme.Error,
-            TextSize            = 12,
+            TextSize            = 11,
             Font                = Enum.Font.Gotham,
             TextXAlignment      = Enum.TextXAlignment.Center,
             ZIndex              = 92,
@@ -796,8 +796,8 @@ function NexusUI:CreateWindow(config)
         -- Buttons area
         local BtnContainer = Utility.Create("Frame", {
             AnchorPoint         = Vector2.new(0.5, 0),
-            Size                = UDim2.new(1, -40, 0, 40),
-            Position            = UDim2.new(0.5, 0, 0, 178),
+            Size                = UDim2.new(1, -27, 0, 27),
+            Position            = UDim2.new(0.5, 0, 0, 119),
             BackgroundTransparency = 1,
             ZIndex              = 92,
             Parent              = KeyContainer,
@@ -806,38 +806,38 @@ function NexusUI:CreateWindow(config)
             FillDirection       = Enum.FillDirection.Horizontal,
             HorizontalAlignment = Enum.HorizontalAlignment.Center,
             VerticalAlignment   = Enum.VerticalAlignment.Center,
-            Padding             = UDim.new(0, 10),
+            Padding             = UDim.new(0, 7),
             Parent              = BtnContainer,
         })
 
         -- Submit button
         local SubmitBtn = Utility.Create("TextButton", {
-            Size                = UDim2.new(0, 130, 0, 38),
+            Size                = UDim2.new(0, 87, 0, 25),
             BackgroundColor3    = CurrentTheme.Accent,
             BorderSizePixel     = 0,
             Text                = "Submit",
             TextColor3          = Color3.fromRGB(255, 255, 255),
-            TextSize            = 13,
+            TextSize            = 11,
             Font                = Enum.Font.GothamBold,
             ZIndex              = 93,
             Parent              = BtnContainer,
         })
-        Utility.Create("UICorner", { CornerRadius = UDim.new(0, 8), Parent = SubmitBtn })
+        Utility.Create("UICorner", { CornerRadius = UDim.new(0, 5), Parent = SubmitBtn })
 
         -- GetKey button (if enabled)
         if windowConfig.GetKeyFromSite then
             local GetKeyBtn = Utility.Create("TextButton", {
-                Size                = UDim2.new(0, 130, 0, 38),
+                Size                = UDim2.new(0, 87, 0, 25),
                 BackgroundColor3    = CurrentTheme.Tertiary,
                 BorderSizePixel     = 0,
                 Text                = "Get Key",
                 TextColor3          = CurrentTheme.Text,
-                TextSize            = 13,
+                TextSize            = 11,
                 Font                = Enum.Font.GothamBold,
                 ZIndex              = 93,
                 Parent              = BtnContainer,
             })
-            Utility.Create("UICorner", { CornerRadius = UDim.new(0, 8), Parent = GetKeyBtn })
+            Utility.Create("UICorner", { CornerRadius = UDim.new(0, 5), Parent = GetKeyBtn })
 
             GetKeyBtn.MouseButton1Click:Connect(function()
                 Utility.CopyToClipboard(windowConfig.SiteKey)
@@ -898,7 +898,7 @@ function NexusUI:CreateWindow(config)
             BorderSizePixel     = 0,
             Parent              = ScreenGui,
         })
-        Utility.Create("UICorner", { CornerRadius = UDim.new(0, 12), Parent = MainFrame })
+        Utility.Create("UICorner", { CornerRadius = UDim.new(0, 8), Parent = MainFrame })
         Utility.AddShadow(MainFrame)
 
         Window.MainFrame = MainFrame
@@ -906,15 +906,15 @@ function NexusUI:CreateWindow(config)
         -- Topbar
         local TopBar = Utility.Create("Frame", {
             Name                = "TopBar",
-            Size                = UDim2.new(1, 0, 0, 46),
+            Size                = UDim2.new(1, 0, 0, 31),
             BackgroundColor3    = CurrentTheme.TopBar,
             BorderSizePixel     = 0,
             Parent              = MainFrame,
         })
-        Utility.Create("UICorner", { CornerRadius = UDim.new(0, 12), Parent = TopBar })
+        Utility.Create("UICorner", { CornerRadius = UDim.new(0, 8), Parent = TopBar })
         Utility.Create("Frame", {
-            Size                = UDim2.new(1, 0, 0, 12),
-            Position            = UDim2.new(0, 0, 1, -12),
+            Size                = UDim2.new(1, 0, 0, 8),
+            Position            = UDim2.new(0, 0, 1, -8),
             BackgroundColor3    = CurrentTheme.TopBar,
             BorderSizePixel     = 0,
             Parent              = TopBar,
@@ -926,15 +926,15 @@ function NexusUI:CreateWindow(config)
         -- Title área com layout horizontal
         local TitleHolder = Utility.Create("Frame", {
             Name                = "TitleHolder",
-            Size                = UDim2.new(1, -120, 1, 0),
-            Position            = UDim2.new(0, 14, 0, 0),
+            Size                = UDim2.new(1, -80, 1, 0),
+            Position            = UDim2.new(0, 9, 0, 0),
             BackgroundTransparency = 1,
             Parent              = TopBar,
         })
         Utility.Create("UIListLayout", {
             FillDirection       = Enum.FillDirection.Horizontal,
             VerticalAlignment   = Enum.VerticalAlignment.Center,
-            Padding             = UDim.new(0, 8),
+            Padding             = UDim.new(0, 5),
             Parent              = TitleHolder,
         })
 
@@ -945,7 +945,7 @@ function NexusUI:CreateWindow(config)
             BackgroundTransparency = 1,
             Text                = windowConfig.Name,
             TextColor3          = CurrentTheme.Text,
-            TextSize            = 14,
+            TextSize            = 11,
             Font                = Enum.Font.GothamBold,
             TextXAlignment      = Enum.TextXAlignment.Left,
             Parent              = TitleHolder,
@@ -959,7 +959,7 @@ function NexusUI:CreateWindow(config)
             BackgroundTransparency = 1,
             Text                = windowConfig.SubTitle,
             TextColor3          = CurrentTheme.SubText,
-            TextSize            = 12,
+            TextSize            = 11,
             Font                = Enum.Font.Gotham,
             TextXAlignment      = Enum.TextXAlignment.Left,
             Parent              = TitleHolder,
@@ -970,8 +970,8 @@ function NexusUI:CreateWindow(config)
         local BtnHolder = Utility.Create("Frame", {
             Name                = "BtnHolder",
             AnchorPoint         = Vector2.new(1, 0.5),
-            Size                = UDim2.new(0, 105, 0, 28),
-            Position            = UDim2.new(1, -12, 0.5, 0),
+            Size                = UDim2.new(0, 70, 0, 19),
+            Position            = UDim2.new(1, -8, 0.5, 0),
             BackgroundTransparency = 1,
             Parent              = TopBar,
         })
@@ -979,22 +979,22 @@ function NexusUI:CreateWindow(config)
             FillDirection       = Enum.FillDirection.Horizontal,
             HorizontalAlignment = Enum.HorizontalAlignment.Right,
             VerticalAlignment   = Enum.VerticalAlignment.Center,
-            Padding             = UDim.new(0, 6),
+            Padding             = UDim.new(0, 4),
             Parent              = BtnHolder,
         })
 
         local function CreateTopBtn(icon, color)
             local btn = Utility.Create("TextButton", {
-                Size                = UDim2.new(0, 28, 0, 28),
+                Size                = UDim2.new(0, 19, 0, 19),
                 BackgroundColor3    = CurrentTheme.Tertiary,
                 BorderSizePixel     = 0,
                 Text                = icon,
                 TextColor3          = color or CurrentTheme.SubText,
-                TextSize            = 14,
+                TextSize            = 11,
                 Font                = Enum.Font.GothamBold,
                 Parent              = BtnHolder,
             })
-            Utility.Create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = btn })
+            Utility.Create("UICorner", { CornerRadius = UDim.new(0, 4), Parent = btn })
             btn.MouseEnter:Connect(function()
                 Utility.Tween(btn, {BackgroundColor3 = CurrentTheme.Border}, 0.15)
             end)
@@ -1031,8 +1031,8 @@ function NexusUI:CreateWindow(config)
             if resizing and resizeStart and origSize then
                 local mousePos = UserInputService:GetMouseLocation()
                 local delta    = mousePos - resizeStart
-                local newW     = math.max(480, origSize.X.Offset + delta.X)
-                local newH     = math.max(360, origSize.Y.Offset + delta.Y)
+                local newW     = math.max(320, origSize.X.Offset + delta.X)
+                local newH     = math.max(240, origSize.Y.Offset + delta.Y)
                 MainFrame.Size = UDim2.new(0, newW, 0, newH)
             end
         end)
@@ -1064,24 +1064,24 @@ function NexusUI:CreateWindow(config)
             local Modal = Utility.Create("Frame", {
                 Name                = "Modal",
                 AnchorPoint         = Vector2.new(0.5, 0.5),
-                Size                = UDim2.new(0, 280, 0, 160),
+                Size                = UDim2.new(0, 187, 0, 107),
                 Position            = UDim2.new(0.5, 0, 0.5, 0),
                 BackgroundColor3    = CurrentTheme.Secondary,
                 BorderSizePixel     = 0,
                 ZIndex              = 151,
                 Parent              = ModalBG,
             })
-            Utility.Create("UICorner", { CornerRadius = UDim.new(0, 12), Parent = Modal })
+            Utility.Create("UICorner", { CornerRadius = UDim.new(0, 8), Parent = Modal })
             Utility.AddShadow(Modal)
 
             Utility.Create("TextLabel", {
                 AnchorPoint         = Vector2.new(0.5, 0),
-                Size                = UDim2.new(1, -20, 0, 30),
-                Position            = UDim2.new(0.5, 0, 0, 22),
+                Size                = UDim2.new(1, -13, 0, 20),
+                Position            = UDim2.new(0.5, 0, 0, 15),
                 BackgroundTransparency = 1,
                 Text                = "Close " .. windowConfig.Name .. "?",
                 TextColor3          = CurrentTheme.Text,
-                TextSize            = 14,
+                TextSize            = 11,
                 Font                = Enum.Font.GothamBold,
                 TextXAlignment      = Enum.TextXAlignment.Center,
                 ZIndex              = 152,
@@ -1090,12 +1090,12 @@ function NexusUI:CreateWindow(config)
 
             Utility.Create("TextLabel", {
                 AnchorPoint         = Vector2.new(0.5, 0),
-                Size                = UDim2.new(1, -20, 0, 24),
-                Position            = UDim2.new(0.5, 0, 0, 55),
+                Size                = UDim2.new(1, -13, 0, 16),
+                Position            = UDim2.new(0.5, 0, 0, 37),
                 BackgroundTransparency = 1,
                 Text                = "Are you sure you want to close the UI?",
                 TextColor3          = CurrentTheme.SubText,
-                TextSize            = 12,
+                TextSize            = 11,
                 Font                = Enum.Font.Gotham,
                 TextXAlignment      = Enum.TextXAlignment.Center,
                 ZIndex              = 152,
@@ -1104,8 +1104,8 @@ function NexusUI:CreateWindow(config)
 
             local ModalBtnHolder = Utility.Create("Frame", {
                 AnchorPoint         = Vector2.new(0.5, 1),
-                Size                = UDim2.new(1, -30, 0, 40),
-                Position            = UDim2.new(0.5, 0, 1, -16),
+                Size                = UDim2.new(1, -20, 0, 27),
+                Position            = UDim2.new(0.5, 0, 1, -11),
                 BackgroundTransparency = 1,
                 ZIndex              = 152,
                 Parent              = Modal,
@@ -1114,35 +1114,35 @@ function NexusUI:CreateWindow(config)
                 FillDirection       = Enum.FillDirection.Horizontal,
                 HorizontalAlignment = Enum.HorizontalAlignment.Center,
                 VerticalAlignment   = Enum.VerticalAlignment.Center,
-                Padding             = UDim.new(0, 12),
+                Padding             = UDim.new(0, 8),
                 Parent              = ModalBtnHolder,
             })
 
             local CancelBtn = Utility.Create("TextButton", {
-                Size                = UDim2.new(0, 100, 0, 36),
+                Size                = UDim2.new(0, 67, 0, 24),
                 BackgroundColor3    = CurrentTheme.Tertiary,
                 BorderSizePixel     = 0,
                 Text                = "Cancel",
                 TextColor3          = CurrentTheme.Text,
-                TextSize            = 13,
+                TextSize            = 11,
                 Font                = Enum.Font.GothamBold,
                 ZIndex              = 153,
                 Parent              = ModalBtnHolder,
             })
-            Utility.Create("UICorner", { CornerRadius = UDim.new(0, 8), Parent = CancelBtn })
+            Utility.Create("UICorner", { CornerRadius = UDim.new(0, 5), Parent = CancelBtn })
 
             local YesBtn = Utility.Create("TextButton", {
-                Size                = UDim2.new(0, 100, 0, 36),
+                Size                = UDim2.new(0, 67, 0, 24),
                 BackgroundColor3    = CurrentTheme.Error,
                 BorderSizePixel     = 0,
                 Text                = "Yes",
                 TextColor3          = Color3.fromRGB(255, 255, 255),
-                TextSize            = 13,
+                TextSize            = 11,
                 Font                = Enum.Font.GothamBold,
                 ZIndex              = 153,
                 Parent              = ModalBtnHolder,
             })
-            Utility.Create("UICorner", { CornerRadius = UDim.new(0, 8), Parent = YesBtn })
+            Utility.Create("UICorner", { CornerRadius = UDim.new(0, 5), Parent = YesBtn })
 
             CancelBtn.MouseButton1Click:Connect(function()
                 Utility.Tween(ModalBG, {BackgroundTransparency = 1}, 0.25)
@@ -1164,8 +1164,8 @@ function NexusUI:CreateWindow(config)
         -- Content area
         local ContentFrame = Utility.Create("Frame", {
             Name                = "Content",
-            Size                = UDim2.new(1, 0, 1, -46),
-            Position            = UDim2.new(0, 0, 0, 46),
+            Size                = UDim2.new(1, 0, 1, -31),
+            Position            = UDim2.new(0, 0, 0, 31),
             BackgroundTransparency = 1,
             Parent              = MainFrame,
         })
@@ -1173,13 +1173,13 @@ function NexusUI:CreateWindow(config)
         -- Tab bar (left side)
         local TabBar = Utility.Create("Frame", {
             Name                = "TabBar",
-            Size                = UDim2.new(0, 155, 1, 0),
+            Size                = UDim2.new(0, 103, 1, 0),
             BackgroundColor3    = CurrentTheme.Secondary,
             BorderSizePixel     = 0,
             Parent              = ContentFrame,
         })
         Utility.Create("Frame", {
-            Size                = UDim2.new(0, 12, 1, 0),
+            Size                = UDim2.new(0, 8, 1, 0),
             BackgroundColor3    = CurrentTheme.Secondary,
             BorderSizePixel     = 0,
             Parent              = TabBar,
@@ -1188,8 +1188,8 @@ function NexusUI:CreateWindow(config)
 
         local TabList = Utility.Create("Frame", {
             Name                = "TabList",
-            Size                = UDim2.new(1, -12, 1, -12),
-            Position            = UDim2.new(0, 6, 0, 6),
+            Size                = UDim2.new(1, -8, 1, -8),
+            Position            = UDim2.new(0, 4, 0, 4),
             BackgroundTransparency = 1,
             Parent              = TabBar,
         })
@@ -1197,15 +1197,15 @@ function NexusUI:CreateWindow(config)
             FillDirection       = Enum.FillDirection.Vertical,
             HorizontalAlignment = Enum.HorizontalAlignment.Center,
             SortOrder           = Enum.SortOrder.LayoutOrder,
-            Padding             = UDim.new(0, 4),
+            Padding             = UDim.new(0, 3),
             Parent              = TabList,
         })
 
         -- Tab content area
         local TabContentArea = Utility.Create("Frame", {
             Name                = "TabContentArea",
-            Size                = UDim2.new(1, -155, 1, 0),
-            Position            = UDim2.new(0, 155, 0, 0),
+            Size                = UDim2.new(1, -103, 1, 0),
+            Position            = UDim2.new(0, 103, 0, 0),
             BackgroundColor3    = CurrentTheme.Background,
             BorderSizePixel     = 0,
             ClipsDescendants    = true,
@@ -1213,7 +1213,7 @@ function NexusUI:CreateWindow(config)
         })
         -- rounded right side
         local TabRight = Utility.Create("Frame", {
-            Size                = UDim2.new(0, 12, 1, 0),
+            Size                = UDim2.new(0, 8, 1, 0),
             Position            = UDim2.new(0, 0, 0, 0),
             BackgroundColor3    = CurrentTheme.Background,
             BorderSizePixel     = 0,
@@ -1323,7 +1323,7 @@ function NexusUI:CreateWindow(config)
             -- Tab button
             local TabBtn = Utility.Create("TextButton", {
                 Name                = tabName .. "Btn",
-                Size                = UDim2.new(1, -8, 0, 36),
+                Size                = UDim2.new(1, -5, 0, 24),
                 BackgroundColor3    = CurrentTheme.Tertiary,
                 BackgroundTransparency = 1,
                 BorderSizePixel     = 0,
@@ -1331,7 +1331,7 @@ function NexusUI:CreateWindow(config)
                 LayoutOrder         = #self._tabs + 1,
                 Parent              = TabList,
             })
-            Utility.Create("UICorner", { CornerRadius = UDim.new(0, 8), Parent = TabBtn })
+            Utility.Create("UICorner", { CornerRadius = UDim.new(0, 5), Parent = TabBtn })
 
             local TabBtnLayout = Utility.Create("Frame", {
                 Size                = UDim2.new(1, 0, 1, 0),
@@ -1341,29 +1341,29 @@ function NexusUI:CreateWindow(config)
             Utility.Create("UIListLayout", {
                 FillDirection       = Enum.FillDirection.Horizontal,
                 VerticalAlignment   = Enum.VerticalAlignment.Center,
-                Padding             = UDim.new(0, 8),
+                Padding             = UDim.new(0, 5),
                 Parent              = TabBtnLayout,
             })
             Utility.Create("UIPadding", {
-                PaddingLeft         = UDim.new(0, 10),
+                PaddingLeft         = UDim.new(0, 7),
                 Parent              = TabBtnLayout,
             })
 
             local TabIcon = Utility.Create("TextLabel", {
-                Size                = UDim2.new(0, 20, 1, 0),
+                Size                = UDim2.new(0, 13, 1, 0),
                 BackgroundTransparency = 1,
                 Text                = tabIcon,
                 TextColor3          = CurrentTheme.SubText,
-                TextSize            = 14,
+                TextSize            = 11,
                 Font                = Enum.Font.GothamBold,
                 Parent              = TabBtnLayout,
             })
             local TabLabel = Utility.Create("TextLabel", {
-                Size                = UDim2.new(1, -38, 1, 0),
+                Size                = UDim2.new(1, -25, 1, 0),
                 BackgroundTransparency = 1,
                 Text                = tabName,
                 TextColor3          = CurrentTheme.SubText,
-                TextSize            = 13,
+                TextSize            = 11,
                 Font                = Enum.Font.Gotham,
                 TextXAlignment      = Enum.TextXAlignment.Left,
                 Parent              = TabBtnLayout,
@@ -1373,7 +1373,7 @@ function NexusUI:CreateWindow(config)
             local ActiveBar = Utility.Create("Frame", {
                 Name                = "ActiveBar",
                 AnchorPoint         = Vector2.new(0, 0.5),
-                Size                = UDim2.new(0, 3, 0, 20),
+                Size                = UDim2.new(0, 2, 0, 13),
                 Position            = UDim2.new(0, 0, 0.5, 0),
                 BackgroundColor3    = CurrentTheme.Accent,
                 BackgroundTransparency = 1,
@@ -1385,8 +1385,8 @@ function NexusUI:CreateWindow(config)
             -- Tab content frame (scrolling)
             local TabContent = Utility.Create("ScrollingFrame", {
                 Name                    = tabName .. "Content",
-                Size                    = UDim2.new(1, -10, 1, -10),
-                Position                = UDim2.new(0, 10, 0, 5),
+                Size                    = UDim2.new(1, -7, 1, -7),
+                Position                = UDim2.new(0, 7, 0, 3),
                 BackgroundTransparency  = 1,
                 BorderSizePixel         = 0,
                 ScrollBarThickness      = 4,
@@ -1400,12 +1400,12 @@ function NexusUI:CreateWindow(config)
                 FillDirection           = Enum.FillDirection.Vertical,
                 HorizontalAlignment     = Enum.HorizontalAlignment.Center,
                 SortOrder               = Enum.SortOrder.LayoutOrder,
-                Padding                 = UDim.new(0, 8),
+                Padding                 = UDim.new(0, 5),
                 Parent                  = TabContent,
             })
             Utility.Create("UIPadding", {
-                PaddingTop              = UDim.new(0, 6),
-                PaddingBottom           = UDim.new(0, 6),
+                PaddingTop              = UDim.new(0, 4),
+                PaddingBottom           = UDim.new(0, 4),
                 Parent                  = TabContent,
             })
 
@@ -1460,26 +1460,26 @@ function NexusUI:CreateWindow(config)
 
                 local SectionFrame = Utility.Create("Frame", {
                     Name                = sectionName .. "Section",
-                    Size                = UDim2.new(1, -16, 0, 0),
+                    Size                = UDim2.new(1, -11, 0, 0),
                     AutomaticSize       = Enum.AutomaticSize.Y,
                     BackgroundColor3    = CurrentTheme.Secondary,
                     BorderSizePixel     = 0,
                     LayoutOrder         = #Tab._sections + 1,
                     Parent              = TabContent,
                 })
-                Utility.Create("UICorner", { CornerRadius = UDim.new(0, 10), Parent = SectionFrame })
+                Utility.Create("UICorner", { CornerRadius = UDim.new(0, 7), Parent = SectionFrame })
                 table.insert(Window._themeObjects, {obj = SectionFrame, prop = "BackgroundColor3", key = "Secondary"})
 
                 -- Section header
                 local SectionHeader = Utility.Create("Frame", {
                     Name                = "Header",
-                    Size                = UDim2.new(1, 0, 0, 34),
+                    Size                = UDim2.new(1, 0, 0, 23),
                     BackgroundTransparency = 1,
                     Parent              = SectionFrame,
                 })
                 Utility.Create("TextLabel", {
-                    Size                = UDim2.new(1, -16, 1, 0),
-                    Position            = UDim2.new(0, 12, 0, 0),
+                    Size                = UDim2.new(1, -11, 1, 0),
+                    Position            = UDim2.new(0, 8, 0, 0),
                     BackgroundTransparency = 1,
                     Text                = sectionName,
                     TextColor3          = CurrentTheme.SubText,
@@ -1491,8 +1491,8 @@ function NexusUI:CreateWindow(config)
 
                 -- Divider
                 Utility.Create("Frame", {
-                    Size                = UDim2.new(1, -24, 0, 1),
-                    Position            = UDim2.new(0, 12, 0, 33),
+                    Size                = UDim2.new(1, -16, 0, 1),
+                    Position            = UDim2.new(0, 8, 0, 22),
                     BackgroundColor3    = CurrentTheme.Border,
                     BorderSizePixel     = 0,
                     Parent              = SectionFrame,
@@ -1502,7 +1502,7 @@ function NexusUI:CreateWindow(config)
                 local ItemList = Utility.Create("Frame", {
                     Name                = "Items",
                     Size                = UDim2.new(1, 0, 0, 0),
-                    Position            = UDim2.new(0, 0, 0, 36),
+                    Position            = UDim2.new(0, 0, 0, 24),
                     AutomaticSize       = Enum.AutomaticSize.Y,
                     BackgroundTransparency = 1,
                     Parent              = SectionFrame,
@@ -1515,7 +1515,7 @@ function NexusUI:CreateWindow(config)
                     Parent              = ItemList,
                 })
                 Utility.Create("UIPadding", {
-                    PaddingBottom       = UDim.new(0, 8),
+                    PaddingBottom       = UDim.new(0, 5),
                     Parent              = ItemList,
                 })
 
@@ -1530,19 +1530,19 @@ function NexusUI:CreateWindow(config)
                     local text  = labelConfig.Text or "Label"
 
                     local Item = Utility.Create("Frame", {
-                        Size                = UDim2.new(1, -16, 0, 34),
+                        Size                = UDim2.new(1, -11, 0, 23),
                         BackgroundTransparency = 1,
                         LayoutOrder         = #self._items + 1,
                         Parent              = self.ItemList,
                     })
 
                     local LabelEl = Utility.Create("TextLabel", {
-                        Size                = UDim2.new(1, -16, 1, 0),
-                        Position            = UDim2.new(0, 8, 0, 0),
+                        Size                = UDim2.new(1, -11, 1, 0),
+                        Position            = UDim2.new(0, 5, 0, 0),
                         BackgroundTransparency = 1,
                         Text                = text,
                         TextColor3          = CurrentTheme.SubText,
-                        TextSize            = 13,
+                        TextSize            = 11,
                         Font                = Enum.Font.Gotham,
                         TextXAlignment      = Enum.TextXAlignment.Left,
                         TextWrapped         = true,
@@ -1565,7 +1565,7 @@ function NexusUI:CreateWindow(config)
                     local callback = btnConfig.Callback or function() end
 
                     local Item = Utility.Create("Frame", {
-                        Size                = UDim2.new(1, -16, 0, 36),
+                        Size                = UDim2.new(1, -11, 0, 24),
                         BackgroundTransparency = 1,
                         LayoutOrder         = #self._items + 1,
                         Parent              = self.ItemList,
@@ -1573,17 +1573,17 @@ function NexusUI:CreateWindow(config)
 
                     local Btn = Utility.Create("TextButton", {
                         AnchorPoint         = Vector2.new(0.5, 0.5),
-                        Size                = UDim2.new(1, 0, 0, 30),
+                        Size                = UDim2.new(1, 0, 0, 20),
                         Position            = UDim2.new(0.5, 0, 0.5, 0),
                         BackgroundColor3    = CurrentTheme.Accent,
                         BorderSizePixel     = 0,
                         Text                = text,
                         TextColor3          = Color3.fromRGB(255, 255, 255),
-                        TextSize            = 13,
+                        TextSize            = 11,
                         Font                = Enum.Font.GothamBold,
                         Parent              = Item,
                     })
-                    Utility.Create("UICorner", { CornerRadius = UDim.new(0, 8), Parent = Btn })
+                    Utility.Create("UICorner", { CornerRadius = UDim.new(0, 5), Parent = Btn })
                     table.insert(Window._themeObjects, {obj = Btn, prop = "BackgroundColor3", key = "Accent"})
 
                     Btn.MouseEnter:Connect(function()
@@ -1618,19 +1618,19 @@ function NexusUI:CreateWindow(config)
                     local callback = toggleConfig.Callback or function() end
 
                     local Item = Utility.Create("Frame", {
-                        Size                = UDim2.new(1, -16, 0, 40),
+                        Size                = UDim2.new(1, -11, 0, 27),
                         BackgroundTransparency = 1,
                         LayoutOrder         = #self._items + 1,
                         Parent              = self.ItemList,
                     })
 
                     Utility.Create("TextLabel", {
-                        Size                = UDim2.new(1, -62, 1, 0),
-                        Position            = UDim2.new(0, 8, 0, 0),
+                        Size                = UDim2.new(1, -41, 1, 0),
+                        Position            = UDim2.new(0, 5, 0, 0),
                         BackgroundTransparency = 1,
                         Text                = text,
                         TextColor3          = CurrentTheme.Text,
-                        TextSize            = 13,
+                        TextSize            = 11,
                         Font                = Enum.Font.Gotham,
                         TextXAlignment      = Enum.TextXAlignment.Left,
                         Parent              = Item,
@@ -1638,8 +1638,8 @@ function NexusUI:CreateWindow(config)
 
                     local ToggleBG = Utility.Create("Frame", {
                         AnchorPoint         = Vector2.new(1, 0.5),
-                        Size                = UDim2.new(0, 44, 0, 22),
-                        Position            = UDim2.new(1, -8, 0.5, 0),
+                        Size                = UDim2.new(0, 29, 0, 15),
+                        Position            = UDim2.new(1, -5, 0.5, 0),
                         BackgroundColor3    = default and CurrentTheme.Toggle_ON or CurrentTheme.Toggle_OFF,
                         BorderSizePixel     = 0,
                         Parent              = Item,
@@ -1648,8 +1648,8 @@ function NexusUI:CreateWindow(config)
 
                     local ToggleCircle = Utility.Create("Frame", {
                         AnchorPoint         = Vector2.new(0, 0.5),
-                        Size                = UDim2.new(0, 16, 0, 16),
-                        Position            = default and UDim2.new(0, 25, 0.5, 0) or UDim2.new(0, 3, 0.5, 0),
+                        Size                = UDim2.new(0, 11, 0, 11),
+                        Position            = default and UDim2.new(0, 17, 0.5, 0) or UDim2.new(0, 2, 0.5, 0),
                         BackgroundColor3    = Color3.fromRGB(255, 255, 255),
                         BorderSizePixel     = 0,
                         Parent              = ToggleBG,
@@ -1662,10 +1662,10 @@ function NexusUI:CreateWindow(config)
                         ToggleObj.value = val
                         if val then
                             Utility.Tween(ToggleBG,     {BackgroundColor3 = CurrentTheme.Toggle_ON}, 0.2)
-                            Utility.Tween(ToggleCircle, {Position = UDim2.new(0, 25, 0.5, 0)},       0.2)
+                            Utility.Tween(ToggleCircle, {Position = UDim2.new(0, 17, 0.5, 0)},       0.2)
                         else
                             Utility.Tween(ToggleBG,     {BackgroundColor3 = CurrentTheme.Toggle_OFF}, 0.2)
-                            Utility.Tween(ToggleCircle, {Position = UDim2.new(0, 3, 0.5, 0)},        0.2)
+                            Utility.Tween(ToggleCircle, {Position = UDim2.new(0, 2, 0.5, 0)},        0.2)
                         end
                         callback(val)
                         Window:SaveConfig()
@@ -1707,15 +1707,15 @@ function NexusUI:CreateWindow(config)
                     if max <= min then max = min + 1 end
 
                     local Item = Utility.Create("Frame", {
-                        Size                = UDim2.new(1, -16, 0, 52),
+                        Size                = UDim2.new(1, -11, 0, 35),
                         BackgroundTransparency = 1,
                         LayoutOrder         = #self._items + 1,
                         Parent              = self.ItemList,
                     })
 
                     local TopRow = Utility.Create("Frame", {
-                        Size                = UDim2.new(1, -16, 0, 24),
-                        Position            = UDim2.new(0, 8, 0, 4),
+                        Size                = UDim2.new(1, -11, 0, 16),
+                        Position            = UDim2.new(0, 5, 0, 3),
                         BackgroundTransparency = 1,
                         Parent              = Item,
                     })
@@ -1725,7 +1725,7 @@ function NexusUI:CreateWindow(config)
                         BackgroundTransparency = 1,
                         Text                = text,
                         TextColor3          = CurrentTheme.Text,
-                        TextSize            = 13,
+                        TextSize            = 11,
                         Font                = Enum.Font.Gotham,
                         TextXAlignment      = Enum.TextXAlignment.Left,
                         Parent              = TopRow,
@@ -1738,15 +1738,15 @@ function NexusUI:CreateWindow(config)
                         BackgroundTransparency = 1,
                         Text                = tostring(default) .. suffix,
                         TextColor3          = CurrentTheme.Accent,
-                        TextSize            = 13,
+                        TextSize            = 11,
                         Font                = Enum.Font.GothamBold,
                         TextXAlignment      = Enum.TextXAlignment.Right,
                         Parent              = TopRow,
                     })
 
                     local SliderBG = Utility.Create("Frame", {
-                        Size                = UDim2.new(1, -16, 0, 8),
-                        Position            = UDim2.new(0, 8, 0, 34),
+                        Size                = UDim2.new(1, -11, 0, 5),
+                        Position            = UDim2.new(0, 5, 0, 23),
                         BackgroundColor3    = CurrentTheme.Tertiary,
                         BorderSizePixel     = 0,
                         Parent              = Item,
@@ -1764,7 +1764,7 @@ function NexusUI:CreateWindow(config)
 
                     local SliderKnob = Utility.Create("Frame", {
                         AnchorPoint         = Vector2.new(0.5, 0.5),
-                        Size                = UDim2.new(0, 16, 0, 16),
+                        Size                = UDim2.new(0, 11, 0, 11),
                         Position            = UDim2.new(pct, 0, 0.5, 0),
                         BackgroundColor3    = Color3.fromRGB(255, 255, 255),
                         BorderSizePixel     = 0,
@@ -1840,7 +1840,7 @@ function NexusUI:CreateWindow(config)
                     local callback = ddConfig.Callback or function() end
 
                     local Item = Utility.Create("Frame", {
-                        Size                = UDim2.new(1, -16, 0, 52),
+                        Size                = UDim2.new(1, -11, 0, 35),
                         BackgroundTransparency = 1,
                         ClipsDescendants    = false,
                         LayoutOrder         = #self._items + 1,
@@ -1849,12 +1849,12 @@ function NexusUI:CreateWindow(config)
                     })
 
                     Utility.Create("TextLabel", {
-                        Size                = UDim2.new(1, -16, 0, 20),
-                        Position            = UDim2.new(0, 8, 0, 2),
+                        Size                = UDim2.new(1, -11, 0, 13),
+                        Position            = UDim2.new(0, 5, 0, 1),
                         BackgroundTransparency = 1,
                         Text                = text,
                         TextColor3          = CurrentTheme.Text,
-                        TextSize            = 13,
+                        TextSize            = 11,
                         Font                = Enum.Font.Gotham,
                         TextXAlignment      = Enum.TextXAlignment.Left,
                         ZIndex              = 5,
@@ -1862,22 +1862,22 @@ function NexusUI:CreateWindow(config)
                     })
 
                     local DropBG = Utility.Create("Frame", {
-                        Size                = UDim2.new(1, -16, 0, 30),
-                        Position            = UDim2.new(0, 8, 0, 22),
+                        Size                = UDim2.new(1, -11, 0, 20),
+                        Position            = UDim2.new(0, 5, 0, 15),
                         BackgroundColor3    = CurrentTheme.Tertiary,
                         BorderSizePixel     = 0,
                         ZIndex              = 5,
                         Parent              = Item,
                     })
-                    Utility.Create("UICorner", { CornerRadius = UDim.new(0, 8), Parent = DropBG })
+                    Utility.Create("UICorner", { CornerRadius = UDim.new(0, 5), Parent = DropBG })
 
                     local SelectedLabel = Utility.Create("TextLabel", {
-                        Size                = UDim2.new(1, -30, 1, 0),
-                        Position            = UDim2.new(0, 10, 0, 0),
+                        Size                = UDim2.new(1, -20, 1, 0),
+                        Position            = UDim2.new(0, 7, 0, 0),
                         BackgroundTransparency = 1,
                         Text                = def,
                         TextColor3          = CurrentTheme.Text,
-                        TextSize            = 12,
+                        TextSize            = 11,
                         Font                = Enum.Font.Gotham,
                         TextXAlignment      = Enum.TextXAlignment.Left,
                         ZIndex              = 6,
@@ -1886,12 +1886,12 @@ function NexusUI:CreateWindow(config)
 
                     local Arrow = Utility.Create("TextLabel", {
                         AnchorPoint         = Vector2.new(1, 0.5),
-                        Size                = UDim2.new(0, 20, 1, 0),
-                        Position            = UDim2.new(1, -8, 0.5, 0),
+                        Size                = UDim2.new(0, 13, 1, 0),
+                        Position            = UDim2.new(1, -5, 0.5, 0),
                         BackgroundTransparency = 1,
                         Text                = "▾",
                         TextColor3          = CurrentTheme.SubText,
-                        TextSize            = 14,
+                        TextSize            = 11,
                         Font                = Enum.Font.GothamBold,
                         ZIndex              = 6,
                         Parent              = DropBG,
@@ -1899,15 +1899,15 @@ function NexusUI:CreateWindow(config)
 
                     -- Dropdown list
                     local ListFrame = Utility.Create("Frame", {
-                        Size                = UDim2.new(1, -16, 0, 0),
-                        Position            = UDim2.new(0, 8, 0, 54),
+                        Size                = UDim2.new(1, -11, 0, 0),
+                        Position            = UDim2.new(0, 5, 0, 36),
                         BackgroundColor3    = CurrentTheme.Tertiary,
                         BorderSizePixel     = 0,
                         ClipsDescendants    = true,
                         ZIndex              = 10,
                         Parent              = Item,
                     })
-                    Utility.Create("UICorner", { CornerRadius = UDim.new(0, 8), Parent = ListFrame })
+                    Utility.Create("UICorner", { CornerRadius = UDim.new(0, 5), Parent = ListFrame })
 
                     local ListInner = Utility.Create("Frame", {
                         Size                = UDim2.new(1, 0, 0, 0),
@@ -1941,13 +1941,13 @@ function NexusUI:CreateWindow(config)
                         end
                         for i, opt in ipairs(opts) do
                             local OptBtn = Utility.Create("TextButton", {
-                                Size                = UDim2.new(1, 0, 0, 28),
+                                Size                = UDim2.new(1, 0, 0, 19),
                                 BackgroundColor3    = CurrentTheme.Tertiary,
                                 BackgroundTransparency = opt == DDObj.value and 0 or 1,
                                 BorderSizePixel     = 0,
                                 Text                = opt,
                                 TextColor3          = opt == DDObj.value and CurrentTheme.Accent or CurrentTheme.Text,
-                                TextSize            = 12,
+                                TextSize            = 11,
                                 Font                = opt == DDObj.value and Enum.Font.GothamBold or Enum.Font.Gotham,
                                 LayoutOrder         = i,
                                 ZIndex              = 11,
@@ -1956,9 +1956,9 @@ function NexusUI:CreateWindow(config)
                             OptBtn.MouseButton1Click:Connect(function()
                                 SetSelected(opt)
                                 isOpen = false
-                                Utility.Tween(ListFrame, {Size = UDim2.new(1, -16, 0, 0)}, 0.2)
+                                Utility.Tween(ListFrame, {Size = UDim2.new(1, -11, 0, 0)}, 0.2)
                                 Utility.Tween(Arrow, {Rotation = 0}, 0.2)
-                                Item.Size = UDim2.new(1, -16, 0, 52)
+                                Item.Size = UDim2.new(1, -11, 0, 35)
                             end)
                         end
                     end
@@ -1981,9 +1981,9 @@ function NexusUI:CreateWindow(config)
                             Utility.Tween(Arrow, {Rotation = 180}, 0.2)
                             Item.Size = UDim2.new(1, -16, 0, 52 + listHeight + 4)
                         else
-                            Utility.Tween(ListFrame, {Size = UDim2.new(1, -16, 0, 0)}, 0.2)
+                            Utility.Tween(ListFrame, {Size = UDim2.new(1, -11, 0, 0)}, 0.2)
                             Utility.Tween(Arrow, {Rotation = 0}, 0.2)
-                            Item.Size = UDim2.new(1, -16, 0, 52)
+                            Item.Size = UDim2.new(1, -11, 0, 35)
                         end
                     end)
 
@@ -2014,42 +2014,42 @@ function NexusUI:CreateWindow(config)
                     local clearOnFocus = tbConfig.ClearOnFocus ~= false
 
                     local Item = Utility.Create("Frame", {
-                        Size                = UDim2.new(1, -16, 0, 52),
+                        Size                = UDim2.new(1, -11, 0, 35),
                         BackgroundTransparency = 1,
                         LayoutOrder         = #self._items + 1,
                         Parent              = self.ItemList,
                     })
 
                     Utility.Create("TextLabel", {
-                        Size                = UDim2.new(1, -16, 0, 20),
-                        Position            = UDim2.new(0, 8, 0, 2),
+                        Size                = UDim2.new(1, -11, 0, 13),
+                        Position            = UDim2.new(0, 5, 0, 1),
                         BackgroundTransparency = 1,
                         Text                = text,
                         TextColor3          = CurrentTheme.Text,
-                        TextSize            = 13,
+                        TextSize            = 11,
                         Font                = Enum.Font.Gotham,
                         TextXAlignment      = Enum.TextXAlignment.Left,
                         Parent              = Item,
                     })
 
                     local InputBG = Utility.Create("Frame", {
-                        Size                = UDim2.new(1, -16, 0, 30),
-                        Position            = UDim2.new(0, 8, 0, 22),
+                        Size                = UDim2.new(1, -11, 0, 20),
+                        Position            = UDim2.new(0, 5, 0, 15),
                         BackgroundColor3    = CurrentTheme.Tertiary,
                         BorderSizePixel     = 0,
                         Parent              = Item,
                     })
-                    Utility.Create("UICorner", { CornerRadius = UDim.new(0, 8), Parent = InputBG })
+                    Utility.Create("UICorner", { CornerRadius = UDim.new(0, 5), Parent = InputBG })
 
                     local InputBox = Utility.Create("TextBox", {
-                        Size                = UDim2.new(1, -16, 1, 0),
-                        Position            = UDim2.new(0, 8, 0, 0),
+                        Size                = UDim2.new(1, -11, 1, 0),
+                        Position            = UDim2.new(0, 5, 0, 0),
                         BackgroundTransparency = 1,
                         Text                = default,
                         PlaceholderText     = placeholder,
                         TextColor3          = CurrentTheme.Text,
                         PlaceholderColor3   = CurrentTheme.SubText,
-                        TextSize            = 12,
+                        TextSize            = 11,
                         Font                = Enum.Font.Gotham,
                         TextXAlignment      = Enum.TextXAlignment.Left,
                         ClearTextOnFocus    = clearOnFocus,
@@ -2091,7 +2091,7 @@ function NexusUI:CreateWindow(config)
                     local callback   = kbConfig.Callback or function() end
 
                     local Item = Utility.Create("Frame", {
-                        Size                = UDim2.new(1, -16, 0, 40),
+                        Size                = UDim2.new(1, -11, 0, 27),
                         BackgroundTransparency = 1,
                         LayoutOrder         = #self._items + 1,
                         Parent              = self.ItemList,
@@ -2099,11 +2099,11 @@ function NexusUI:CreateWindow(config)
 
                     Utility.Create("TextLabel", {
                         Size                = UDim2.new(0.6, 0, 1, 0),
-                        Position            = UDim2.new(0, 8, 0, 0),
+                        Position            = UDim2.new(0, 5, 0, 0),
                         BackgroundTransparency = 1,
                         Text                = text,
                         TextColor3          = CurrentTheme.Text,
-                        TextSize            = 13,
+                        TextSize            = 11,
                         Font                = Enum.Font.Gotham,
                         TextXAlignment      = Enum.TextXAlignment.Left,
                         Parent              = Item,
@@ -2111,17 +2111,17 @@ function NexusUI:CreateWindow(config)
 
                     local KeyBtn = Utility.Create("TextButton", {
                         AnchorPoint         = Vector2.new(1, 0.5),
-                        Size                = UDim2.new(0, 90, 0, 26),
-                        Position            = UDim2.new(1, -8, 0.5, 0),
+                        Size                = UDim2.new(0, 60, 0, 17),
+                        Position            = UDim2.new(1, -5, 0.5, 0),
                         BackgroundColor3    = CurrentTheme.Tertiary,
                         BorderSizePixel     = 0,
                         Text                = default == Enum.KeyCode.Unknown and "None" or default.Name,
                         TextColor3          = CurrentTheme.Accent,
-                        TextSize            = 12,
+                        TextSize            = 11,
                         Font                = Enum.Font.GothamBold,
                         Parent              = Item,
                     })
-                    Utility.Create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = KeyBtn })
+                    Utility.Create("UICorner", { CornerRadius = UDim.new(0, 4), Parent = KeyBtn })
 
                     local KBObj    = { type = "Keybind", value = default }
                     local listening = false
@@ -2186,7 +2186,7 @@ function NexusUI:CreateWindow(config)
                     local H, S, V  = Color3.toHSV(default)
 
                     local Item = Utility.Create("Frame", {
-                        Size                = UDim2.new(1, -16, 0, 40),
+                        Size                = UDim2.new(1, -11, 0, 27),
                         BackgroundTransparency = 1,
                         ClipsDescendants    = false,
                         LayoutOrder         = #self._items + 1,
@@ -2195,12 +2195,12 @@ function NexusUI:CreateWindow(config)
                     })
 
                     Utility.Create("TextLabel", {
-                        Size                = UDim2.new(0.6, 0, 0, 40),
-                        Position            = UDim2.new(0, 8, 0, 0),
+                        Size                = UDim2.new(0.6, 0, 0, 27),
+                        Position            = UDim2.new(0, 5, 0, 0),
                         BackgroundTransparency = 1,
                         Text                = text,
                         TextColor3          = CurrentTheme.Text,
-                        TextSize            = 13,
+                        TextSize            = 11,
                         Font                = Enum.Font.Gotham,
                         TextXAlignment      = Enum.TextXAlignment.Left,
                         ZIndex              = 5,
@@ -2210,43 +2210,43 @@ function NexusUI:CreateWindow(config)
                     -- Color preview swatch
                     local Swatch = Utility.Create("TextButton", {
                         AnchorPoint         = Vector2.new(1, 0.5),
-                        Size                = UDim2.new(0, 56, 0, 26),
-                        Position            = UDim2.new(1, -8, 0.5, 0),
+                        Size                = UDim2.new(0, 37, 0, 17),
+                        Position            = UDim2.new(1, -5, 0.5, 0),
                         BackgroundColor3    = default,
                         BorderSizePixel     = 0,
                         Text                = "",
                         ZIndex              = 6,
                         Parent              = Item,
                     })
-                    Utility.Create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = Swatch })
+                    Utility.Create("UICorner", { CornerRadius = UDim.new(0, 4), Parent = Swatch })
 
                     -- Picker panel
                     local Panel = Utility.Create("Frame", {
-                        Size                = UDim2.new(0, 220, 0, 0),
-                        Position            = UDim2.new(1, -228, 0, 44),
+                        Size                = UDim2.new(0, 147, 0, 0),
+                        Position            = UDim2.new(1, -152, 0, 29),
                         BackgroundColor3    = CurrentTheme.Secondary,
                         BorderSizePixel     = 0,
                         ClipsDescendants    = true,
                         ZIndex              = 20,
                         Parent              = Item,
                     })
-                    Utility.Create("UICorner", { CornerRadius = UDim.new(0, 10), Parent = Panel })
+                    Utility.Create("UICorner", { CornerRadius = UDim.new(0, 7), Parent = Panel })
 
                     -- SV Square
                     local SVFrame = Utility.Create("ImageLabel", {
-                        Size                = UDim2.new(1, -16, 0, 120),
-                        Position            = UDim2.new(0, 8, 0, 8),
+                        Size                = UDim2.new(1, -11, 0, 80),
+                        Position            = UDim2.new(0, 5, 0, 5),
                         BackgroundColor3    = Color3.fromHSV(H, 1, 1),
                         BorderSizePixel     = 0,
                         Image               = "rbxassetid://4155801252",
                         ZIndex              = 21,
                         Parent              = Panel,
                     })
-                    Utility.Create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = SVFrame })
+                    Utility.Create("UICorner", { CornerRadius = UDim.new(0, 4), Parent = SVFrame })
 
                     local SVCursor = Utility.Create("Frame", {
                         AnchorPoint         = Vector2.new(0.5, 0.5),
-                        Size                = UDim2.new(0, 10, 0, 10),
+                        Size                = UDim2.new(0, 7, 0, 7),
                         Position            = UDim2.new(S, 0, 1 - V, 0),
                         BackgroundColor3    = Color3.fromRGB(255, 255, 255),
                         BorderSizePixel     = 1,
@@ -2257,8 +2257,8 @@ function NexusUI:CreateWindow(config)
 
                     -- Hue bar
                     local HueBar = Utility.Create("ImageLabel", {
-                        Size                = UDim2.new(1, -16, 0, 14),
-                        Position            = UDim2.new(0, 8, 0, 136),
+                        Size                = UDim2.new(1, -11, 0, 9),
+                        Position            = UDim2.new(0, 5, 0, 91),
                         Image               = "rbxassetid://4155799004",
                         BorderSizePixel     = 0,
                         ZIndex              = 21,
@@ -2268,33 +2268,33 @@ function NexusUI:CreateWindow(config)
 
                     local HueCursor = Utility.Create("Frame", {
                         AnchorPoint         = Vector2.new(0.5, 0.5),
-                        Size                = UDim2.new(0, 8, 1, 4),
+                        Size                = UDim2.new(0, 5, 1, 3),
                         Position            = UDim2.new(H, 0, 0.5, 0),
                         BackgroundColor3    = Color3.fromRGB(255, 255, 255),
                         BorderSizePixel     = 1,
                         ZIndex              = 22,
                         Parent              = HueBar,
                     })
-                    Utility.Create("UICorner", { CornerRadius = UDim.new(0, 4), Parent = HueCursor })
+                    Utility.Create("UICorner", { CornerRadius = UDim.new(0, 3), Parent = HueCursor })
 
                     -- Hex input
                     local HexBG = Utility.Create("Frame", {
-                        Size                = UDim2.new(1, -16, 0, 28),
-                        Position            = UDim2.new(0, 8, 0, 158),
+                        Size                = UDim2.new(1, -11, 0, 19),
+                        Position            = UDim2.new(0, 5, 0, 105),
                         BackgroundColor3    = CurrentTheme.Tertiary,
                         BorderSizePixel     = 0,
                         ZIndex              = 21,
                         Parent              = Panel,
                     })
-                    Utility.Create("UICorner", { CornerRadius = UDim.new(0, 6), Parent = HexBG })
+                    Utility.Create("UICorner", { CornerRadius = UDim.new(0, 4), Parent = HexBG })
                     local HexInput = Utility.Create("TextBox", {
-                        Size                = UDim2.new(1, -16, 1, 0),
-                        Position            = UDim2.new(0, 8, 0, 0),
+                        Size                = UDim2.new(1, -11, 1, 0),
+                        Position            = UDim2.new(0, 5, 0, 0),
                         BackgroundTransparency = 1,
                         Text                = string.format("%02X%02X%02X", math.floor(default.R * 255), math.floor(default.G * 255), math.floor(default.B * 255)),
                         PlaceholderText     = "FFFFFF",
                         TextColor3          = CurrentTheme.Text,
-                        TextSize            = 12,
+                        TextSize            = 11,
                         Font                = Enum.Font.Code,
                         ZIndex              = 22,
                         Parent              = HexBG,
@@ -2381,9 +2381,9 @@ function NexusUI:CreateWindow(config)
                     Swatch.MouseButton1Click:Connect(function()
                         panelOpen = not panelOpen
                         if panelOpen then
-                            Utility.Tween(Panel, {Size = UDim2.new(0, 220, 0, 196)}, 0.25)
+                            Utility.Tween(Panel, {Size = UDim2.new(0, 147, 0, 131)}, 0.25)
                         else
-                            Utility.Tween(Panel, {Size = UDim2.new(0, 220, 0, 0)}, 0.2)
+                            Utility.Tween(Panel, {Size = UDim2.new(0, 147, 0, 0)}, 0.2)
                         end
                     end)
 
