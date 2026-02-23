@@ -1020,6 +1020,7 @@ function Window.new(lib, config)
         BackgroundColor3 = T.Background,
         BorderSizePixel = 0,
         ClipsDescendants = true,
+        Visible         = false,
         Parent          = SG,
     })
     Create("UICorner", { CornerRadius = UDim.new(0, 12), Parent = mainFrame })
@@ -1259,6 +1260,7 @@ function Window.new(lib, config)
     self:_SetupWindowControls()
 
     -- Initial animation
+    mainFrame.Visible = true
     mainFrame.BackgroundTransparency = 1
     mainFrame.Size = UDim2.fromOffset((config.Width or 680) * 0.9, (config.Height or 440) * 0.9)
     Tween(mainFrame, TI.Spring, {
