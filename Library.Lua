@@ -299,13 +299,9 @@ end
 -- ══════════════════════════════════════════════
 local isMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
 
-local function Tween(obj, info, props)
-	TweenService:Create(obj, info, props):Play()
-end
-
 local function QuickTween(obj, t, props, style, dir)
 	local ti = TweenInfo.new(t or 0.25, style or Enum.EasingStyle.Quint, dir or Enum.EasingDirection.Out)
-	Tween(obj, ti, props)
+	TweenService:Create(obj, ti, props):Play()
 end
 
 local function AddConn(signal, fn)
@@ -349,32 +345,10 @@ local function ListLayout(pad, sort)
 	})
 end
 
-local function AutoCanvas(frame, padding)
-	padding = padding or 8
-	AddConn(frame.UIListLayout.Changed, function()
-		frame.CanvasSize = UDim2.new(0, 0, 0, frame.UIListLayout.AbsoluteContentSize.Y + padding)
-	end)
-end
-
 local function MakeDraggable(dragHandle, moveTarget)
 	local dragging   = false
 	local dragStart  = Vector3.new()
 	local startPos   = UDim2.new()
-
-	local function onInput(input)
-		if input.UserInputType == Enum.UserInputType.MouseMovement or
-		   input.UserInputType == Enum.UserInputType.Touch then
-			if dragging then
-				local delta = input.Position - dragStart
-				QuickTween(moveTarget, 0.08, {
-					Position = UDim2.new(
-						startPos.X.Scale, startPos.X.Offset + delta.X,
-						startPos.Y.Scale, startPos.Y.Offset + delta.Y
-					)
-				}, Enum.EasingStyle.Linear)
-			end
-		end
-	end
 
 	AddConn(dragHandle.InputBegan, function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 or
@@ -382,15 +356,29 @@ local function MakeDraggable(dragHandle, moveTarget)
 			dragging  = true
 			dragStart = input.Position
 			startPos  = moveTarget.Position
-			AddConn(input.Changed, function()
-				if input.UserInputState == Enum.UserInputState.End then
-					dragging = false
-				end
-			end)
 		end
 	end)
 
-	AddConn(UserInputService.InputChanged, onInput)
+	AddConn(UserInputService.InputEnded, function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or
+		   input.UserInputType == Enum.UserInputType.Touch then
+			dragging = false
+		end
+	end)
+
+	AddConn(UserInputService.InputChanged, function(input)
+		if not dragging then return end
+		if input.UserInputType == Enum.UserInputType.MouseMovement or
+		   input.UserInputType == Enum.UserInputType.Touch then
+			local delta = input.Position - dragStart
+			QuickTween(moveTarget, 0.08, {
+				Position = UDim2.new(
+					startPos.X.Scale, startPos.X.Offset + delta.X,
+					startPos.Y.Scale, startPos.Y.Offset + delta.Y
+				)
+			}, Enum.EasingStyle.Linear)
+		end
+	end)
 end
 
 -- ══════════════════════════════════════════════
@@ -495,6 +483,9 @@ local function SaveConfig(folder, name)
 			if obj.Save then
 				if obj.Type == "ColorPicker" then
 					data[flag] = {R = obj.Value.R * 255, G = obj.Value.G * 255, B = obj.Value.B * 255}
+				elseif obj.Type == "Keybind" then
+					-- Serialize KeyCode as its string name so JSON can store it
+					data[flag] = tostring(obj.Value):gsub("Enum.KeyCode.", "")
 				else
 					data[flag] = obj.Value
 				end
@@ -515,6 +506,14 @@ local function LoadConfig(folder, name)
 						local obj = Nova.Flags[flag]
 						if obj.Type == "ColorPicker" then
 							obj:Set(Color3.fromRGB(val.R, val.G, val.B))
+						elseif obj.Type == "Keybind" then
+							-- Deserialize string name back to Enum.KeyCode
+							local ok, kc = pcall(function()
+								return Enum.KeyCode[val]
+							end)
+							if ok and kc then
+								obj:Set(kc)
+							end
 						else
 							obj:Set(val)
 						end
@@ -655,19 +654,22 @@ local function ShowKeySystem(cfg, callback)
 	}, {Corner(8), New("UIStroke", {Color = T("Border"), Thickness = 1})})
 
 	AddConn(linkBtn.MouseButton1Click, function()
-		if cfg.Sitekey then
-			pcall(function()
-				setclipboard(cfg.Sitekey)
-				statusLbl.TextColor3 = T("Success") or Color3.fromRGB(34,197,94)
-				statusLbl.Text = "Link copied to clipboard!"
-				task.wait(2)
-				statusLbl.TextColor3 = T("TextDim")
-				statusLbl.Text = "Enter your key below to continue."
-			end)
-		end
+		task.spawn(function()
+			if cfg.Sitekey then
+				pcall(function()
+					setclipboard(cfg.Sitekey)
+					statusLbl.TextColor3 = T("Success") or Color3.fromRGB(34,197,94)
+					statusLbl.Text = "Link copied to clipboard!"
+					task.wait(2)
+					statusLbl.TextColor3 = T("TextDim")
+					statusLbl.Text = "Enter your key below to continue."
+				end)
+			end
+		end)
 	end)
 
 	AddConn(confirmBtn.MouseButton1Click, function()
+		task.spawn(function()
 		local entered = inputBox.Text
 		if entered == cfg.Key then
 			if cfg.KeySave then
@@ -697,6 +699,7 @@ local function ShowKeySystem(cfg, callback)
 			statusLbl.TextColor3 = T("TextDim")
 			statusLbl.Text = "Enter your key below to continue."
 		end
+		end)
 	end)
 
 	-- animate in
@@ -843,6 +846,7 @@ function Nova:CreateWindow(cfg)
 		New("UICorner", {CornerRadius = UDim.new(0, 12)}),
 		-- bottom fill to prevent double-rounded corners at join
 		New("Frame", {
+			Name             = "BottomFill",
 			Size             = UDim2.new(1, 0, 0, 12),
 			Position         = UDim2.new(0, 0, 1, -12),
 			BackgroundColor3 = T("Surface"),
@@ -863,9 +867,9 @@ function Nova:CreateWindow(cfg)
 	})
 
 	Nova:_listen(function()
-		TopBar.BackgroundColor3           = T("Surface")
-		TopBar:FindFirstChild("Frame").BackgroundColor3 = T("Surface")
-		TopBar.Divider.BackgroundColor3   = T("Border")
+		TopBar.BackgroundColor3                    = T("Surface")
+		TopBar.BottomFill.BackgroundColor3         = T("Surface")
+		TopBar.Divider.BackgroundColor3            = T("Border")
 	end)
 
 	MakeDraggable(TopBar, MainFrame)
@@ -891,10 +895,14 @@ function Nova:CreateWindow(cfg)
 		TextColor3       = T("TextDim"),
 		BackgroundTransparency = 1,
 		Size             = UDim2.new(0, 200, 1, 0),
-		Position         = UDim2.new(0, 16 + TitleLabel.TextBounds.X + 8, 0, 0),
+		Position         = UDim2.new(0, 120, 0, 0),
 		ZIndex           = 5,
 		TextXAlignment   = Enum.TextXAlignment.Left,
 	})
+	-- Defer SubLabel X position until TextBounds is ready
+	task.defer(function()
+		SubLabel.Position = UDim2.new(0, 16 + TitleLabel.TextBounds.X + 10, 0, 0)
+	end)
 	Nova:_listen(function()
 		TitleLabel.TextColor3 = T("Text")
 		SubLabel.TextColor3   = T("TextDim")
@@ -1011,9 +1019,11 @@ function Nova:CreateWindow(cfg)
 			AddConn(b.MouseButton1Click, cb)
 		end
 		ModalBtn("Cancel", T("SurfaceAlt"), T("Text"), function()
-			QuickTween(modal, 0.3, {Size = UDim2.new(0, 300, 0, 0)}, Enum.EasingStyle.Back)
-			task.wait(0.35)
-			overlay:Destroy()
+			task.spawn(function()
+				QuickTween(modal, 0.3, {Size = UDim2.new(0, 300, 0, 0)}, Enum.EasingStyle.Back)
+				task.wait(0.35)
+				overlay:Destroy()
+			end)
 		end)
 		ModalBtn("Yes, Close", T("Error"), Color3.fromRGB(255,255,255), function()
 			overlay:Destroy()
@@ -1445,7 +1455,7 @@ function Nova:CreateWindow(cfg)
 				local rel   = math.clamp(rawX - trackBg.AbsolutePosition.X, 0, trackBg.AbsoluteSize.X)
 				local pct   = rel / trackBg.AbsoluteSize.X
 				local steps = (cfg2.Max - cfg2.Min) / cfg2.Increment
-				local val   = cfg2.Min + math.round(pct * steps) * cfg2.Increment
+				local val   = cfg2.Min + math.floor(pct * steps + 0.5) * cfg2.Increment
 				val         = math.clamp(val, cfg2.Min, cfg2.Max)
 				Slider.Value = val
 				local fillPct = (val - cfg2.Min) / (cfg2.Max - cfg2.Min)
@@ -1457,9 +1467,11 @@ function Nova:CreateWindow(cfg)
 			end
 
 			function Slider:Set(val)
-				val         = math.clamp(val, cfg2.Min, cfg2.Max)
-				self.Value  = val
-				local pct   = (val - cfg2.Min) / (cfg2.Max - cfg2.Min)
+				local steps  = (cfg2.Max - cfg2.Min) / cfg2.Increment
+				val          = cfg2.Min + math.floor(((math.clamp(val, cfg2.Min, cfg2.Max) - cfg2.Min) / cfg2.Increment) + 0.5) * cfg2.Increment
+				val          = math.clamp(val, cfg2.Min, cfg2.Max)
+				self.Value   = val
+				local pct    = (val - cfg2.Min) / (cfg2.Max - cfg2.Min)
 				QuickTween(trackFill, 0.15, {Size = UDim2.new(pct, 0, 1, 0)}, Enum.EasingStyle.Linear)
 				QuickTween(thumb,     0.15, {Position = UDim2.new(pct, 0, 0.5, 0)}, Enum.EasingStyle.Linear)
 				valLbl.Text = tostring(val) .. cfg2.Suffix
@@ -1657,8 +1669,9 @@ function Nova:CreateWindow(cfg)
 				QuickTween(listFrame, 0.2, {Size = UDim2.new(1, 0, 0, 0)})
 				QuickTween(outerFrame, 0.2, {Size = UDim2.new(1, 0, 0, 38)})
 				arrowLbl.Text = "▾"
-				task.wait(0.22)
-				listFrame.Visible = false
+				task.delay(0.22, function()
+					listFrame.Visible = false
+				end)
 			end
 
 			AddConn(headerBtn.MouseButton1Up, function()
@@ -2093,10 +2106,12 @@ function Nova:CreateWindow(cfg)
 					QuickTween(pickerPanel, 0.3, {Size = UDim2.new(1, 0, 0, 140)}, Enum.EasingStyle.Back)
 					QuickTween(outerFrame,  0.3, {Size = UDim2.new(1, 0, 0, 38 + 146)})
 				else
-					QuickTween(pickerPanel, 0.25, {Size = UDim2.new(1, 0, 0, 0)})
-					QuickTween(outerFrame,  0.25, {Size = UDim2.new(1, 0, 0, 38)})
-					task.wait(0.28)
-					pickerPanel.Visible = false
+					task.spawn(function()
+						QuickTween(pickerPanel, 0.25, {Size = UDim2.new(1, 0, 0, 0)})
+						QuickTween(outerFrame,  0.25, {Size = UDim2.new(1, 0, 0, 38)})
+						task.wait(0.28)
+						pickerPanel.Visible = false
+					end)
 				end
 			end)
 			AddConn(headerBtn.TouchTap, function()
@@ -2106,10 +2121,12 @@ function Nova:CreateWindow(cfg)
 					QuickTween(pickerPanel, 0.3, {Size = UDim2.new(1, 0, 0, 140)}, Enum.EasingStyle.Back)
 					QuickTween(outerFrame,  0.3, {Size = UDim2.new(1, 0, 0, 38 + 146)})
 				else
-					QuickTween(pickerPanel, 0.25, {Size = UDim2.new(1, 0, 0, 0)})
-					QuickTween(outerFrame,  0.25, {Size = UDim2.new(1, 0, 0, 38)})
-					task.wait(0.28)
-					pickerPanel.Visible = false
+					task.spawn(function()
+						QuickTween(pickerPanel, 0.25, {Size = UDim2.new(1, 0, 0, 0)})
+						QuickTween(outerFrame,  0.25, {Size = UDim2.new(1, 0, 0, 38)})
+						task.wait(0.28)
+						pickerPanel.Visible = false
+					end)
 				end
 			end)
 
@@ -2168,7 +2185,6 @@ function Nova:CreateWindow(cfg)
 				Size             = UDim2.new(1, -12, 1, 0),
 				Position         = UDim2.new(0, 10, 0, 0),
 				TextXAlignment   = Enum.TextXAlignment.Left,
-				LetterSpacing    = 1,
 			})
 
 			local sectionContent = New("Frame", {
@@ -2265,9 +2281,7 @@ function Nova:CreateWindow(cfg)
 		local function Activate()
 			-- Deactivate all other tabs
 			for _, t in ipairs(tabs) do
-				if t ~= tabBtn then
-					t._deactivate()
-				end
+				t._deactivate()
 			end
 			isActive = true
 			content.Visible = true
