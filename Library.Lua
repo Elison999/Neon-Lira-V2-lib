@@ -1,7 +1,6 @@
 --[[
-    NexusLib - Super Modern Roblox UI Library
-    Version: 2.0.0
-    Developed by: Senior Luau Developer
+    NexusLib - Ultra Modern Roblox UI Library
+    Version: 3.0.0 (Ultra Modern • Gradients • PC & Mobile)
     
     Usage:
         local NexusLib = loadstring(game:HttpGet("YOUR_LINK_HERE"))()
@@ -9,14 +8,16 @@
     
     Features:
         - 11 UI Elements: Window, Tab, Section, Label, Button, Toggle, Slider, Dropdown, Textbox, Keybind, ColorPicker
-        - Smooth TweenService animations
-        - Draggable & Resizable Topbar
+        - Smooth TweenService animations with premium easing
+        - Modern gradient topbar with accent glow
+        - Draggable (PC + Mobile/Touch support)
         - Minimize & Close (with modal confirmation)
         - Loading Screen System
         - Key System with optional save
         - Auto Save & Load (JSON)
         - 15 Themes via Window:AddConfig()
         - Full OOP architecture
+        - PC & Mobile (Touch) input support
 ]]
 
 -- ============================================================
@@ -28,6 +29,7 @@ local RunService         = game:GetService("RunService")
 local CoreGui            = game:GetService("CoreGui")
 local HttpService        = game:GetService("HttpService")
 local Players            = game:GetService("Players")
+local GuiService         = game:GetService("GuiService")
 local LocalPlayer        = Players.LocalPlayer
 
 -- ============================================================
@@ -146,6 +148,69 @@ local function CreateShadow(parent)
     return shadow
 end
 
+
+local function CreateGradient(parent, color0, color1, rotation)
+    local grad = Instance.new("UIGradient")
+    grad.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, color0),
+        ColorSequenceKeypoint.new(1, color1),
+    })
+    grad.Rotation = rotation or 90
+    grad.Parent = parent
+    return grad
+end
+
+local function CreateGlowEffect(parent, color)
+    local glow = Instance.new("ImageLabel")
+    glow.Name = "Glow"
+    glow.AnchorPoint = Vector2.new(0.5, 0.5)
+    glow.BackgroundTransparency = 1
+    glow.Position = UDim2.new(0.5, 0, 0.5, 6)
+    glow.Size = UDim2.new(1, 50, 1, 50)
+    glow.ZIndex = (parent.ZIndex or 10) - 1
+    glow.Image = "rbxassetid://6015897843"
+    glow.ImageColor3 = color or Color3.fromRGB(124, 92, 252)
+    glow.ImageTransparency = 0.65
+    glow.ScaleType = Enum.ScaleType.Slice
+    glow.SliceCenter = Rect.new(49, 49, 450, 450)
+    glow.Parent = parent
+    return glow
+end
+
+-- Animated gradient line (for topbar accent)
+local function CreateAnimatedAccentLine(parent, accent, accentGrad)
+    local line = Instance.new("Frame")
+    line.Name = "AccentLine"
+    line.Size = UDim2.new(1, 0, 0, 2)
+    line.Position = UDim2.new(0, 0, 1, -2)
+    line.BackgroundColor3 = accent
+    line.BackgroundTransparency = 0
+    line.BorderSizePixel = 0
+    line.ZIndex = (parent.ZIndex or 12) + 1
+    line.ClipsDescendants = false
+    line.Parent = parent
+    CreateCorner(line, 1)
+    local ag = Instance.new("UIGradient")
+    ag.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0,   Color3.fromRGB(0,0,0)),
+        ColorSequenceKeypoint.new(0.3, accent),
+        ColorSequenceKeypoint.new(0.7, accentGrad or accent),
+        ColorSequenceKeypoint.new(1,   Color3.fromRGB(0,0,0)),
+    })
+    ag.Rotation = 0
+    ag.Parent = line
+    -- Animate offset for shimmer effect
+    task.spawn(function()
+        local t = 0
+        while line and line.Parent do
+            t = t + task.wait(0.016)
+            local offset = math.sin(t * 0.8) * 0.3
+            ag.Offset = Vector2.new(offset, 0)
+        end
+    end)
+    return line, ag
+end
+
 local function SafeReadFile(path)
     local ok, result = pcall(readfile, path)
     if ok then return result end
@@ -180,22 +245,23 @@ end
 -- ============================================================
 local Themes = {
     ["Dark"] = {
-        Background       = Color3FromHex("#0F0F14"),
-        Topbar           = Color3FromHex("#17171F"),
-        Section          = Color3FromHex("#1C1C26"),
-        Element          = Color3FromHex("#22222E"),
-        ElementHover     = Color3FromHex("#2A2A38"),
+        Background       = Color3FromHex("#0A0A12"),
+        Topbar           = Color3FromHex("#0D0D18"),
+        Section          = Color3FromHex("#13131E"),
+        Element          = Color3FromHex("#1A1A28"),
+        ElementHover     = Color3FromHex("#22223A"),
         Accent           = Color3FromHex("#7C5CFC"),
         AccentDark       = Color3FromHex("#5B3FD4"),
-        Text             = Color3FromHex("#EAEAF5"),
-        TextSecondary    = Color3FromHex("#8888AA"),
-        TextDisabled     = Color3FromHex("#555566"),
-        Stroke           = Color3FromHex("#2E2E3E"),
-        Toggle           = Color3FromHex("#3A3A50"),
+        AccentGrad       = Color3FromHex("#C084FC"),
+        Text             = Color3FromHex("#F0F0FF"),
+        TextSecondary    = Color3FromHex("#7070A0"),
+        TextDisabled     = Color3FromHex("#404060"),
+        Stroke           = Color3FromHex("#252538"),
+        Toggle           = Color3FromHex("#2A2A42"),
         ToggleEnabled    = Color3FromHex("#7C5CFC"),
         SliderFill       = Color3FromHex("#7C5CFC"),
-        SliderTrack      = Color3FromHex("#2E2E3E"),
-        Scrollbar        = Color3FromHex("#3A3A50"),
+        SliderTrack      = Color3FromHex("#252538"),
+        Scrollbar        = Color3FromHex("#2A2A42"),
     },
     ["Light"] = {
         Background       = Color3FromHex("#F4F4FC"),
@@ -205,6 +271,7 @@ local Themes = {
         ElementHover     = Color3FromHex("#E8E8F5"),
         Accent           = Color3FromHex("#6B48FF"),
         AccentDark       = Color3FromHex("#4D2FCC"),
+        AccentGrad       = Color3FromHex("#4D2FCC"),
         Text             = Color3FromHex("#1A1A2E"),
         TextSecondary    = Color3FromHex("#6666AA"),
         TextDisabled     = Color3FromHex("#AAAACC"),
@@ -223,6 +290,7 @@ local Themes = {
         ElementHover     = Color3FromHex("#1A1A35"),
         Accent           = Color3FromHex("#00D4FF"),
         AccentDark       = Color3FromHex("#0099CC"),
+        AccentGrad       = Color3FromHex("#0099CC"),
         Text             = Color3FromHex("#D0E8FF"),
         TextSecondary    = Color3FromHex("#5577AA"),
         TextDisabled     = Color3FromHex("#334466"),
@@ -241,6 +309,7 @@ local Themes = {
         ElementHover     = Color3FromHex("#1F1F1F"),
         Accent           = Color3FromHex("#FF00FF"),
         AccentDark       = Color3FromHex("#CC00CC"),
+        AccentGrad       = Color3FromHex("#CC00CC"),
         Text             = Color3FromHex("#FFFFFF"),
         TextSecondary    = Color3FromHex("#AA66AA"),
         TextDisabled     = Color3FromHex("#553355"),
@@ -259,6 +328,7 @@ local Themes = {
         ElementHover     = Color3FromHex("#311B1B"),
         Accent           = Color3FromHex("#FF3355"),
         AccentDark       = Color3FromHex("#CC1A33"),
+        AccentGrad       = Color3FromHex("#CC1A33"),
         Text             = Color3FromHex("#FFE0E5"),
         TextSecondary    = Color3FromHex("#AA5566"),
         TextDisabled     = Color3FromHex("#663344"),
@@ -277,6 +347,7 @@ local Themes = {
         ElementHover     = Color3FromHex("#1E2C20"),
         Accent           = Color3FromHex("#4ADE80"),
         AccentDark       = Color3FromHex("#22C55E"),
+        AccentGrad       = Color3FromHex("#22C55E"),
         Text             = Color3FromHex("#DCFCE7"),
         TextSecondary    = Color3FromHex("#4D7A5A"),
         TextDisabled     = Color3FromHex("#2D4A35"),
@@ -295,6 +366,7 @@ local Themes = {
         ElementHover     = Color3FromHex("#1A2A38"),
         Accent           = Color3FromHex("#38BDF8"),
         AccentDark       = Color3FromHex("#0EA5E9"),
+        AccentGrad       = Color3FromHex("#0EA5E9"),
         Text             = Color3FromHex("#E0F2FE"),
         TextSecondary    = Color3FromHex("#4477AA"),
         TextDisabled     = Color3FromHex("#224466"),
@@ -313,6 +385,7 @@ local Themes = {
         ElementHover     = Color3FromHex("#342030"),
         Accent           = Color3FromHex("#F472B6"),
         AccentDark       = Color3FromHex("#EC4899"),
+        AccentGrad       = Color3FromHex("#EC4899"),
         Text             = Color3FromHex("#FCE7F3"),
         TextSecondary    = Color3FromHex("#AA5588"),
         TextDisabled     = Color3FromHex("#663355"),
@@ -331,6 +404,7 @@ local Themes = {
         ElementHover     = Color3FromHex("#342200"),
         Accent           = Color3FromHex("#F59E0B"),
         AccentDark       = Color3FromHex("#D97706"),
+        AccentGrad       = Color3FromHex("#D97706"),
         Text             = Color3FromHex("#FEF3C7"),
         TextSecondary    = Color3FromHex("#AA8833"),
         TextDisabled     = Color3FromHex("#665522"),
@@ -349,6 +423,7 @@ local Themes = {
         ElementHover     = Color3FromHex("#262830"),
         Accent           = Color3FromHex("#94A3B8"),
         AccentDark       = Color3FromHex("#64748B"),
+        AccentGrad       = Color3FromHex("#64748B"),
         Text             = Color3FromHex("#E2E8F0"),
         TextSecondary    = Color3FromHex("#64748B"),
         TextDisabled     = Color3FromHex("#334155"),
@@ -367,6 +442,7 @@ local Themes = {
         ElementHover     = Color3FromHex("#302014"),
         Accent           = Color3FromHex("#D97706"),
         AccentDark       = Color3FromHex("#B45309"),
+        AccentGrad       = Color3FromHex("#B45309"),
         Text             = Color3FromHex("#FDE68A"),
         TextSecondary    = Color3FromHex("#926633"),
         TextDisabled     = Color3FromHex("#5A3D1A"),
@@ -385,6 +461,7 @@ local Themes = {
         ElementHover     = Color3FromHex("#1E2A36"),
         Accent           = Color3FromHex("#BAE6FD"),
         AccentDark       = Color3FromHex("#7DD3FC"),
+        AccentGrad       = Color3FromHex("#7DD3FC"),
         Text             = Color3FromHex("#F0F9FF"),
         TextSecondary    = Color3FromHex("#5588AA"),
         TextDisabled     = Color3FromHex("#2A4A60"),
@@ -403,6 +480,7 @@ local Themes = {
         ElementHover     = Color3FromHex("#1A1A1A"),
         Accent           = Color3FromHex("#A855F7"),
         AccentDark       = Color3FromHex("#7C3AED"),
+        AccentGrad       = Color3FromHex("#7C3AED"),
         Text             = Color3FromHex("#EDE9FE"),
         TextSecondary    = Color3FromHex("#7755AA"),
         TextDisabled     = Color3FromHex("#443366"),
@@ -421,6 +499,7 @@ local Themes = {
         ElementHover     = Color3FromHex("#341C14"),
         Accent           = Color3FromHex("#FB923C"),
         AccentDark       = Color3FromHex("#EA580C"),
+        AccentGrad       = Color3FromHex("#EA580C"),
         Text             = Color3FromHex("#FFEDD5"),
         TextSecondary    = Color3FromHex("#AA6644"),
         TextDisabled     = Color3FromHex("#663D26"),
@@ -439,6 +518,7 @@ local Themes = {
         ElementHover     = Color3FromHex("#0E1A36"),
         Accent           = Color3FromHex("#00FFB3"),
         AccentDark       = Color3FromHex("#00CC8A"),
+        AccentGrad       = Color3FromHex("#00CC8A"),
         Text             = Color3FromHex("#CCFFE8"),
         TextSecondary    = Color3FromHex("#33AA77"),
         TextDisabled     = Color3FromHex("#1A5A3A"),
@@ -730,9 +810,23 @@ function NexusLib:CreateWindow(config)
         KeyContainer.BorderSizePixel = 0
         KeyContainer.ZIndex = 201
         KeyContainer.Parent = KeyFrame
-        CreateCorner(KeyContainer, 14)
+        CreateCorner(KeyContainer, 20)
         CreateStroke(KeyContainer, theme.Stroke, 1)
         CreateShadow(KeyContainer)
+        CreateGlowEffect(KeyContainer, theme.Accent)
+        local _kcGrad = Instance.new("UIGradient")
+        _kcGrad.Color = ColorSequence.new({
+            ColorSequenceKeypoint.new(0, Color3.new(
+                math.clamp(theme.Section.R + theme.Accent.R * 0.12, 0, 1),
+                math.clamp(theme.Section.G + theme.Accent.G * 0.06, 0, 1),
+                math.clamp(theme.Section.B + theme.Accent.B * 0.18, 0, 1)
+            )),
+            ColorSequenceKeypoint.new(0.6, theme.Section),
+            ColorSequenceKeypoint.new(1, theme.Background),
+        })
+        _kcGrad.Rotation = 135
+        _kcGrad.Parent = KeyContainer
+        CreateAnimatedAccentLine(KeyContainer, theme.Accent, theme.AccentGrad)
 
         KeyContainer.BackgroundTransparency = 1
         KeyContainer.Size = UDim2.new(0, 360, 0, 0)
@@ -904,9 +998,22 @@ function NexusLib:CreateWindow(config)
         MainFrame.ClipsDescendants = false
         MainFrame.ZIndex = 10
         MainFrame.Parent = ScreenGui
-        CreateCorner(MainFrame, 12)
+        CreateCorner(MainFrame, 18)
         CreateStroke(MainFrame, theme.Stroke, 1)
         CreateShadow(MainFrame)
+        CreateGlowEffect(MainFrame, theme.Accent)
+        local _mf1Grad = Instance.new("UIGradient")
+        _mf1Grad.Color = ColorSequence.new({
+            ColorSequenceKeypoint.new(0, Color3.new(
+                math.clamp(theme.Background.R + theme.Accent.R * 0.06, 0, 1),
+                math.clamp(theme.Background.G + theme.Accent.G * 0.03, 0, 1),
+                math.clamp(theme.Background.B + theme.Accent.B * 0.09, 0, 1)
+            )),
+            ColorSequenceKeypoint.new(0.65, theme.Background),
+            ColorSequenceKeypoint.new(1, theme.Background),
+        })
+        _mf1Grad.Rotation = 135
+        _mf1Grad.Parent = MainFrame
 
         -- Animate in
         MainFrame.BackgroundTransparency = 1
@@ -918,12 +1025,27 @@ function NexusLib:CreateWindow(config)
         -- ============================================================
         local Topbar = Instance.new("Frame")
         Topbar.Name = "Topbar"
-        Topbar.Size = UDim2.new(1, 0, 0, 27)
+        Topbar.Size = UDim2.new(1, 0, 0, 34)
         Topbar.BackgroundColor3 = theme.Topbar
         Topbar.BorderSizePixel = 0
         Topbar.ZIndex = 12
+        Topbar.ClipsDescendants = false
         Topbar.Parent = MainFrame
-        CreateCorner(Topbar, 12)
+        CreateCorner(Topbar, 18)
+        local _tb1Grad = Instance.new("UIGradient")
+        _tb1Grad.Color = ColorSequence.new({
+            ColorSequenceKeypoint.new(0, Color3.new(
+                math.clamp(theme.Topbar.R + theme.Accent.R * 0.18, 0, 1),
+                math.clamp(theme.Topbar.G + theme.Accent.G * 0.10, 0, 1),
+                math.clamp(theme.Topbar.B + theme.Accent.B * 0.28, 0, 1)
+            )),
+            ColorSequenceKeypoint.new(0.55, theme.Topbar),
+            ColorSequenceKeypoint.new(1,    theme.Background),
+        })
+        _tb1Grad.Rotation = 160
+        _tb1Grad.Parent = Topbar
+        -- Animated shimmer accent line
+        CreateAnimatedAccentLine(Topbar, theme.Accent, theme.AccentGrad)
 
         -- Fix topbar bottom corners
         local TopbarFix = Instance.new("Frame")
@@ -931,6 +1053,7 @@ function NexusLib:CreateWindow(config)
         TopbarFix.Size = UDim2.new(1, 0, 0.5, 0)
         TopbarFix.Position = UDim2.new(0, 0, 0.5, 0)
         TopbarFix.BackgroundColor3 = theme.Topbar
+        TopbarFix.BackgroundTransparency = 1
         TopbarFix.BorderSizePixel = 0
         TopbarFix.ZIndex = 12
         TopbarFix.Parent = Topbar
@@ -1140,7 +1263,7 @@ function NexusLib:CreateWindow(config)
             lib._minimized = not lib._minimized
             if lib._minimized then
                 _contentSize = MainFrame.Size
-                Tween(MainFrame, {Size = UDim2.new(0, 400, 0, 27)}, 0.4, Enum.EasingStyle.Back)
+                Tween(MainFrame, {Size = UDim2.new(0, 400, 0, 34)}, 0.4, Enum.EasingStyle.Back)
                 MinimizeBtn.Text = "▲"
             else
                 Tween(MainFrame, {Size = _contentSize}, 0.4, Enum.EasingStyle.Back)
@@ -1157,23 +1280,24 @@ function NexusLib:CreateWindow(config)
         local MIN_W, MAX_W = 278, 556
         local MIN_H, MAX_H = 194, 389
 
-        ResizeBtn.MouseButton1Down:Connect(function()
-            resizing = true
-            resizeStart = UserInputService:GetMouseLocation()
-            resizeFrameStart = MainFrame.Size
+        ResizeBtn.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                resizing = true
+                resizeStart = input.Position
+                resizeFrameStart = MainFrame.Size
+            end
         end)
 
         UserInputService.InputEnded:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                 resizing = false
             end
         end)
 
-        RunService.RenderStepped:Connect(function()
-            if resizing then
-                local mouse = UserInputService:GetMouseLocation()
-                local dx = mouse.X - resizeStart.X
-                local dy = mouse.Y - resizeStart.Y
+        UserInputService.InputChanged:Connect(function(input)
+            if resizing and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+                local dx = input.Position.X - resizeStart.X
+                local dy = input.Position.Y - resizeStart.Y
                 local newW = math.clamp(resizeFrameStart.X.Offset + dx, MIN_W, MAX_W)
                 local newH = math.clamp(resizeFrameStart.Y.Offset + dy, MIN_H, MAX_H)
                 MainFrame.Size = UDim2.new(0, newW, 0, newH)
@@ -1187,7 +1311,7 @@ function NexusLib:CreateWindow(config)
         local dragStart, startPos
 
         Topbar.InputBegan:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseButton1 then
+            if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
                 dragging = true
                 dragStart = input.Position
                 startPos = MainFrame.Position
@@ -1200,7 +1324,7 @@ function NexusLib:CreateWindow(config)
         end)
 
         UserInputService.InputChanged:Connect(function(input)
-            if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+            if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
                 local delta = input.Position - dragStart
                 MainFrame.Position = UDim2.new(
                     startPos.X.Scale,
@@ -1210,14 +1334,17 @@ function NexusLib:CreateWindow(config)
                 )
             end
         end)
+        UserInputService.InputEnded:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.Touch then dragging = false end
+        end)
 
         -- ============================================================
         -- CONTENT AREA
         -- ============================================================
         local ContentFrame = Instance.new("Frame")
         ContentFrame.Name = "Content"
-        ContentFrame.Position = UDim2.new(0, 0, 0, 27)
-        ContentFrame.Size = UDim2.new(1, 0, 1, -27)
+        ContentFrame.Position = UDim2.new(0, 0, 0, 34)
+        ContentFrame.Size = UDim2.new(1, 0, 1, -34)
         ContentFrame.BackgroundTransparency = 1
         ContentFrame.ZIndex = 11
         ContentFrame.ClipsDescendants = true
@@ -1226,16 +1353,28 @@ function NexusLib:CreateWindow(config)
         -- Sidebar for tabs
         local Sidebar = Instance.new("Frame")
         Sidebar.Name = "Sidebar"
-        Sidebar.Size = UDim2.new(0, 78, 1, 0)
+        Sidebar.Size = UDim2.new(0, 80, 1, 0)
         Sidebar.BackgroundColor3 = theme.Topbar
         Sidebar.BorderSizePixel = 0
         Sidebar.ZIndex = 12
         Sidebar.Parent = ContentFrame
+        local _sb1Grad = Instance.new("UIGradient")
+        _sb1Grad.Color = ColorSequence.new({
+            ColorSequenceKeypoint.new(0, Color3.new(
+                math.clamp(theme.Topbar.R + theme.Accent.R * 0.08, 0, 1),
+                math.clamp(theme.Topbar.G + theme.Accent.G * 0.04, 0, 1),
+                math.clamp(theme.Topbar.B + theme.Accent.B * 0.12, 0, 1)
+            )),
+            ColorSequenceKeypoint.new(1, theme.Background),
+        })
+        _sb1Grad.Rotation = 180
+        _sb1Grad.Parent = Sidebar
 
         -- Fix sidebar top corner
         local SidebarFix = Instance.new("Frame")
         SidebarFix.Size = UDim2.new(1, 0, 0, 12)
         SidebarFix.BackgroundColor3 = theme.Topbar
+        SidebarFix.BackgroundTransparency = 1
         SidebarFix.BorderSizePixel = 0
         SidebarFix.ZIndex = 12
         SidebarFix.Parent = Sidebar
@@ -1270,8 +1409,8 @@ function NexusLib:CreateWindow(config)
         -- Main tab content area
         local TabContent = Instance.new("ScrollingFrame")
         TabContent.Name = "TabContent"
-        TabContent.Position = UDim2.new(0, 78, 0, 0)
-        TabContent.Size = UDim2.new(1, -78, 1, 0)
+        TabContent.Position = UDim2.new(0, 80, 0, 0)
+        TabContent.Size = UDim2.new(1, -80, 1, 0)
         TabContent.BackgroundTransparency = 1
         TabContent.ScrollBarThickness = 3
         TabContent.ScrollBarImageColor3 = theme.Scrollbar
@@ -2805,7 +2944,7 @@ function NexusLib:CreateWindow(config)
 
             local t1 = Instance.new("TextLabel")
             t1.AnchorPoint = Vector2.new(0.5, 0)
-            t1.Position = UDim2.new(0.5, 0, 0, windowConfig.LoadingIcon ~= "" and 96 or 36)
+            t1.Position = UDim2.new(0.5, 0, 0, windowConfig.LoadingIcon ~= "" and 90 or 28)
             t1.Size = UDim2.new(1, -32, 0, 28)
             t1.BackgroundTransparency = 1
             t1.Font = Enum.Font.GothamBold
@@ -2817,7 +2956,7 @@ function NexusLib:CreateWindow(config)
 
             local t2 = Instance.new("TextLabel")
             t2.AnchorPoint = Vector2.new(0.5, 0)
-            t2.Position = UDim2.new(0.5, 0, 0, windowConfig.LoadingIcon ~= "" and 128 or 68)
+            t2.Position = UDim2.new(0.5, 0, 0, windowConfig.LoadingIcon ~= "" and 112 or 58)
             t2.Size = UDim2.new(1, -32, 0, 18)
             t2.BackgroundTransparency = 1
             t2.Font = Enum.Font.Gotham
@@ -2829,7 +2968,7 @@ function NexusLib:CreateWindow(config)
 
             local barBG = Instance.new("Frame")
             barBG.AnchorPoint = Vector2.new(0.5, 0)
-            barBG.Position = UDim2.new(0.5, 0, 0, windowConfig.LoadingIcon ~= "" and 160 or 104)
+            barBG.Position = UDim2.new(0.5, 0, 0, windowConfig.LoadingIcon ~= "" and 116 or 104)
             barBG.Size = UDim2.new(1, -48, 0, 6)
             barBG.BackgroundColor3 = theme.SliderTrack
             barBG.BorderSizePixel = 0
@@ -2844,6 +2983,22 @@ function NexusLib:CreateWindow(config)
             barFill.ZIndex = 103
             barFill.Parent = barBG
             CreateCorner(barFill, 3)
+            -- Animated shimmer on progress bar
+            local _bfGrad = Instance.new("UIGradient")
+            _bfGrad.Color = ColorSequence.new({
+                ColorSequenceKeypoint.new(0, theme.AccentDark or theme.Accent),
+                ColorSequenceKeypoint.new(0.5, theme.AccentGrad or theme.Accent),
+                ColorSequenceKeypoint.new(1, theme.Accent),
+            })
+            _bfGrad.Rotation = 0
+            _bfGrad.Parent = barFill
+            task.spawn(function()
+                local t2 = 0
+                while barFill and barFill.Parent do
+                    t2 = t2 + task.wait(0.016)
+                    _bfGrad.Offset = Vector2.new(math.sin(t2 * 1.5) * 0.4, 0)
+                end
+            end)
 
             local steps = {0.15, 0.45, 0.75, 1.0}
             local msgs = {"Initializing...", "Loading modules...", "Applying theme...", "Ready!"}
@@ -3037,59 +3192,96 @@ function NexusLib:CreateWindow(config)
         -- MAIN UI BUILD
         local function DoMainUI()
             -- Main frame
+            -- Auto-detect mobile for adaptive sizing
+            local _isMobilePlatform = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
+            local _mfW = _isMobilePlatform and math.min(514, workspace.CurrentCamera.ViewportSize.X - 24) or 514
+            local _mfH = _isMobilePlatform and math.min(343, workspace.CurrentCamera.ViewportSize.Y - 60) or 343
+
             local MF = Instance.new("Frame")
             MF.Name = "MainWindow"
             MF.AnchorPoint = Vector2.new(0.5, 0.5)
-            MF.Position = UDim2.new(0.5, 0, 0.4, 0)
-            MF.Size = UDim2.new(0, 514, 0, 343)
+            MF.Position = UDim2.new(0.5, 0, _isMobilePlatform and 0.52 or 0.4, 0)
+            MF.Size = UDim2.new(0, _mfW, 0, _mfH)
             MF.BackgroundColor3 = theme.Background
             MF.BackgroundTransparency = 1
             MF.BorderSizePixel = 0
             MF.ClipsDescendants = false
             MF.ZIndex = 10
             MF.Parent = FreshGui
-            CreateCorner(MF, 12)
-            CreateStroke(MF, theme.Stroke, 1)
+            CreateCorner(MF, 18)
+            local _mfStroke = CreateStroke(MF, theme.Stroke, 1)
             CreateShadow(MF)
-            Tween(MF, {BackgroundTransparency = 0, Position = UDim2.new(0.5, 0, 0.5, 0)}, 0.5, Enum.EasingStyle.Back)
+            CreateGlowEffect(MF, theme.Accent)
+            -- Subtle aurora gradient inside window
+            local _mfGrad = Instance.new("UIGradient")
+            _mfGrad.Color = ColorSequence.new({
+                ColorSequenceKeypoint.new(0,   Color3.new(
+                    math.clamp(theme.Background.R + theme.Accent.R * 0.06, 0, 1),
+                    math.clamp(theme.Background.G + theme.Accent.G * 0.03, 0, 1),
+                    math.clamp(theme.Background.B + theme.Accent.B * 0.09, 0, 1)
+                )),
+                ColorSequenceKeypoint.new(0.6, theme.Background),
+                ColorSequenceKeypoint.new(1,   theme.Background),
+            })
+            _mfGrad.Rotation = 135
+            _mfGrad.Parent = MF
+            Tween(MF, {BackgroundTransparency = 0, Position = UDim2.new(0.5, 0, _isMobilePlatform and 0.52 or 0.5, 0)}, 0.55, Enum.EasingStyle.Back)
 
-            -- Topbar
+            -- Topbar (modern premium gradient)
             local TB = Instance.new("Frame")
             TB.Name = "Topbar"
-            TB.Size = UDim2.new(1, 0, 0, 27)
+            TB.Size = UDim2.new(1, 0, 0, 34)
             TB.BackgroundColor3 = theme.Topbar
             TB.BorderSizePixel = 0
             TB.ZIndex = 12
+            TB.ClipsDescendants = false
             TB.Parent = MF
-            CreateCorner(TB, 12)
+            CreateCorner(TB, 16)
+            -- Diagonal gradient: dark accent tint on left → pure topbar on right
+            local _tbGrad = Instance.new("UIGradient")
+            _tbGrad.Color = ColorSequence.new({
+                ColorSequenceKeypoint.new(0,   Color3.new(
+                    math.clamp(theme.Topbar.R + theme.Accent.R * 0.18, 0, 1),
+                    math.clamp(theme.Topbar.G + theme.Accent.G * 0.10, 0, 1),
+                    math.clamp(theme.Topbar.B + theme.Accent.B * 0.28, 0, 1)
+                )),
+                ColorSequenceKeypoint.new(0.55, theme.Topbar),
+                ColorSequenceKeypoint.new(1,    theme.Background),
+            })
+            _tbGrad.Rotation = 160
+            _tbGrad.Parent = TB
+
+            -- Animated shimmer accent line at bottom of topbar
+            local TBAccentLine, _tbLineGrad = CreateAnimatedAccentLine(TB, theme.Accent, theme.AccentGrad)
 
             local TBFix = Instance.new("Frame")
             TBFix.Size = UDim2.new(1, 0, 0.5, 0)
             TBFix.Position = UDim2.new(0, 0, 0.5, 0)
             TBFix.BackgroundColor3 = theme.Topbar
+            TBFix.BackgroundTransparency = 1
             TBFix.BorderSizePixel = 0
             TBFix.ZIndex = 12
             TBFix.Parent = TB
 
             local WinTitle = Instance.new("TextLabel")
-            WinTitle.Position = UDim2.new(0, 9, 0, 3)
-            WinTitle.Size = UDim2.new(0.5, 0, 0, 11)
+            WinTitle.Position = UDim2.new(0, 12, 0, 4)
+            WinTitle.Size = UDim2.new(0.5, 0, 0, 13)
             WinTitle.BackgroundTransparency = 1
             WinTitle.Font = Enum.Font.GothamBold
             WinTitle.TextColor3 = theme.Text
-            WinTitle.TextSize = 15
+            WinTitle.TextSize = 13
             WinTitle.TextXAlignment = Enum.TextXAlignment.Left
             WinTitle.Text = windowConfig.Name
             WinTitle.ZIndex = 13
             WinTitle.Parent = TB
 
             local WinSub = Instance.new("TextLabel")
-            WinSub.Position = UDim2.new(0, 9, 0, 15)
-            WinSub.Size = UDim2.new(0.5, 0, 0, 8)
+            WinSub.Position = UDim2.new(0, 12, 0, 18)
+            WinSub.Size = UDim2.new(0.5, 0, 0, 10)
             WinSub.BackgroundTransparency = 1
             WinSub.Font = Enum.Font.Gotham
             WinSub.TextColor3 = theme.TextSecondary
-            WinSub.TextSize = 11
+            WinSub.TextSize = 9
             WinSub.TextXAlignment = Enum.TextXAlignment.Left
             WinSub.Text = windowConfig.SubTitle
             WinSub.ZIndex = 13
@@ -3099,7 +3291,7 @@ function NexusLib:CreateWindow(config)
             local BtnHolder = Instance.new("Frame")
             BtnHolder.AnchorPoint = Vector2.new(1, 0.5)
             BtnHolder.Position = UDim2.new(1, -12, 0.5, 0)
-            BtnHolder.Size = UDim2.new(0, 61, 0, 16)
+            BtnHolder.Size = UDim2.new(0, 64, 0, 16)
             BtnHolder.BackgroundTransparency = 1
             BtnHolder.ZIndex = 13
             BtnHolder.Parent = TB
@@ -3114,22 +3306,52 @@ function NexusLib:CreateWindow(config)
             local function MkBtn(text, col)
                 local b = Instance.new("TextButton")
                 b.Size = UDim2.new(0, 16, 0, 16)
-                b.BackgroundColor3 = theme.Element
+                b.BackgroundColor3 = col or theme.Element
+                b.BackgroundTransparency = col and 0.0 or 0.4
                 b.BorderSizePixel = 0
                 b.Font = Enum.Font.GothamBold
-                b.TextColor3 = col or theme.TextSecondary
-                b.TextSize = 14
-                b.Text = text
+                b.TextColor3 = col and Color3.fromRGB(255,255,255) or theme.TextSecondary
+                b.TextSize = 10
+                b.Text = ""  -- hide text by default, show on hover
                 b.ZIndex = 14
                 b.Parent = BtnHolder
-                CreateCorner(b, 6)
-                b.MouseEnter:Connect(function() Tween(b, {BackgroundColor3 = theme.ElementHover}, 0.12) end)
-                b.MouseLeave:Connect(function() Tween(b, {BackgroundColor3 = theme.Element}, 0.12) end)
+                CreateCorner(b, 8)
+                -- Inner gradient for depth
+                if col then
+                    local bGrad = Instance.new("UIGradient")
+                    bGrad.Color = ColorSequence.new(
+                        Color3.new(math.clamp(col.R + 0.2, 0, 1), math.clamp(col.G + 0.2, 0, 1), math.clamp(col.B + 0.2, 0, 1)),
+                        col
+                    )
+                    bGrad.Rotation = 135
+                    bGrad.Parent = b
+                end
+                local function showText() b.Text = text end
+                local function hideText() b.Text = "" end
+                -- Touch support
+                b.InputBegan:Connect(function(i)
+                    if i.UserInputType == Enum.UserInputType.Touch or i.UserInputType == Enum.UserInputType.MouseButton1 then
+                        Tween(b, {Size = UDim2.new(0, 14, 0, 14)}, 0.08)
+                    end
+                end)
+                b.InputEnded:Connect(function(i)
+                    if i.UserInputType == Enum.UserInputType.Touch or i.UserInputType == Enum.UserInputType.MouseButton1 then
+                        Tween(b, {Size = UDim2.new(0, 16, 0, 16)}, 0.12, Enum.EasingStyle.Back)
+                    end
+                end)
+                b.MouseEnter:Connect(function()
+                    Tween(b, {BackgroundTransparency = 0}, 0.1)
+                    showText()
+                end)
+                b.MouseLeave:Connect(function()
+                    Tween(b, {BackgroundTransparency = col and 0 or 0.4}, 0.1)
+                    hideText()
+                end)
                 return b
             end
 
-            local RzBtn = MkBtn("⤡")
-            local MnBtn = MkBtn("—")
+            local RzBtn = MkBtn("⤡", Color3.fromRGB(52, 211, 153))
+            local MnBtn = MkBtn("—", Color3.fromRGB(251, 191, 36))
             local ClBtn = MkBtn("✕", Color3.fromRGB(239, 68, 68))
 
             -- Close modal
@@ -3150,9 +3372,11 @@ function NexusLib:CreateWindow(config)
                 Mdl.BorderSizePixel = 0
                 Mdl.ZIndex = 51
                 Mdl.Parent = FreshGui
-                CreateCorner(Mdl, 12)
+                CreateCorner(Mdl, 16)
                 CreateStroke(Mdl, theme.Stroke, 1)
                 CreateShadow(Mdl)
+                CreateGlowEffect(Mdl, theme.Accent)
+                CreateGradient(Mdl, theme.Section, theme.Background, 135)
                 Tween(Mdl, {Size = UDim2.new(0, 167, 0, 89)}, 0.3, Enum.EasingStyle.Back)
 
                 local MdlT = Instance.new("TextLabel")
@@ -3226,8 +3450,10 @@ function NexusLib:CreateWindow(config)
 
                 CnBtn.MouseEnter:Connect(function() Tween(CnBtn, {BackgroundColor3 = theme.ElementHover}, 0.12) end)
                 CnBtn.MouseLeave:Connect(function() Tween(CnBtn, {BackgroundColor3 = theme.Element}, 0.12) end)
+                CnBtn.InputBegan:Connect(function(i) if i.UserInputType == Enum.UserInputType.Touch then CnBtn.MouseButton1Click:Fire() end end)
                 YsBtn.MouseEnter:Connect(function() Tween(YsBtn, {BackgroundColor3 = Color3.fromRGB(200, 40, 40)}, 0.12) end)
                 YsBtn.MouseLeave:Connect(function() Tween(YsBtn, {BackgroundColor3 = Color3.fromRGB(239, 68, 68)}, 0.12) end)
+                YsBtn.InputBegan:Connect(function(i) if i.UserInputType == Enum.UserInputType.Touch then YsBtn.MouseButton1Click:Fire() end end)
             end)
 
             -- Minimize
@@ -3237,7 +3463,7 @@ function NexusLib:CreateWindow(config)
                 minimized = not minimized
                 if minimized then
                     savedSize = MF.Size
-                    Tween(MF, {Size = UDim2.new(savedSize.X.Scale, savedSize.X.Offset, 0, 27)}, 0.35, Enum.EasingStyle.Back)
+                    Tween(MF, {Size = UDim2.new(savedSize.X.Scale, savedSize.X.Offset, 0, 34)}, 0.35, Enum.EasingStyle.Back)
                     MnBtn.Text = "▲"
                 else
                     Tween(MF, {Size = savedSize}, 0.35, Enum.EasingStyle.Back)
@@ -3248,27 +3474,27 @@ function NexusLib:CreateWindow(config)
             -- Resize
             local rzStart, rzPos, rzDrag = nil, nil, false
             RzBtn.InputBegan:Connect(function(i)
-                if i.UserInputType == Enum.UserInputType.MouseButton1 then
+                if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
                     rzDrag = true
                     rzStart = i.Position
                     rzPos = MF.Size
                 end
             end)
             UserInputService.InputChanged:Connect(function(i)
-                if rzDrag and i.UserInputType == Enum.UserInputType.MouseMovement then
+                if rzDrag and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then
                     local dx = i.Position.X - rzStart.X
                     local dy = i.Position.Y - rzStart.Y
                     MF.Size = UDim2.new(0, math.clamp(rzPos.X.Offset + dx, 267, 556), 0, math.clamp(rzPos.Y.Offset + dy, 178, 389))
                 end
             end)
             UserInputService.InputEnded:Connect(function(i)
-                if i.UserInputType == Enum.UserInputType.MouseButton1 then rzDrag = false end
+                if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then rzDrag = false end
             end)
 
-            -- Drag
+            -- Drag (PC + Mobile Touch)
             local drgStart, drgPos, drgActive = nil, nil, false
             TB.InputBegan:Connect(function(i)
-                if i.UserInputType == Enum.UserInputType.MouseButton1 then
+                if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
                     drgActive = true
                     drgStart = i.Position
                     drgPos = MF.Position
@@ -3278,34 +3504,60 @@ function NexusLib:CreateWindow(config)
                 end
             end)
             UserInputService.InputChanged:Connect(function(i)
-                if drgActive and i.UserInputType == Enum.UserInputType.MouseMovement then
+                if drgActive and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then
                     local d = i.Position - drgStart
                     MF.Position = UDim2.new(drgPos.X.Scale, drgPos.X.Offset + d.X, drgPos.Y.Scale, drgPos.Y.Offset + d.Y)
                 end
+            end)
+            UserInputService.InputEnded:Connect(function(i)
+                if i.UserInputType == Enum.UserInputType.Touch then drgActive = false end
             end)
 
             -- Content
             local CF = Instance.new("Frame")
             CF.Name = "Content"
-            CF.Position = UDim2.new(0, 0, 0, 27)
-            CF.Size = UDim2.new(1, 0, 1, -27)
+            CF.Position = UDim2.new(0, 0, 0, 34)
+            CF.Size = UDim2.new(1, 0, 1, -34)
             CF.BackgroundTransparency = 1
             CF.ClipsDescendants = true
             CF.ZIndex = 11
             CF.Parent = MF
 
-            -- Sidebar
+            -- Sidebar (modern with subtle gradient)
             local SB = Instance.new("Frame")
             SB.Name = "Sidebar"
-            SB.Size = UDim2.new(0, 78, 1, 0)
+            SB.Size = UDim2.new(0, 80, 1, 0)
             SB.BackgroundColor3 = theme.Topbar
             SB.BorderSizePixel = 0
             SB.ZIndex = 12
             SB.Parent = CF
+            -- Vertical gradient: slightly accent-tinted top → background
+            local _sbGradInst = Instance.new("UIGradient")
+            _sbGradInst.Color = ColorSequence.new({
+                ColorSequenceKeypoint.new(0,   Color3.new(
+                    math.clamp(theme.Topbar.R + theme.Accent.R * 0.08, 0, 1),
+                    math.clamp(theme.Topbar.G + theme.Accent.G * 0.04, 0, 1),
+                    math.clamp(theme.Topbar.B + theme.Accent.B * 0.12, 0, 1)
+                )),
+                ColorSequenceKeypoint.new(1,   theme.Background),
+            })
+            _sbGradInst.Rotation = 180
+            _sbGradInst.Parent = SB
+
+            -- Subtle right border
+            local SBBorder = Instance.new("Frame")
+            SBBorder.Size = UDim2.new(0, 1, 1, 0)
+            SBBorder.Position = UDim2.new(1, -1, 0, 0)
+            SBBorder.BackgroundColor3 = theme.Stroke
+            SBBorder.BorderSizePixel = 0
+            SBBorder.ZIndex = 13
+            SBBorder.Parent = SB
+            CreateGradient(SBBorder, Color3.fromRGB(0,0,0), theme.Stroke, 180)
 
             local SBFix = Instance.new("Frame")
             SBFix.Size = UDim2.new(1, 0, 0, 12)
             SBFix.BackgroundColor3 = theme.Topbar
+            SBFix.BackgroundTransparency = 1
             SBFix.BorderSizePixel = 0
             SBFix.ZIndex = 12
             SBFix.Parent = SB
@@ -3340,24 +3592,71 @@ function NexusLib:CreateWindow(config)
             -- Tab content area
             local TC = Instance.new("Frame")
             TC.Name = "TabContent"
-            TC.Position = UDim2.new(0, 78, 0, 0)
-            TC.Size = UDim2.new(1, -78, 1, 0)
+            TC.Position = UDim2.new(0, 80, 0, 0)
+            TC.Size = UDim2.new(1, -80, 1, 0)
             TC.BackgroundTransparency = 1
             TC.ClipsDescendants = true
             TC.ZIndex = 11
             TC.Parent = CF
 
+            -- Mobile: resize button hidden (touch drag is enough), show touch indicator
+            if _isMobilePlatform then
+                RzBtn.Visible = false  -- resize via pinch not needed, hide clutter
+                local touchDot = Instance.new("Frame")
+                touchDot.Name = "TouchHandle"
+                touchDot.Size = UDim2.new(0, 28, 0, 4)
+                touchDot.AnchorPoint = Vector2.new(0.5, 1)
+                touchDot.Position = UDim2.new(0.5, 0, 1, -5)
+                touchDot.BackgroundColor3 = theme.TextDisabled
+                touchDot.BackgroundTransparency = 0.3
+                touchDot.BorderSizePixel = 0
+                touchDot.ZIndex = 13
+                touchDot.Parent = MF
+                CreateCorner(touchDot, 2)
+            end
+
             -- Theme callbacks for core elements
             lib:_registerThemeCallback(function(t)
                 theme = t
-                Tween(MF, {BackgroundColor3 = t.Background}, 0.3)
-                Tween(TB, {BackgroundColor3 = t.Topbar}, 0.3)
-                Tween(TBFix, {BackgroundColor3 = t.Topbar}, 0.3)
-                Tween(WinTitle, {TextColor3 = t.Text}, 0.3)
-                Tween(WinSub, {TextColor3 = t.TextSecondary}, 0.3)
-                Tween(SB, {BackgroundColor3 = t.Topbar}, 0.3)
-                Tween(SBFix, {BackgroundColor3 = t.Topbar}, 0.3)
+                Tween(MF, {BackgroundColor3 = t.Background}, 0.35)
+                Tween(TB, {BackgroundColor3 = t.Topbar}, 0.35)
+                Tween(WinTitle, {TextColor3 = t.Text}, 0.35)
+                Tween(WinSub, {TextColor3 = t.TextSecondary}, 0.35)
+                Tween(SB, {BackgroundColor3 = t.Topbar}, 0.35)
                 TL.ScrollBarImageColor3 = t.Scrollbar
+                -- Update gradients live
+                _mfGrad.Color = ColorSequence.new({
+                    ColorSequenceKeypoint.new(0, Color3.new(
+                        math.clamp(t.Background.R + t.Accent.R * 0.06, 0, 1),
+                        math.clamp(t.Background.G + t.Accent.G * 0.03, 0, 1),
+                        math.clamp(t.Background.B + t.Accent.B * 0.09, 0, 1)
+                    )),
+                    ColorSequenceKeypoint.new(0.6, t.Background),
+                    ColorSequenceKeypoint.new(1, t.Background),
+                })
+                _tbGrad.Color = ColorSequence.new({
+                    ColorSequenceKeypoint.new(0, Color3.new(
+                        math.clamp(t.Topbar.R + t.Accent.R * 0.18, 0, 1),
+                        math.clamp(t.Topbar.G + t.Accent.G * 0.10, 0, 1),
+                        math.clamp(t.Topbar.B + t.Accent.B * 0.28, 0, 1)
+                    )),
+                    ColorSequenceKeypoint.new(0.55, t.Topbar),
+                    ColorSequenceKeypoint.new(1, t.Background),
+                })
+                _sbGradInst.Color = ColorSequence.new({
+                    ColorSequenceKeypoint.new(0, Color3.new(
+                        math.clamp(t.Topbar.R + t.Accent.R * 0.08, 0, 1),
+                        math.clamp(t.Topbar.G + t.Accent.G * 0.04, 0, 1),
+                        math.clamp(t.Topbar.B + t.Accent.B * 0.12, 0, 1)
+                    )),
+                    ColorSequenceKeypoint.new(1, t.Background),
+                })
+                _tbLineGrad.Color = ColorSequence.new({
+                    ColorSequenceKeypoint.new(0, Color3.fromRGB(0,0,0)),
+                    ColorSequenceKeypoint.new(0.3, t.Accent),
+                    ColorSequenceKeypoint.new(0.7, t.AccentGrad or t.Accent),
+                    ColorSequenceKeypoint.new(1, Color3.fromRGB(0,0,0)),
+                })
             end)
 
             -- Window object
@@ -3442,18 +3741,36 @@ function NexusLib:CreateWindow(config)
 
                 local function SelectThis()
                     for _, e in ipairs(W._tabs) do
-                        Tween(e.btn, {BackgroundTransparency = 1, TextColor3 = theme.TextSecondary}, 0.2)
-                        Tween(e.ind, {BackgroundTransparency = 1}, 0.2)
+                        Tween(e.btn, {BackgroundTransparency = 1, TextColor3 = theme.TextSecondary}, 0.18)
+                        Tween(e.ind, {BackgroundTransparency = 1, Size = UDim2.new(0, 3, 0, 10)}, 0.18)
                         e.page.Visible = false
                     end
-                    Tween(TBtn, {BackgroundTransparency = 0, BackgroundColor3 = theme.Element, TextColor3 = theme.Text}, 0.2)
-                    Tween(TInd, {BackgroundTransparency = 0}, 0.2)
+                    Tween(TBtn, {BackgroundTransparency = 0.78, BackgroundColor3 = theme.Element, TextColor3 = theme.Text}, 0.22)
+                    Tween(TInd, {BackgroundTransparency = 0, Size = UDim2.new(0, 3, 0, 14)}, 0.22, Enum.EasingStyle.Back)
+                    if _tbtnGrad == nil then
+                        _tbtnGrad = Instance.new("UIGradient")
+                        _tbtnGrad.Color = ColorSequence.new({
+                            ColorSequenceKeypoint.new(0,   theme.Accent),
+                            ColorSequenceKeypoint.new(0.5, theme.AccentGrad or theme.Accent),
+                            ColorSequenceKeypoint.new(1,   theme.Element),
+                        })
+                        _tbtnGrad.Transparency = NumberSequence.new({
+                            NumberSequenceKeypoint.new(0, 0.78),
+                            NumberSequenceKeypoint.new(0.6, 0.92),
+                            NumberSequenceKeypoint.new(1, 1),
+                        })
+                        _tbtnGrad.Rotation = 0
+                        _tbtnGrad.Parent = TBtn
+                    end
                     Page.Visible = true
                     W._activeTab = tName
                     Page.CanvasPosition = Vector2.new(0, 0)
                 end
 
                 TBtn.MouseButton1Click:Connect(SelectThis)
+                TBtn.InputBegan:Connect(function(i)
+                    if i.UserInputType == Enum.UserInputType.Touch then SelectThis() end
+                end)
                 TBtn.MouseEnter:Connect(function()
                     if W._activeTab ~= tName then
                         Tween(TBtn, {BackgroundTransparency = 0.6, BackgroundColor3 = theme.Element}, 0.12)
@@ -3492,8 +3809,20 @@ function NexusLib:CreateWindow(config)
                     SF.AutomaticSize = Enum.AutomaticSize.Y
                     SF.ZIndex = 12
                     SF.Parent = Page
-                    CreateCorner(SF, 10)
+                    CreateCorner(SF, 14)
                     CreateStroke(SF, theme.Stroke, 1)
+                    -- Subtle inner gradient
+                    local _sfGrad = Instance.new("UIGradient")
+                    _sfGrad.Color = ColorSequence.new({
+                        ColorSequenceKeypoint.new(0, Color3.new(
+                            math.clamp(theme.Section.R + 0.03, 0, 1),
+                            math.clamp(theme.Section.G + 0.03, 0, 1),
+                            math.clamp(theme.Section.B + 0.04, 0, 1)
+                        )),
+                        ColorSequenceKeypoint.new(1, theme.Section),
+                    })
+                    _sfGrad.Rotation = 135
+                    _sfGrad.Parent = SF
 
                     local ST = Instance.new("TextLabel")
                     ST.Position = UDim2.new(0, 8, 0, 6)
@@ -3610,13 +3939,13 @@ function NexusLib:CreateWindow(config)
                         btn.MouseLeave:Connect(function() Tween(btn, {BackgroundColor3 = theme.Element}, 0.12) end)
                         btn.MouseButton1Down:Connect(function() Tween(btn, {BackgroundColor3 = theme.Stroke}, 0.08) end)
                         btn.MouseButton1Up:Connect(function() Tween(btn, {BackgroundColor3 = theme.ElementHover}, 0.08) end)
-                        btn.MouseButton1Click:Connect(function()
+                        local function FireBtn()
                             local rp = Instance.new("Frame")
                             rp.AnchorPoint = Vector2.new(0.5, 0.5)
                             rp.Position = UDim2.new(0.5, 0, 0.5, 0)
                             rp.Size = UDim2.new(0, 0, 0, 0)
                             rp.BackgroundColor3 = theme.Accent
-                            rp.BackgroundTransparency = 0.7
+                            rp.BackgroundTransparency = 0.6
                             rp.BorderSizePixel = 0
                             rp.ZIndex = 16
                             rp.Parent = btn
@@ -3624,6 +3953,18 @@ function NexusLib:CreateWindow(config)
                             Tween(rp, {Size = UDim2.new(1.5, 0, 3, 0), BackgroundTransparency = 1}, 0.4)
                             task.delay(0.4, function() rp:Destroy() end)
                             pcall(bCb)
+                        end
+                        btn.MouseButton1Click:Connect(FireBtn)
+                        btn.InputBegan:Connect(function(i)
+                            if i.UserInputType == Enum.UserInputType.Touch then
+                                Tween(btn, {BackgroundColor3 = theme.ElementHover}, 0.1)
+                                FireBtn()
+                            end
+                        end)
+                        btn.InputEnded:Connect(function(i)
+                            if i.UserInputType == Enum.UserInputType.Touch then
+                                Tween(btn, {BackgroundColor3 = theme.Element}, 0.1)
+                            end
                         end)
                         lib:_registerThemeCallback(function(t)
                             Tween(btn, {BackgroundColor3 = t.Element, TextColor3 = t.Text}, 0.3)
@@ -3696,10 +4037,12 @@ function NexusLib:CreateWindow(config)
                             _val = v
                             if v then
                                 Tween(tgBG, {BackgroundColor3 = theme.ToggleEnabled}, 0.22)
-                                Tween(tgC, {Position = UDim2.new(0, 13, 0.5, -5)}, 0.22, Enum.EasingStyle.Back)
+                                Tween(tgC, {Position = UDim2.new(0, 14, 0.5, -5), BackgroundColor3 = Color3.fromRGB(255,255,255)}, 0.22, Enum.EasingStyle.Back)
+                                _tgGrad.Color = ColorSequence.new(theme.AccentDark or theme.ToggleEnabled, theme.AccentGrad or theme.ToggleEnabled)
                             else
                                 Tween(tgBG, {BackgroundColor3 = theme.Toggle}, 0.22)
-                                Tween(tgC, {Position = UDim2.new(0, 2, 0.5, -5)}, 0.22, Enum.EasingStyle.Back)
+                                Tween(tgC, {Position = UDim2.new(0, 2, 0.5, -5), BackgroundColor3 = Color3.fromRGB(200,200,220)}, 0.22, Enum.EasingStyle.Back)
+                                _tgGrad.Color = ColorSequence.new(theme.Toggle, theme.Toggle)
                             end
                             if not skip then
                                 pcall(tgCb, v)
@@ -3708,8 +4051,12 @@ function NexusLib:CreateWindow(config)
                         end
 
                         SetTg(_val, true)
-                        tgBG.InputBegan:Connect(function(i) if i.UserInputType == Enum.UserInputType.MouseButton1 then SetTg(not _val) end end)
-                        row.InputBegan:Connect(function(i) if i.UserInputType == Enum.UserInputType.MouseButton1 then SetTg(not _val) end end)
+                        tgBG.InputBegan:Connect(function(i)
+                            if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then SetTg(not _val) end
+                        end)
+                        row.InputBegan:Connect(function(i)
+                            if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then SetTg(not _val) end
+                        end)
 
                         lib:_registerThemeCallback(function(t)
                             Tween(tgL, {TextColor3 = t.Text}, 0.3)
@@ -3836,21 +4183,21 @@ function NexusLib:CreateWindow(config)
                         end
 
                         sTrk.InputBegan:Connect(function(i)
-                            if i.UserInputType == Enum.UserInputType.MouseButton1 then
+                            if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then
                                 sdragging = true
                                 UpdSlider(GetSV(i.Position.X))
                             end
                         end)
                         sKnob.InputBegan:Connect(function(i)
-                            if i.UserInputType == Enum.UserInputType.MouseButton1 then sdragging = true end
+                            if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then sdragging = true end
                         end)
                         UserInputService.InputChanged:Connect(function(i)
-                            if sdragging and i.UserInputType == Enum.UserInputType.MouseMovement then
+                            if sdragging and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then
                                 UpdSlider(GetSV(i.Position.X))
                             end
                         end)
                         UserInputService.InputEnded:Connect(function(i)
-                            if i.UserInputType == Enum.UserInputType.MouseButton1 then sdragging = false end
+                            if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then sdragging = false end
                         end)
 
                         lib:_registerThemeCallback(function(t)
@@ -3992,6 +4339,57 @@ function NexusLib:CreateWindow(config)
 
                         dBtn.MouseEnter:Connect(function() Tween(dBtn, {BackgroundColor3 = theme.ElementHover}, 0.12) end)
                         dBtn.MouseLeave:Connect(function() Tween(dBtn, {BackgroundColor3 = theme.Element}, 0.12) end)
+                        dBtn.InputBegan:Connect(function(i)
+                            if i.UserInputType == Enum.UserInputType.Touch then
+                                if _dopen then CloseDrop() else
+                                    _dopen = true
+                                    dBtn.Text = _dval .. "  ▲"
+                                    local oh = 23
+                                    local tot = #dOpts * oh
+                                    _dframe = Instance.new("Frame")
+                                    _dframe.Name = "DDrop"
+                                    _dframe.Position = UDim2.new(0, 14, 1, 4)
+                                    _dframe.Size = UDim2.new(1, -28, 0, 0)
+                                    _dframe.BackgroundColor3 = theme.Element
+                                    _dframe.BorderSizePixel = 0
+                                    _dframe.ClipsDescendants = true
+                                    _dframe.ZIndex = 30
+                                    _dframe.Parent = row
+                                    CreateCorner(_dframe, 8)
+                                    CreateStroke(_dframe, theme.Stroke, 1)
+                                    local dScroll2 = Instance.new("ScrollingFrame")
+                                    dScroll2.Size = UDim2.new(1,0,1,0)
+                                    dScroll2.BackgroundTransparency = 1
+                                    dScroll2.ScrollBarThickness = 3
+                                    dScroll2.ScrollBarImageColor3 = theme.Scrollbar
+                                    dScroll2.BorderSizePixel = 0
+                                    dScroll2.ZIndex = 31
+                                    dScroll2.CanvasSize = UDim2.new(0,0,0,tot)
+                                    dScroll2.Parent = _dframe
+                                    local dLL2 = Instance.new("UIListLayout")
+                                    dLL2.SortOrder = Enum.SortOrder.LayoutOrder
+                                    dLL2.Parent = dScroll2
+                                    for _, opt in ipairs(dOpts) do
+                                        local ob = Instance.new("TextButton")
+                                        ob.Size = UDim2.new(1,0,0,oh)
+                                        ob.BackgroundTransparency = 1
+                                        ob.Font = opt == _dval and Enum.Font.GothamBold or Enum.Font.Gotham
+                                        ob.TextColor3 = opt == _dval and theme.Accent or theme.Text
+                                        ob.TextSize = 12
+                                        ob.Text = opt
+                                        ob.ZIndex = 32
+                                        ob.Parent = dScroll2
+                                        ob.InputBegan:Connect(function(ii)
+                                            if ii.UserInputType == Enum.UserInputType.Touch then SetDV(opt); CloseDrop() end
+                                        end)
+                                        ob.MouseButton1Click:Connect(function() SetDV(opt); CloseDrop() end)
+                                    end
+                                    local ch = math.min(tot, 89)
+                                    Tween(_dframe, {Size = UDim2.new(1,-28,0,ch)}, 0.22, Enum.EasingStyle.Back)
+                                    row.Size = UDim2.new(1,0,0,24 + ch + 8)
+                                end
+                            end
+                        end)
 
                         lib:_registerThemeCallback(function(t)
                             Tween(dLabel, {TextColor3 = t.Text}, 0.3)
@@ -4527,7 +4925,7 @@ end
 -- ============================================================
 -- LIBRARY METADATA
 -- ============================================================
-NexusLib.Version = "2.0.0"
+NexusLib.Version = "3.0.0"
 NexusLib.Author = "NexusLib"
 NexusLib.Themes = Themes
 
