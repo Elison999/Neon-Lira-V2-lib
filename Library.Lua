@@ -898,7 +898,7 @@ function NexusLib:CreateWindow(config)
         MainFrame.Name = "MainFrame"
         MainFrame.AnchorPoint = Vector2.new(0.5, 0.5)
         MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
-        MainFrame.Size = UDim2.new(0, 514, 0, 343)
+        MainFrame.Size = UDim2.new(0, 400, 0, 267)
         MainFrame.BackgroundColor3 = theme.Background
         MainFrame.BorderSizePixel = 0
         MainFrame.ClipsDescendants = false
@@ -918,7 +918,7 @@ function NexusLib:CreateWindow(config)
         -- ============================================================
         local Topbar = Instance.new("Frame")
         Topbar.Name = "Topbar"
-        Topbar.Size = UDim2.new(1, 0, 0, 34)
+        Topbar.Size = UDim2.new(1, 0, 0, 27)
         Topbar.BackgroundColor3 = theme.Topbar
         Topbar.BorderSizePixel = 0
         Topbar.ZIndex = 12
@@ -967,7 +967,7 @@ function NexusLib:CreateWindow(config)
         ButtonsFrame.Name = "Buttons"
         ButtonsFrame.AnchorPoint = Vector2.new(1, 0.5)
         ButtonsFrame.Position = UDim2.new(1, -12, 0.5, 0)
-        ButtonsFrame.Size = UDim2.new(0, 77, 0, 20)
+        ButtonsFrame.Size = UDim2.new(0, 60, 0, 16)
         ButtonsFrame.BackgroundTransparency = 1
         ButtonsFrame.ZIndex = 13
         ButtonsFrame.Parent = Topbar
@@ -981,7 +981,7 @@ function NexusLib:CreateWindow(config)
 
         local function MakeTopbarBtn(text, color)
             local Btn = Instance.new("TextButton")
-            Btn.Size = UDim2.new(0, 20, 0, 20)
+            Btn.Size = UDim2.new(0, 16, 0, 16)
             Btn.BackgroundColor3 = theme.Element
             Btn.BorderSizePixel = 0
             Btn.Font = Enum.Font.GothamBold
@@ -1023,7 +1023,7 @@ function NexusLib:CreateWindow(config)
             Modal.Name = "Modal"
             Modal.AnchorPoint = Vector2.new(0.5, 0.5)
             Modal.Position = UDim2.new(0.5, 0, 0.5, 0)
-            Modal.Size = UDim2.new(0, 214, 0, 0)
+            Modal.Size = UDim2.new(0, 167, 0, 0)
             Modal.BackgroundColor3 = theme.Section
             Modal.BorderSizePixel = 0
             Modal.ZIndex = 51
@@ -1031,7 +1031,7 @@ function NexusLib:CreateWindow(config)
             CreateCorner(Modal, 12)
             CreateStroke(Modal, theme.Stroke, 1)
             CreateShadow(Modal)
-            Tween(Modal, {Size = UDim2.new(0, 214, 0, 114)}, 0.35, Enum.EasingStyle.Back)
+            Tween(Modal, {Size = UDim2.new(0, 167, 0, 89)}, 0.35, Enum.EasingStyle.Back)
 
             local ModalTitle = Instance.new("TextLabel")
             ModalTitle.Name = "Title"
@@ -1076,7 +1076,7 @@ function NexusLib:CreateWindow(config)
             MBtnLayout.Parent = ModalBtnsFrame
 
             local CancelBtn = Instance.new("TextButton")
-            CancelBtn.Size = UDim2.new(0, 79, 0, 27)
+            CancelBtn.Size = UDim2.new(0, 61, 0, 21)
             CancelBtn.BackgroundColor3 = theme.Element
             CancelBtn.BorderSizePixel = 0
             CancelBtn.Font = Enum.Font.GothamBold
@@ -1088,7 +1088,7 @@ function NexusLib:CreateWindow(config)
             CreateCorner(CancelBtn, 8)
 
             local YesBtn = Instance.new("TextButton")
-            YesBtn.Size = UDim2.new(0, 79, 0, 27)
+            YesBtn.Size = UDim2.new(0, 61, 0, 21)
             YesBtn.BackgroundColor3 = Color3.fromRGB(239, 68, 68)
             YesBtn.BorderSizePixel = 0
             YesBtn.Font = Enum.Font.GothamBold
@@ -1113,7 +1113,7 @@ function NexusLib:CreateWindow(config)
             end)
 
             CancelBtn.MouseButton1Click:Connect(function()
-                Tween(Modal, {Size = UDim2.new(0, 214, 0, 0), BackgroundTransparency = 1}, 0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In)
+                Tween(Modal, {Size = UDim2.new(0, 167, 0, 0), BackgroundTransparency = 1}, 0.3, Enum.EasingStyle.Back, Enum.EasingDirection.In)
                 Tween(ModalBG, {BackgroundTransparency = 1}, 0.3)
                 task.delay(0.3, function()
                     Modal:Destroy()
@@ -1122,7 +1122,7 @@ function NexusLib:CreateWindow(config)
             end)
 
             YesBtn.MouseButton1Click:Connect(function()
-                Tween(MainFrame, {BackgroundTransparency = 1, Size = UDim2.new(0, 514, 0, 0)}, 0.4, Enum.EasingStyle.Back, Enum.EasingDirection.In)
+                Tween(MainFrame, {BackgroundTransparency = 1, Size = UDim2.new(0, 400, 0, 0)}, 0.4, Enum.EasingStyle.Back, Enum.EasingDirection.In)
                 Modal:Destroy()
                 ModalBG:Destroy()
                 task.delay(0.4, function()
@@ -1140,7 +1140,7 @@ function NexusLib:CreateWindow(config)
             lib._minimized = not lib._minimized
             if lib._minimized then
                 _contentSize = MainFrame.Size
-                Tween(MainFrame, {Size = UDim2.new(0, 514, 0, 34)}, 0.4, Enum.EasingStyle.Back)
+                Tween(MainFrame, {Size = UDim2.new(0, 400, 0, 27)}, 0.4, Enum.EasingStyle.Back)
                 MinimizeBtn.Text = "▲"
             else
                 Tween(MainFrame, {Size = _contentSize}, 0.4, Enum.EasingStyle.Back)
@@ -1154,8 +1154,8 @@ function NexusLib:CreateWindow(config)
         local resizing = false
         local resizeStart = nil
         local resizeFrameStart = nil
-        local MIN_W, MAX_W = 357, 714
-        local MIN_H, MAX_H = 250, 500
+        local MIN_W, MAX_W = 278, 556
+        local MIN_H, MAX_H = 194, 389
 
         ResizeBtn.MouseButton1Down:Connect(function()
             resizing = true
@@ -1216,8 +1216,8 @@ function NexusLib:CreateWindow(config)
         -- ============================================================
         local ContentFrame = Instance.new("Frame")
         ContentFrame.Name = "Content"
-        ContentFrame.Position = UDim2.new(0, 0, 0, 34)
-        ContentFrame.Size = UDim2.new(1, 0, 1, -34)
+        ContentFrame.Position = UDim2.new(0, 0, 0, 27)
+        ContentFrame.Size = UDim2.new(1, 0, 1, -27)
         ContentFrame.BackgroundTransparency = 1
         ContentFrame.ZIndex = 11
         ContentFrame.ClipsDescendants = true
@@ -1226,7 +1226,7 @@ function NexusLib:CreateWindow(config)
         -- Sidebar for tabs
         local Sidebar = Instance.new("Frame")
         Sidebar.Name = "Sidebar"
-        Sidebar.Size = UDim2.new(0, 100, 1, 0)
+        Sidebar.Size = UDim2.new(0, 78, 1, 0)
         Sidebar.BackgroundColor3 = theme.Topbar
         Sidebar.BorderSizePixel = 0
         Sidebar.ZIndex = 12
@@ -1270,8 +1270,8 @@ function NexusLib:CreateWindow(config)
         -- Main tab content area
         local TabContent = Instance.new("ScrollingFrame")
         TabContent.Name = "TabContent"
-        TabContent.Position = UDim2.new(0, 100, 0, 0)
-        TabContent.Size = UDim2.new(1, -100, 1, 0)
+        TabContent.Position = UDim2.new(0, 78, 0, 0)
+        TabContent.Size = UDim2.new(1, -78, 1, 0)
         TabContent.BackgroundTransparency = 1
         TabContent.ScrollBarThickness = 3
         TabContent.ScrollBarImageColor3 = theme.Scrollbar
@@ -1347,7 +1347,7 @@ function NexusLib:CreateWindow(config)
             -- Sidebar Tab Button
             local TabBtn = Instance.new("TextButton")
             TabBtn.Name = "TabBtn_" .. tabConfig.Name
-            TabBtn.Size = UDim2.new(1, 0, 0, 27)
+            TabBtn.Size = UDim2.new(1, 0, 0, 21)
             TabBtn.BackgroundColor3 = theme.Background
             TabBtn.BackgroundTransparency = 1
             TabBtn.BorderSizePixel = 0
@@ -1362,8 +1362,8 @@ function NexusLib:CreateWindow(config)
 
             local TabBtnIndicator = Instance.new("Frame")
             TabBtnIndicator.Name = "Indicator"
-            TabBtnIndicator.Position = UDim2.new(0, 0, 0.5, -7)
-            TabBtnIndicator.Size = UDim2.new(0, 3, 0, 14)
+            TabBtnIndicator.Position = UDim2.new(0, 0, 0.5, -6)
+            TabBtnIndicator.Size = UDim2.new(0, 3, 0, 11)
             TabBtnIndicator.BackgroundColor3 = theme.Accent
             TabBtnIndicator.BackgroundTransparency = 1
             TabBtnIndicator.BorderSizePixel = 0
@@ -1454,8 +1454,8 @@ function NexusLib:CreateWindow(config)
 
                 local SectionTitle = Instance.new("TextLabel")
                 SectionTitle.Name = "Title"
-                SectionTitle.Position = UDim2.new(0, 10, 0, 7)
-                SectionTitle.Size = UDim2.new(1, -28, 0, 13)
+                SectionTitle.Position = UDim2.new(0, 8, 0, 6)
+                SectionTitle.Size = UDim2.new(1, -28, 0, 10)
                 SectionTitle.BackgroundTransparency = 1
                 SectionTitle.Font = Enum.Font.GothamBold
                 SectionTitle.TextColor3 = theme.Accent
@@ -1467,7 +1467,7 @@ function NexusLib:CreateWindow(config)
 
                 local SectionDivider = Instance.new("Frame")
                 SectionDivider.Name = "Divider"
-                SectionDivider.Position = UDim2.new(0, 10, 0, 23)
+                SectionDivider.Position = UDim2.new(0, 8, 0, 18)
                 SectionDivider.Size = UDim2.new(1, -28, 0, 1)
                 SectionDivider.BackgroundColor3 = theme.Stroke
                 SectionDivider.BorderSizePixel = 0
@@ -1476,7 +1476,7 @@ function NexusLib:CreateWindow(config)
 
                 local SectionContent = Instance.new("Frame")
                 SectionContent.Name = "Content"
-                SectionContent.Position = UDim2.new(0, 0, 0, 26)
+                SectionContent.Position = UDim2.new(0, 0, 0, 20)
                 SectionContent.Size = UDim2.new(1, 0, 0, 0)
                 SectionContent.BackgroundTransparency = 1
                 SectionContent.AutomaticSize = Enum.AutomaticSize.Y
@@ -1506,7 +1506,7 @@ function NexusLib:CreateWindow(config)
                 -- Helper: create element row frame
                 local function MakeElementFrame(height)
                     local f = Instance.new("Frame")
-                    f.Size = UDim2.new(1, 0, 0, height or 31)
+                    f.Size = UDim2.new(1, 0, 0, height or 24)
                     f.BackgroundColor3 = theme.Section
                     f.BorderSizePixel = 0
                     f.ZIndex = 14
@@ -1527,7 +1527,7 @@ function NexusLib:CreateWindow(config)
                         Text = config.Text or "Label",
                     }
 
-                    local LabelFrame = MakeElementFrame(27)
+                    local LabelFrame = MakeElementFrame(21)
 
                     local Label = Instance.new("TextLabel")
                     Label.Name = "Label"
@@ -1566,12 +1566,12 @@ function NexusLib:CreateWindow(config)
                         Callback    = config.Callback or function() end,
                     }
 
-                    local BtnFrame = MakeElementFrame(btnConfig.Description ~= "" and 41 or 31)
+                    local BtnFrame = MakeElementFrame(btnConfig.Description ~= "" and 32 or 24)
 
                     local Btn = Instance.new("TextButton")
                     Btn.Name = "Button"
-                    Btn.Position = UDim2.new(0, 10, 0, 5)
-                    Btn.Size = UDim2.new(1, -28, 0, btnConfig.Description ~= "" and 31 or 21)
+                    Btn.Position = UDim2.new(0, 8, 0, 4)
+                    Btn.Size = UDim2.new(1, -28, 0, btnConfig.Description ~= "" and 24 or 17)
                     Btn.BackgroundColor3 = theme.Element
                     Btn.BorderSizePixel = 0
                     Btn.Font = Enum.Font.GothamBold
@@ -1654,7 +1654,7 @@ function NexusLib:CreateWindow(config)
                         Id          = config.Id or config.Name,
                     }
 
-                    local TogFrame = MakeElementFrame(togConfig.Description ~= "" and 40 or 31)
+                    local TogFrame = MakeElementFrame(togConfig.Description ~= "" and 31 or 24)
 
                     local TogLabel = Instance.new("TextLabel")
                     TogLabel.Name = "Label"
@@ -1692,7 +1692,7 @@ function NexusLib:CreateWindow(config)
                     TogBG.Name = "TogBG"
                     TogBG.AnchorPoint = Vector2.new(1, 0.5)
                     TogBG.Position = UDim2.new(1, -14, 0.5, 0)
-                    TogBG.Size = UDim2.new(0, 31, 0, 17)
+                    TogBG.Size = UDim2.new(0, 24, 0, 13)
                     TogBG.BackgroundColor3 = theme.Toggle
                     TogBG.BorderSizePixel = 0
                     TogBG.ZIndex = 15
@@ -1701,8 +1701,8 @@ function NexusLib:CreateWindow(config)
 
                     local TogCircle = Instance.new("Frame")
                     TogCircle.Name = "Circle"
-                    TogCircle.Position = UDim2.new(0, 2, 0.5, -6)
-                    TogCircle.Size = UDim2.new(0, 13, 0, 13)
+                    TogCircle.Position = UDim2.new(0, 2, 0.5, -5)
+                    TogCircle.Size = UDim2.new(0, 10, 0, 10)
                     TogCircle.BackgroundColor3 = theme.Text
                     TogCircle.BorderSizePixel = 0
                     TogCircle.ZIndex = 16
@@ -1715,10 +1715,10 @@ function NexusLib:CreateWindow(config)
                         _value = val
                         if val then
                             Tween(TogBG, {BackgroundColor3 = theme.ToggleEnabled}, 0.25)
-                            Tween(TogCircle, {Position = UDim2.new(0, 16, 0.5, -6)}, 0.25, Enum.EasingStyle.Back)
+                            Tween(TogCircle, {Position = UDim2.new(0, 13, 0.5, -5)}, 0.25, Enum.EasingStyle.Back)
                         else
                             Tween(TogBG, {BackgroundColor3 = theme.Toggle}, 0.25)
-                            Tween(TogCircle, {Position = UDim2.new(0, 2, 0.5, -6)}, 0.25, Enum.EasingStyle.Back)
+                            Tween(TogCircle, {Position = UDim2.new(0, 2, 0.5, -5)}, 0.25, Enum.EasingStyle.Back)
                         end
                         if not skipCallback then
                             pcall(togConfig.Callback, val)
@@ -1780,7 +1780,7 @@ function NexusLib:CreateWindow(config)
                         Id          = config.Id or config.Name,
                     }
 
-                    local SliderFrame = MakeElementFrame(sliderConfig.Description ~= "" and 50 or 41)
+                    local SliderFrame = MakeElementFrame(sliderConfig.Description ~= "" and 39 or 32)
 
                     local SliderLabel = Instance.new("TextLabel")
                     SliderLabel.Name = "Label"
@@ -1851,7 +1851,7 @@ function NexusLib:CreateWindow(config)
                     Knob.Name = "Knob"
                     Knob.AnchorPoint = Vector2.new(0.5, 0.5)
                     Knob.Position = UDim2.new(0, 0, 0.5, 0)
-                    Knob.Size = UDim2.new(0, 11, 0, 11)
+                    Knob.Size = UDim2.new(0, 9, 0, 9)
                     Knob.BackgroundColor3 = theme.Accent
                     Knob.BorderSizePixel = 0
                     Knob.ZIndex = 17
@@ -2074,10 +2074,10 @@ function NexusLib:CreateWindow(config)
                             end)
                         end
 
-                        local clampedH = math.min(totalH, 114)
+                        local clampedH = math.min(totalH, 89)
                         Tween(_dropdownFrame, {Size = UDim2.new(1, -28, 0, clampedH)}, 0.25, Enum.EasingStyle.Back)
 
-                        DDFrame.Size = UDim2.new(1, 0, 0, 31 + clampedH + 6)
+                        DDFrame.Size = UDim2.new(1, 0, 0, 24 + clampedH + 4)
                     end)
 
                     DDBtn.MouseEnter:Connect(function()
@@ -2147,8 +2147,8 @@ function NexusLib:CreateWindow(config)
 
                     local TBInputBG = Instance.new("Frame")
                     TBInputBG.Name = "InputBG"
-                    TBInputBG.Position = UDim2.new(0, 10, 0, 20)
-                    TBInputBG.Size = UDim2.new(1, -28, 0, 17)
+                    TBInputBG.Position = UDim2.new(0, 8, 0, 16)
+                    TBInputBG.Size = UDim2.new(1, -28, 0, 13)
                     TBInputBG.BackgroundColor3 = theme.Element
                     TBInputBG.BorderSizePixel = 0
                     TBInputBG.ZIndex = 15
@@ -2249,7 +2249,7 @@ function NexusLib:CreateWindow(config)
                     KBBtn.Name = "KeyBtn"
                     KBBtn.AnchorPoint = Vector2.new(1, 0.5)
                     KBBtn.Position = UDim2.new(1, -14, 0.5, 0)
-                    KBBtn.Size = UDim2.new(0, 57, 0, 20)
+                    KBBtn.Size = UDim2.new(0, 44, 0, 16)
                     KBBtn.BackgroundColor3 = theme.Element
                     KBBtn.BorderSizePixel = 0
                     KBBtn.Font = Enum.Font.GothamBold
@@ -2363,7 +2363,7 @@ function NexusLib:CreateWindow(config)
                     CPPreview.Name = "Preview"
                     CPPreview.AnchorPoint = Vector2.new(1, 0.5)
                     CPPreview.Position = UDim2.new(1, -14, 0.5, 0)
-                    CPPreview.Size = UDim2.new(0, 31, 0, 20)
+                    CPPreview.Size = UDim2.new(0, 24, 0, 16)
                     CPPreview.BackgroundColor3 = cpConfig.Default
                     CPPreview.BorderSizePixel = 0
                     CPPreview.Text = ""
@@ -2408,7 +2408,7 @@ function NexusLib:CreateWindow(config)
                         end
                         _open = true
 
-                        local pickerH = 129
+                        local pickerH = 100
 
                         _pickerFrame = Instance.new("Frame")
                         _pickerFrame.Name = "ColorPicker"
@@ -2572,7 +2572,7 @@ function NexusLib:CreateWindow(config)
                         end)
 
                         Tween(_pickerFrame, {Size = UDim2.new(1, -28, 0, pickerH)}, 0.25, Enum.EasingStyle.Back)
-                        CPFrame.Size = UDim2.new(1, 0, 0, 31 + pickerH + 6)
+                        CPFrame.Size = UDim2.new(1, 0, 0, 24 + pickerH + 4)
                     end)
 
                     lib:_registerThemeCallback(function(t)
@@ -3056,7 +3056,7 @@ function NexusLib:CreateWindow(config)
             -- Topbar
             local TB = Instance.new("Frame")
             TB.Name = "Topbar"
-            TB.Size = UDim2.new(1, 0, 0, 34)
+            TB.Size = UDim2.new(1, 0, 0, 27)
             TB.BackgroundColor3 = theme.Topbar
             TB.BorderSizePixel = 0
             TB.ZIndex = 12
@@ -3072,8 +3072,8 @@ function NexusLib:CreateWindow(config)
             TBFix.Parent = TB
 
             local WinTitle = Instance.new("TextLabel")
-            WinTitle.Position = UDim2.new(0, 11, 0, 4)
-            WinTitle.Size = UDim2.new(0.5, 0, 0, 14)
+            WinTitle.Position = UDim2.new(0, 9, 0, 3)
+            WinTitle.Size = UDim2.new(0.5, 0, 0, 11)
             WinTitle.BackgroundTransparency = 1
             WinTitle.Font = Enum.Font.GothamBold
             WinTitle.TextColor3 = theme.Text
@@ -3084,8 +3084,8 @@ function NexusLib:CreateWindow(config)
             WinTitle.Parent = TB
 
             local WinSub = Instance.new("TextLabel")
-            WinSub.Position = UDim2.new(0, 11, 0, 19)
-            WinSub.Size = UDim2.new(0.5, 0, 0, 10)
+            WinSub.Position = UDim2.new(0, 9, 0, 15)
+            WinSub.Size = UDim2.new(0.5, 0, 0, 8)
             WinSub.BackgroundTransparency = 1
             WinSub.Font = Enum.Font.Gotham
             WinSub.TextColor3 = theme.TextSecondary
@@ -3099,7 +3099,7 @@ function NexusLib:CreateWindow(config)
             local BtnHolder = Instance.new("Frame")
             BtnHolder.AnchorPoint = Vector2.new(1, 0.5)
             BtnHolder.Position = UDim2.new(1, -12, 0.5, 0)
-            BtnHolder.Size = UDim2.new(0, 79, 0, 20)
+            BtnHolder.Size = UDim2.new(0, 61, 0, 16)
             BtnHolder.BackgroundTransparency = 1
             BtnHolder.ZIndex = 13
             BtnHolder.Parent = TB
@@ -3113,7 +3113,7 @@ function NexusLib:CreateWindow(config)
 
             local function MkBtn(text, col)
                 local b = Instance.new("TextButton")
-                b.Size = UDim2.new(0, 20, 0, 20)
+                b.Size = UDim2.new(0, 16, 0, 16)
                 b.BackgroundColor3 = theme.Element
                 b.BorderSizePixel = 0
                 b.Font = Enum.Font.GothamBold
@@ -3145,7 +3145,7 @@ function NexusLib:CreateWindow(config)
                 local Mdl = Instance.new("Frame")
                 Mdl.AnchorPoint = Vector2.new(0.5, 0.5)
                 Mdl.Position = UDim2.new(0.5, 0, 0.5, 0)
-                Mdl.Size = UDim2.new(0, 214, 0, 0)
+                Mdl.Size = UDim2.new(0, 167, 0, 0)
                 Mdl.BackgroundColor3 = theme.Section
                 Mdl.BorderSizePixel = 0
                 Mdl.ZIndex = 51
@@ -3153,7 +3153,7 @@ function NexusLib:CreateWindow(config)
                 CreateCorner(Mdl, 12)
                 CreateStroke(Mdl, theme.Stroke, 1)
                 CreateShadow(Mdl)
-                Tween(Mdl, {Size = UDim2.new(0, 214, 0, 114)}, 0.3, Enum.EasingStyle.Back)
+                Tween(Mdl, {Size = UDim2.new(0, 167, 0, 89)}, 0.3, Enum.EasingStyle.Back)
 
                 local MdlT = Instance.new("TextLabel")
                 MdlT.AnchorPoint = Vector2.new(0.5, 0)
@@ -3196,7 +3196,7 @@ function NexusLib:CreateWindow(config)
 
                 local function MkMdlBtn(text, bg, tc)
                     local b = Instance.new("TextButton")
-                    b.Size = UDim2.new(0, 79, 0, 26)
+                    b.Size = UDim2.new(0, 61, 0, 20)
                     b.BackgroundColor3 = bg
                     b.BorderSizePixel = 0
                     b.Font = Enum.Font.GothamBold
@@ -3213,13 +3213,13 @@ function NexusLib:CreateWindow(config)
                 local YsBtn = MkMdlBtn("Yes, Close", Color3.fromRGB(239, 68, 68), Color3.fromRGB(255, 255, 255))
 
                 CnBtn.MouseButton1Click:Connect(function()
-                    Tween(Mdl, {Size = UDim2.new(0, 214, 0, 0), BackgroundTransparency = 1}, 0.25, Enum.EasingStyle.Back, Enum.EasingDirection.In)
+                    Tween(Mdl, {Size = UDim2.new(0, 167, 0, 0), BackgroundTransparency = 1}, 0.25, Enum.EasingStyle.Back, Enum.EasingDirection.In)
                     Tween(OvBG, {BackgroundTransparency = 1}, 0.25)
                     task.delay(0.25, function() Mdl:Destroy() OvBG:Destroy() end)
                 end)
 
                 YsBtn.MouseButton1Click:Connect(function()
-                    Tween(MF, {BackgroundTransparency = 1, Size = UDim2.new(0, 514, 0, 0)}, 0.35, Enum.EasingStyle.Back, Enum.EasingDirection.In)
+                    Tween(MF, {BackgroundTransparency = 1, Size = UDim2.new(0, 400, 0, 0)}, 0.35, Enum.EasingStyle.Back, Enum.EasingDirection.In)
                     Mdl:Destroy() OvBG:Destroy()
                     task.delay(0.35, function() FreshGui:Destroy() end)
                 end)
@@ -3237,7 +3237,7 @@ function NexusLib:CreateWindow(config)
                 minimized = not minimized
                 if minimized then
                     savedSize = MF.Size
-                    Tween(MF, {Size = UDim2.new(savedSize.X.Scale, savedSize.X.Offset, 0, 34)}, 0.35, Enum.EasingStyle.Back)
+                    Tween(MF, {Size = UDim2.new(savedSize.X.Scale, savedSize.X.Offset, 0, 27)}, 0.35, Enum.EasingStyle.Back)
                     MnBtn.Text = "▲"
                 else
                     Tween(MF, {Size = savedSize}, 0.35, Enum.EasingStyle.Back)
@@ -3258,7 +3258,7 @@ function NexusLib:CreateWindow(config)
                 if rzDrag and i.UserInputType == Enum.UserInputType.MouseMovement then
                     local dx = i.Position.X - rzStart.X
                     local dy = i.Position.Y - rzStart.Y
-                    MF.Size = UDim2.new(0, math.clamp(rzPos.X.Offset + dx, 343, 714), 0, math.clamp(rzPos.Y.Offset + dy, 229, 500))
+                    MF.Size = UDim2.new(0, math.clamp(rzPos.X.Offset + dx, 267, 556), 0, math.clamp(rzPos.Y.Offset + dy, 178, 389))
                 end
             end)
             UserInputService.InputEnded:Connect(function(i)
@@ -3287,8 +3287,8 @@ function NexusLib:CreateWindow(config)
             -- Content
             local CF = Instance.new("Frame")
             CF.Name = "Content"
-            CF.Position = UDim2.new(0, 0, 0, 34)
-            CF.Size = UDim2.new(1, 0, 1, -34)
+            CF.Position = UDim2.new(0, 0, 0, 27)
+            CF.Size = UDim2.new(1, 0, 1, -27)
             CF.BackgroundTransparency = 1
             CF.ClipsDescendants = true
             CF.ZIndex = 11
@@ -3297,7 +3297,7 @@ function NexusLib:CreateWindow(config)
             -- Sidebar
             local SB = Instance.new("Frame")
             SB.Name = "Sidebar"
-            SB.Size = UDim2.new(0, 100, 1, 0)
+            SB.Size = UDim2.new(0, 78, 1, 0)
             SB.BackgroundColor3 = theme.Topbar
             SB.BorderSizePixel = 0
             SB.ZIndex = 12
@@ -3340,8 +3340,8 @@ function NexusLib:CreateWindow(config)
             -- Tab content area
             local TC = Instance.new("Frame")
             TC.Name = "TabContent"
-            TC.Position = UDim2.new(0, 100, 0, 0)
-            TC.Size = UDim2.new(1, -100, 1, 0)
+            TC.Position = UDim2.new(0, 78, 0, 0)
+            TC.Size = UDim2.new(1, -78, 1, 0)
             TC.BackgroundTransparency = 1
             TC.ClipsDescendants = true
             TC.ZIndex = 11
@@ -3409,7 +3409,7 @@ function NexusLib:CreateWindow(config)
 
                 -- Tab button
                 local TBtn = Instance.new("TextButton")
-                TBtn.Size = UDim2.new(1, 0, 0, 26)
+                TBtn.Size = UDim2.new(1, 0, 0, 20)
                 TBtn.BackgroundColor3 = theme.Element
                 TBtn.BackgroundTransparency = 1
                 TBtn.BorderSizePixel = 0
@@ -3428,8 +3428,8 @@ function NexusLib:CreateWindow(config)
 
                 local TInd = Instance.new("Frame")
                 TInd.Name = "Indicator"
-                TInd.Position = UDim2.new(0, 0, 0.5, -6)
-                TInd.Size = UDim2.new(0, 3, 0, 11)
+                TInd.Position = UDim2.new(0, 0, 0.5, -4)
+                TInd.Size = UDim2.new(0, 3, 0, 9)
                 TInd.BackgroundColor3 = theme.Accent
                 TInd.BackgroundTransparency = 1
                 TInd.BorderSizePixel = 0
@@ -3496,8 +3496,8 @@ function NexusLib:CreateWindow(config)
                     CreateStroke(SF, theme.Stroke, 1)
 
                     local ST = Instance.new("TextLabel")
-                    ST.Position = UDim2.new(0, 10, 0, 7)
-                    ST.Size = UDim2.new(1, -28, 0, 11)
+                    ST.Position = UDim2.new(0, 8, 0, 6)
+                    ST.Size = UDim2.new(1, -28, 0, 9)
                     ST.BackgroundTransparency = 1
                     ST.Font = Enum.Font.GothamBold
                     ST.TextColor3 = theme.Accent
@@ -3508,7 +3508,7 @@ function NexusLib:CreateWindow(config)
                     ST.Parent = SF
 
                     local SD = Instance.new("Frame")
-                    SD.Position = UDim2.new(0, 10, 0, 21)
+                    SD.Position = UDim2.new(0, 8, 0, 17)
                     SD.Size = UDim2.new(1, -28, 0, 1)
                     SD.BackgroundColor3 = theme.Stroke
                     SD.BorderSizePixel = 0
@@ -3517,7 +3517,7 @@ function NexusLib:CreateWindow(config)
 
                     local SC = Instance.new("Frame")
                     SC.Name = "Content"
-                    SC.Position = UDim2.new(0, 0, 0, 24)
+                    SC.Position = UDim2.new(0, 0, 0, 19)
                     SC.Size = UDim2.new(1, 0, 0, 0)
                     SC.BackgroundTransparency = 1
                     SC.AutomaticSize = Enum.AutomaticSize.Y
@@ -3543,7 +3543,7 @@ function NexusLib:CreateWindow(config)
 
                     local function MkRow(h)
                         local f = Instance.new("Frame")
-                        f.Size = UDim2.new(1, 0, 0, h or 31)
+                        f.Size = UDim2.new(1, 0, 0, h or 24)
                         f.BackgroundColor3 = theme.Section
                         f.BorderSizePixel = 0
                         f.ZIndex = 14
@@ -3555,7 +3555,7 @@ function NexusLib:CreateWindow(config)
                     -- Label
                     function Sec:AddLabel(c)
                         c = c or {}
-                        local row = MkRow(26)
+                        local row = MkRow(20)
                         local lbl = Instance.new("TextLabel")
                         lbl.Position = UDim2.new(0, 14, 0, 0)
                         lbl.Size = UDim2.new(1, -28, 1, 0)
@@ -3579,10 +3579,10 @@ function NexusLib:CreateWindow(config)
                         local bName = c.Name or "Button"
                         local bDesc = c.Description or ""
                         local bCb   = c.Callback or function() end
-                        local row = MkRow(bDesc ~= "" and 41 or 31)
+                        local row = MkRow(bDesc ~= "" and 32 or 24)
                         local btn = Instance.new("TextButton")
-                        btn.Position = UDim2.new(0, 10, 0, 5)
-                        btn.Size = UDim2.new(1, -28, 0, bDesc ~= "" and 31 or 21)
+                        btn.Position = UDim2.new(0, 8, 0, 4)
+                        btn.Size = UDim2.new(1, -28, 0, bDesc ~= "" and 24 or 17)
                         btn.BackgroundColor3 = theme.Element
                         btn.BorderSizePixel = 0
                         btn.Font = Enum.Font.GothamBold
@@ -3595,8 +3595,8 @@ function NexusLib:CreateWindow(config)
                         CreateStroke(btn, theme.Stroke, 1)
                         if bDesc ~= "" then
                             local dl = Instance.new("TextLabel")
-                            dl.Position = UDim2.new(0, 0, 0, 21)
-                            dl.Size = UDim2.new(1, 0, 0, 10)
+                            dl.Position = UDim2.new(0, 0, 0, 17)
+                            dl.Size = UDim2.new(1, 0, 0, 8)
                             dl.BackgroundTransparency = 1
                             dl.Font = Enum.Font.Gotham
                             dl.TextColor3 = theme.TextSecondary
@@ -3642,7 +3642,7 @@ function NexusLib:CreateWindow(config)
                         local tgDef  = c.Default or false
                         local tgCb   = c.Callback or function() end
                         local tgId   = c.Id or tgName
-                        local row = MkRow(tgDesc ~= "" and 40 or 31)
+                        local row = MkRow(tgDesc ~= "" and 31 or 24)
 
                         local tgL = Instance.new("TextLabel")
                         tgL.Position = UDim2.new(0, 14, 0, 0)
@@ -3674,7 +3674,7 @@ function NexusLib:CreateWindow(config)
                         local tgBG = Instance.new("Frame")
                         tgBG.AnchorPoint = Vector2.new(1, 0.5)
                         tgBG.Position = UDim2.new(1, -14, 0.5, 0)
-                        tgBG.Size = UDim2.new(0, 31, 0, 17)
+                        tgBG.Size = UDim2.new(0, 24, 0, 13)
                         tgBG.BackgroundColor3 = theme.Toggle
                         tgBG.BorderSizePixel = 0
                         tgBG.ZIndex = 15
@@ -3682,8 +3682,8 @@ function NexusLib:CreateWindow(config)
                         CreateCorner(tgBG, 9)
 
                         local tgC = Instance.new("Frame")
-                        tgC.Position = UDim2.new(0, 2, 0.5, -6)
-                        tgC.Size = UDim2.new(0, 13, 0, 13)
+                        tgC.Position = UDim2.new(0, 2, 0.5, -5)
+                        tgC.Size = UDim2.new(0, 10, 0, 10)
                         tgC.BackgroundColor3 = theme.Text
                         tgC.BorderSizePixel = 0
                         tgC.ZIndex = 16
@@ -3696,10 +3696,10 @@ function NexusLib:CreateWindow(config)
                             _val = v
                             if v then
                                 Tween(tgBG, {BackgroundColor3 = theme.ToggleEnabled}, 0.22)
-                                Tween(tgC, {Position = UDim2.new(0, 16, 0.5, -6)}, 0.22, Enum.EasingStyle.Back)
+                                Tween(tgC, {Position = UDim2.new(0, 13, 0.5, -5)}, 0.22, Enum.EasingStyle.Back)
                             else
                                 Tween(tgBG, {BackgroundColor3 = theme.Toggle}, 0.22)
-                                Tween(tgC, {Position = UDim2.new(0, 2, 0.5, -6)}, 0.22, Enum.EasingStyle.Back)
+                                Tween(tgC, {Position = UDim2.new(0, 2, 0.5, -5)}, 0.22, Enum.EasingStyle.Back)
                             end
                             if not skip then
                                 pcall(tgCb, v)
@@ -3739,7 +3739,7 @@ function NexusLib:CreateWindow(config)
                         local sCb   = c.Callback or function() end
                         local sId   = c.Id or sName
                         local sDesc = c.Description or ""
-                        local row = MkRow(sDesc ~= "" and 50 or 41)
+                        local row = MkRow(sDesc ~= "" and 39 or 32)
 
                         local sLabel = Instance.new("TextLabel")
                         sLabel.Position = UDim2.new(0, 14, 0, 8)
@@ -3802,7 +3802,7 @@ function NexusLib:CreateWindow(config)
                         local sKnob = Instance.new("Frame")
                         sKnob.AnchorPoint = Vector2.new(0.5, 0.5)
                         sKnob.Position = UDim2.new(0, 0, 0.5, 0)
-                        sKnob.Size = UDim2.new(0, 11, 0, 11)
+                        sKnob.Size = UDim2.new(0, 9, 0, 9)
                         sKnob.BackgroundColor3 = theme.Accent
                         sKnob.BorderSizePixel = 0
                         sKnob.ZIndex = 17
@@ -3898,7 +3898,7 @@ function NexusLib:CreateWindow(config)
                         local dBtn = Instance.new("TextButton")
                         dBtn.AnchorPoint = Vector2.new(1, 0.5)
                         dBtn.Position = UDim2.new(1, -14, 0.5, 0)
-                        dBtn.Size = UDim2.new(0, 114, 0, 21)
+                        dBtn.Size = UDim2.new(0, 89, 0, 17)
                         dBtn.BackgroundColor3 = theme.Element
                         dBtn.BorderSizePixel = 0
                         dBtn.Font = Enum.Font.Gotham
@@ -3933,7 +3933,7 @@ function NexusLib:CreateWindow(config)
                             end
                             _dopen = false
                             dBtn.Text = _dval .. "  ▾"
-                            row.Size = UDim2.new(1, 0, 0, 31)
+                            row.Size = UDim2.new(1, 0, 0, 24)
                         end
 
                         dBtn.MouseButton1Click:Connect(function()
@@ -3941,7 +3941,7 @@ function NexusLib:CreateWindow(config)
                             _dopen = true
                             dBtn.Text = _dval .. "  ▲"
 
-                            local oh = 23
+                            local oh = 18
                             local tot = #dOpts * oh
 
                             _dframe = Instance.new("Frame")
@@ -3985,9 +3985,9 @@ function NexusLib:CreateWindow(config)
                                 ob.MouseButton1Click:Connect(function() SetDV(opt); CloseDrop() end)
                             end
 
-                            local ch = math.min(tot, 114)
+                            local ch = math.min(tot, 89)
                             Tween(_dframe, {Size = UDim2.new(1, -28, 0, ch)}, 0.22, Enum.EasingStyle.Back)
-                            row.Size = UDim2.new(1, 0, 0, 31 + ch + 6)
+                            row.Size = UDim2.new(1, 0, 0, 24 + ch + 4)
                         end)
 
                         dBtn.MouseEnter:Connect(function() Tween(dBtn, {BackgroundColor3 = theme.ElementHover}, 0.12) end)
@@ -4024,7 +4024,7 @@ function NexusLib:CreateWindow(config)
                         local tCb    = c.Callback or function() end
                         local tId    = c.Id or tName
                         local tNum   = c.NumberOnly or false
-                        local row = MkRow(41)
+                        local row = MkRow(32)
 
                         local tLabel = Instance.new("TextLabel")
                         tLabel.Position = UDim2.new(0, 14, 0, 6)
@@ -4039,8 +4039,8 @@ function NexusLib:CreateWindow(config)
                         tLabel.Parent = row
 
                         local tBG = Instance.new("Frame")
-                        tBG.Position = UDim2.new(0, 10, 0, 20)
-                        tBG.Size = UDim2.new(1, -28, 0, 17)
+                        tBG.Position = UDim2.new(0, 8, 0, 16)
+                        tBG.Size = UDim2.new(1, -28, 0, 13)
                         tBG.BackgroundColor3 = theme.Element
                         tBG.BorderSizePixel = 0
                         tBG.ZIndex = 15
@@ -4119,7 +4119,7 @@ function NexusLib:CreateWindow(config)
                         local kBtn = Instance.new("TextButton")
                         kBtn.AnchorPoint = Vector2.new(1, 0.5)
                         kBtn.Position = UDim2.new(1, -14, 0.5, 0)
-                        kBtn.Size = UDim2.new(0, 57, 0, 20)
+                        kBtn.Size = UDim2.new(0, 44, 0, 16)
                         kBtn.BackgroundColor3 = theme.Element
                         kBtn.BorderSizePixel = 0
                         kBtn.Font = Enum.Font.GothamBold
@@ -4215,7 +4215,7 @@ function NexusLib:CreateWindow(config)
                         local cpPrev = Instance.new("TextButton")
                         cpPrev.AnchorPoint = Vector2.new(1, 0.5)
                         cpPrev.Position = UDim2.new(1, -14, 0.5, 0)
-                        cpPrev.Size = UDim2.new(0, 31, 0, 20)
+                        cpPrev.Size = UDim2.new(0, 24, 0, 16)
                         cpPrev.BackgroundColor3 = cpDef
                         cpPrev.BorderSizePixel = 0
                         cpPrev.Text = ""
@@ -4266,7 +4266,7 @@ function NexusLib:CreateWindow(config)
                             -- SV area
                             local svArea = Instance.new("ImageLabel")
                             svArea.Position = UDim2.new(0, 8, 0, 8)
-                            svArea.Size = UDim2.new(1, -51, 0, 79)
+                            svArea.Size = UDim2.new(1, -40, 0, 61)
                             svArea.BackgroundColor3 = HSVToColor3(_cph, 1, 1)
                             svArea.BorderSizePixel = 0
                             svArea.ZIndex = 31
@@ -4299,7 +4299,7 @@ function NexusLib:CreateWindow(config)
                             local hBar = Instance.new("ImageLabel")
                             hBar.AnchorPoint = Vector2.new(1, 0)
                             hBar.Position = UDim2.new(1, -8, 0, 8)
-                            hBar.Size = UDim2.new(0, 14, 0, 79)
+                            hBar.Size = UDim2.new(0, 11, 0, 61)
                             hBar.BackgroundColor3 = Color3.new(1, 1, 1)
                             hBar.BorderSizePixel = 0
                             hBar.ZIndex = 31
@@ -4319,8 +4319,8 @@ function NexusLib:CreateWindow(config)
                             CreateStroke(hKnob, Color3.new(0, 0, 0), 1)
 
                             local hexL = Instance.new("TextLabel")
-                            hexL.Position = UDim2.new(0, 6, 0, 90)
-                            hexL.Size = UDim2.new(1, -16, 0, 13)
+                            hexL.Position = UDim2.new(0, 4, 0, 70)
+                            hexL.Size = UDim2.new(1, -16, 0, 10)
                             hexL.BackgroundTransparency = 1
                             hexL.Font = Enum.Font.Gotham
                             hexL.TextColor3 = theme.TextSecondary
@@ -4392,9 +4392,9 @@ function NexusLib:CreateWindow(config)
                                 end
                             end)
 
-                            local ph = 107
+                            local ph = 83
                             Tween(_cpframe, {Size = UDim2.new(1, -28, 0, ph)}, 0.22, Enum.EasingStyle.Back)
-                            row.Size = UDim2.new(1, 0, 0, 31 + ph + 6)
+                            row.Size = UDim2.new(1, 0, 0, 24 + ph + 4)
                         end)
 
                         lib:_registerThemeCallback(function(t)
