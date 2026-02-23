@@ -338,25 +338,36 @@ function Utility.RoundedFrame(parent, size, position, color, cornerRadius, name)
         ClipsDescendants= true,
         Parent          = parent,
     })
-    Utility.Create("UICorner", { CornerRadius = UDim.new(0, cornerRadius or 8) }, {}),
     Utility.Create("UICorner", { CornerRadius = UDim.new(0, cornerRadius or 8), Parent = frame })
     return frame
 end
 
 function Utility.AddShadow(parent)
+    -- Shadow fica no pai do frame para aparecer ATRÁS dele, não dentro
+    local shadowParent = parent.Parent or parent
     local shadow = Utility.Create("ImageLabel", {
         Name               = "Shadow",
-        AnchorPoint        = Vector2.new(0.5, 0.5),
+        AnchorPoint        = parent.AnchorPoint,
         BackgroundTransparency = 1,
-        Position           = UDim2.new(0.5, 0, 0.5, 4),
-        Size               = UDim2.new(1, 30, 1, 30),
-        ZIndex             = parent.ZIndex - 1,
+        Position           = UDim2.new(
+            parent.Position.X.Scale,
+            parent.Position.X.Offset,
+            parent.Position.Y.Scale,
+            parent.Position.Y.Offset + 4
+        ),
+        Size               = UDim2.new(
+            parent.Size.X.Scale,
+            parent.Size.X.Offset + 30,
+            parent.Size.Y.Scale,
+            parent.Size.Y.Offset + 30
+        ),
+        ZIndex             = math.max(0, parent.ZIndex - 1),
         Image              = "rbxassetid://6015897843",
         ImageColor3        = Color3.fromRGB(0, 0, 0),
         ImageTransparency  = 0.5,
         ScaleType          = Enum.ScaleType.Slice,
         SliceCenter        = Rect.new(49, 49, 450, 450),
-        Parent             = parent,
+        Parent             = shadowParent,
     })
     return shadow
 end
@@ -472,6 +483,7 @@ function NexusUI:CreateWindow(config)
     Window._tabs         = {}
     Window._activeTab    = nil
     Window._elements     = {}
+    Window._elemCount    = 0  -- contador único para IDs de elementos
     Window._saveData     = {}
     Window._minimized    = false
     Window._closed       = false
@@ -622,8 +634,22 @@ function NexusUI:CreateWindow(config)
         end
 
         task.wait(0.2)
+        -- Frame não suporta BackgroundTransparency via Tween diretamente da mesma forma
+        -- Animamos o overlay inteiro (LoadingFrame) que cobre tudo
         Utility.Tween(LoadingFrame, {BackgroundTransparency = 1}, 0.5)
-        Utility.Tween(LoadingContainer, {BackgroundTransparency = 1}, 0.5)
+        -- Para o container, usamos GroupTransparency se disponível (CanvasGroup),
+        -- caso contrário, apenas destruímos após o fade do overlay
+        local cg = Instance.new("CanvasGroup")
+        pcall(function()
+            cg.GroupTransparency = 0
+            cg.Size              = LoadingContainer.Size
+            cg.Position          = LoadingContainer.Position
+            cg.AnchorPoint       = LoadingContainer.AnchorPoint
+            cg.BackgroundTransparency = 1
+            cg.Parent            = LoadingContainer.Parent
+            LoadingContainer.Parent = cg
+            Utility.Tween(cg, {GroupTransparency = 1}, 0.5)
+        end)
         task.wait(0.5)
         LoadingFrame:Destroy()
     end
@@ -823,7 +849,6 @@ function NexusUI:CreateWindow(config)
         end
 
         -- Validate function
-        local validated = false
         local function ValidateKey()
             local inputKey = KeyInput.Text
             if inputKey == windowConfig.Key then
@@ -840,7 +865,6 @@ function NexusUI:CreateWindow(config)
                 Utility.Tween(KeyContainer, {BackgroundTransparency = 1}, 0.4)
                 task.wait(0.45)
                 KeyFrame:Destroy()
-                validated = true
                 keyValidated = true
             else
                 StatusLabel.TextColor3 = CurrentTheme.Error
@@ -856,9 +880,9 @@ function NexusUI:CreateWindow(config)
             if enterPressed then ValidateKey() end
         end)
 
-        -- Wait for validation
-        repeat task.wait(0.1) until keyValidated
-        return true
+        -- Wait for validation (com guard de segurança)
+        repeat task.wait(0.1) until keyValidated or not ScreenGui.Parent
+        return keyValidated
     end
 
     -- ══════════════════════════════════════════════════════
@@ -899,32 +923,46 @@ function NexusUI:CreateWindow(config)
         Window.TopBar = TopBar
         table.insert(Window._themeObjects, {obj = TopBar, prop = "BackgroundColor3", key = "TopBar"})
 
-        -- Title
+        -- Title área com layout horizontal
+        local TitleHolder = Utility.Create("Frame", {
+            Name                = "TitleHolder",
+            Size                = UDim2.new(1, -120, 1, 0),
+            Position            = UDim2.new(0, 14, 0, 0),
+            BackgroundTransparency = 1,
+            Parent              = TopBar,
+        })
+        Utility.Create("UIListLayout", {
+            FillDirection       = Enum.FillDirection.Horizontal,
+            VerticalAlignment   = Enum.VerticalAlignment.Center,
+            Padding             = UDim.new(0, 8),
+            Parent              = TitleHolder,
+        })
+
         local TitleLabel = Utility.Create("TextLabel", {
             Name                = "Title",
-            Size                = UDim2.new(0, 200, 1, 0),
-            Position            = UDim2.new(0, 14, 0, 0),
+            Size                = UDim2.new(0, 0, 1, 0),
+            AutomaticSize       = Enum.AutomaticSize.X,
             BackgroundTransparency = 1,
             Text                = windowConfig.Name,
             TextColor3          = CurrentTheme.Text,
             TextSize            = 14,
             Font                = Enum.Font.GothamBold,
             TextXAlignment      = Enum.TextXAlignment.Left,
-            Parent              = TopBar,
+            Parent              = TitleHolder,
         })
         table.insert(Window._themeObjects, {obj = TitleLabel, prop = "TextColor3", key = "Text"})
 
         local SubTitleLabel = Utility.Create("TextLabel", {
             Name                = "SubTitle",
-            Size                = UDim2.new(0, 200, 1, 0),
-            Position            = UDim2.new(0, 14 + TitleLabel.TextBounds.X + 8, 0, 0),
+            Size                = UDim2.new(0, 0, 1, 0),
+            AutomaticSize       = Enum.AutomaticSize.X,
             BackgroundTransparency = 1,
             Text                = windowConfig.SubTitle,
             TextColor3          = CurrentTheme.SubText,
             TextSize            = 12,
             Font                = Enum.Font.Gotham,
             TextXAlignment      = Enum.TextXAlignment.Left,
-            Parent              = TopBar,
+            Parent              = TitleHolder,
         })
         table.insert(Window._themeObjects, {obj = SubTitleLabel, prop = "TextColor3", key = "SubText"})
 
@@ -971,14 +1009,15 @@ function NexusUI:CreateWindow(config)
         local CloseBtn    = CreateTopBtn("×", CurrentTheme.Error)
 
         -- Resize functionality
-        local resizing    = false
-        local resizeStart = nil
-        local origSize    = nil
+        local resizing      = false
+        local resizeStart   = nil
+        local origSize      = nil
+        local resizeConn    = nil
 
         ResizeBtn.MouseButton1Down:Connect(function()
             resizing    = true
             resizeStart = UserInputService:GetMouseLocation()
-            origSize    = MainFrame.Size
+            origSize    = MainFrame.Size  -- captura tamanho ATUAL (não o inicial)
         end)
 
         UserInputService.InputEnded:Connect(function(inp)
@@ -987,8 +1026,9 @@ function NexusUI:CreateWindow(config)
             end
         end)
 
+        -- Conecta RenderStepped apenas uma vez e verifica flag
         RunService.RenderStepped:Connect(function()
-            if resizing then
+            if resizing and resizeStart and origSize then
                 local mousePos = UserInputService:GetMouseLocation()
                 local delta    = mousePos - resizeStart
                 local newW     = math.max(480, origSize.X.Offset + delta.X)
@@ -997,15 +1037,16 @@ function NexusUI:CreateWindow(config)
             end
         end)
 
-        -- Minimize functionality
-        local originalHeight = windowConfig.Size.Y.Offset
+        -- Minimize functionality - salva tamanho atual antes de minimizar
+        local savedSize = windowConfig.Size
         MinimizeBtn.MouseButton1Click:Connect(function()
             Window._minimized = not Window._minimized
             if Window._minimized then
-                Utility.Tween(MainFrame, {Size = UDim2.new(0, windowConfig.Size.X.Offset, 0, 46)}, 0.35)
+                savedSize = MainFrame.Size  -- salva tamanho atual (pode ter sido redimensionado)
+                Utility.Tween(MainFrame, {Size = UDim2.new(savedSize.X.Scale, savedSize.X.Offset, 0, 46)}, 0.35)
                 MinimizeBtn.Text = "+"
             else
-                Utility.Tween(MainFrame, {Size = windowConfig.Size}, 0.35)
+                Utility.Tween(MainFrame, {Size = savedSize}, 0.35)
                 MinimizeBtn.Text = "−"
             end
         end)
@@ -1376,7 +1417,7 @@ function NexusUI:CreateWindow(config)
                 for _, t in ipairs(Window._tabs) do
                     t.Content.Visible = false
                     Utility.Tween(t.Button, {BackgroundTransparency = 1}, 0.2)
-                    t.Button:FindFirstChild("ActiveBar", true).BackgroundTransparency = 1
+                    t.Button:FindFirstChild("ActiveBar").BackgroundTransparency = 1
                     local tbl = t.Button:FindFirstChild("TabBtnLayout")
                     if tbl then
                         for _, lbl in ipairs(tbl:GetChildren()) do
@@ -1570,7 +1611,8 @@ function NexusUI:CreateWindow(config)
                 -- ══════════════════════════════════════════
                 function Section:AddToggle(toggleConfig)
                     toggleConfig = toggleConfig or {}
-                    local id       = toggleConfig.Name or ("Toggle_" .. #Window._elements)
+                    Window._elemCount = Window._elemCount + 1
+                    local id       = toggleConfig.Name or ("Toggle_" .. Window._elemCount)
                     local text     = toggleConfig.Name or "Toggle"
                     local default  = toggleConfig.Default or false
                     local callback = toggleConfig.Callback or function() end
@@ -1651,7 +1693,8 @@ function NexusUI:CreateWindow(config)
                 -- ══════════════════════════════════════════
                 function Section:AddSlider(sliderConfig)
                     sliderConfig = sliderConfig or {}
-                    local id       = sliderConfig.Name or ("Slider_" .. #Window._elements)
+                    Window._elemCount = Window._elemCount + 1
+                    local id       = sliderConfig.Name or ("Slider_" .. Window._elemCount)
                     local text     = sliderConfig.Name or "Slider"
                     local min      = sliderConfig.Min or 0
                     local max      = sliderConfig.Max or 100
@@ -1660,6 +1703,8 @@ function NexusUI:CreateWindow(config)
                     local callback = sliderConfig.Callback or function() end
 
                     default = math.clamp(default, min, max)
+                    -- Previne divisão por zero se min == max
+                    if max <= min then max = min + 1 end
 
                     local Item = Utility.Create("Frame", {
                         Size                = UDim2.new(1, -16, 0, 52),
@@ -1730,10 +1775,12 @@ function NexusUI:CreateWindow(config)
 
                     local SliderObj = { type = "Slider", value = default }
                     local dragging  = false
+                    local sliderActive = false  -- identifica se ESTE slider está sendo arrastado
 
                     local function UpdateSlider(inputX)
                         local absPos = SliderBG.AbsolutePosition.X
                         local absSize = SliderBG.AbsoluteSize.X
+                        if absSize == 0 then return end  -- guard contra AbsoluteSize não inicializado
                         local ratio   = math.clamp((inputX - absPos) / absSize, 0, 1)
                         local value   = math.floor(min + (max - min) * ratio)
                         SliderObj.value = value
@@ -1756,16 +1803,21 @@ function NexusUI:CreateWindow(config)
                     SliderBG.InputBegan:Connect(function(input)
                         if input.UserInputType == Enum.UserInputType.MouseButton1 then
                             dragging = true
+                            sliderActive = true
                             UpdateSlider(input.Position.X)
                         end
                     end)
+                    -- Usar conexões locais por instância do slider para evitar conflito
                     UserInputService.InputEnded:Connect(function(input)
                         if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                            dragging = false
+                            if sliderActive then
+                                dragging = false
+                                sliderActive = false
+                            end
                         end
                     end)
                     UserInputService.InputChanged:Connect(function(input)
-                        if dragging and input.UserInputType == Enum.UserInputType.MouseMovement then
+                        if dragging and sliderActive and input.UserInputType == Enum.UserInputType.MouseMovement then
                             UpdateSlider(input.Position.X)
                         end
                     end)
@@ -1780,7 +1832,8 @@ function NexusUI:CreateWindow(config)
                 -- ══════════════════════════════════════════
                 function Section:AddDropdown(ddConfig)
                     ddConfig   = ddConfig or {}
-                    local id   = ddConfig.Name or ("DD_" .. #Window._elements)
+                    Window._elemCount = Window._elemCount + 1
+                    local id   = ddConfig.Name or ("DD_" .. Window._elemCount)
                     local text = ddConfig.Name or "Dropdown"
                     local opts = ddConfig.Options or {}
                     local def  = ddConfig.Default or (opts[1] or "")
@@ -1952,7 +2005,8 @@ function NexusUI:CreateWindow(config)
                 -- ══════════════════════════════════════════
                 function Section:AddTextbox(tbConfig)
                     tbConfig = tbConfig or {}
-                    local id         = tbConfig.Name or ("TB_" .. #Window._elements)
+                    Window._elemCount = Window._elemCount + 1
+                    local id         = tbConfig.Name or ("TB_" .. Window._elemCount)
                     local text       = tbConfig.Name or "Textbox"
                     local placeholder= tbConfig.Placeholder or "Enter text..."
                     local default    = tbConfig.Default or ""
@@ -2030,7 +2084,8 @@ function NexusUI:CreateWindow(config)
                 -- ══════════════════════════════════════════
                 function Section:AddKeybind(kbConfig)
                     kbConfig = kbConfig or {}
-                    local id         = kbConfig.Name or ("KB_" .. #Window._elements)
+                    Window._elemCount = Window._elemCount + 1
+                    local id         = kbConfig.Name or ("KB_" .. Window._elemCount)
                     local text       = kbConfig.Name or "Keybind"
                     local default    = kbConfig.Default or Enum.KeyCode.Unknown
                     local callback   = kbConfig.Callback or function() end
@@ -2072,23 +2127,36 @@ function NexusUI:CreateWindow(config)
                     local listening = false
 
                     KeyBtn.MouseButton1Click:Connect(function()
-                        listening      = true
-                        KeyBtn.Text    = "..."
-                        KeyBtn.TextColor3 = CurrentTheme.Warning
+                        -- Desativa outros keybinds em listening mode (apenas um por vez)
+                        if not listening then
+                            listening         = true
+                            KeyBtn.Text       = "..."
+                            KeyBtn.TextColor3 = CurrentTheme.Warning
+                        end
                     end)
 
                     UserInputService.InputBegan:Connect(function(input, gpe)
                         if listening and not gpe then
                             if input.UserInputType == Enum.UserInputType.Keyboard then
-                                KBObj.value    = input.KeyCode
-                                KeyBtn.Text    = input.KeyCode.Name
-                                KeyBtn.TextColor3 = CurrentTheme.Accent
-                                listening      = false
-                                callback(input.KeyCode)
-                                Window:SaveConfig()
+                                -- Ignora teclas de sistema comuns
+                                if input.KeyCode ~= Enum.KeyCode.Escape then
+                                    KBObj.value       = input.KeyCode
+                                    KeyBtn.Text       = input.KeyCode.Name
+                                    KeyBtn.TextColor3 = CurrentTheme.Accent
+                                else
+                                    -- ESC cancela a captura
+                                    KeyBtn.Text       = KBObj.value and KBObj.value.Name or "None"
+                                    KeyBtn.TextColor3 = CurrentTheme.Accent
+                                end
+                                listening = false
+                                if input.KeyCode ~= Enum.KeyCode.Escape then
+                                    callback(input.KeyCode)
+                                    Window:SaveConfig()
+                                end
                             end
                         elseif not listening and input.UserInputType == Enum.UserInputType.Keyboard then
-                            if KBObj.value and input.KeyCode == KBObj.value then
+                            if KBObj.value and KBObj.value ~= Enum.KeyCode.Unknown
+                               and input.KeyCode == KBObj.value then
                                 callback(input.KeyCode)
                             end
                         end
@@ -2109,7 +2177,8 @@ function NexusUI:CreateWindow(config)
                 -- ══════════════════════════════════════════
                 function Section:AddColorPicker(cpConfig)
                     cpConfig = cpConfig or {}
-                    local id       = cpConfig.Name or ("CP_" .. #Window._elements)
+                    Window._elemCount = Window._elemCount + 1
+                    local id       = cpConfig.Name or ("CP_" .. Window._elemCount)
                     local text     = cpConfig.Name or "Color Picker"
                     local default  = cpConfig.Default or Color3.fromRGB(99, 102, 241)
                     local callback = cpConfig.Callback or function() end
