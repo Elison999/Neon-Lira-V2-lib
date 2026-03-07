@@ -677,7 +677,8 @@ function SaveSystem:Register(flag, elementType, defaultValue)
 end
 
 function SaveSystem:SetValue(flag, value)
-    if elementType == "Color" and typeof(value) == "Color3" then
+    local info = self.Elements[flag]
+    if info and info.Type == "Color" and typeof(value) == "Color3" then
         self.Data[flag] = Utility:ColorToTable(value)
     else
         self.Data[flag] = value
@@ -970,9 +971,14 @@ function LoadingScreen:Show()
             local endPercent = math.floor(targetSize * 100)
             
             task.spawn(function()
-                for p = startPercent, endPercent do
-                    percentText.Text = p .. "%"
-                    task.wait(stepDuration * 0.8 / (endPercent - startPercent + 1))
+                local steps = endPercent - startPercent
+                if steps > 0 then
+                    for p = startPercent, endPercent do
+                        percentText.Text = p .. "%"
+                        task.wait(stepDuration * 0.8 / steps)
+                    end
+                else
+                    percentText.Text = endPercent .. "%"
                 end
             end)
             
@@ -1442,10 +1448,10 @@ function SupernovaUI:CreateWindow(options)
     })
     
     -- Parent to CoreGui or PlayerGui
-    pcall(function()
+    local parentSuccess = pcall(function()
         window.ScreenGui.Parent = CoreGui
     end)
-    if not window.ScreenGui.Parent then
+    if not parentSuccess then
         window.ScreenGui.Parent = Player:WaitForChild("PlayerGui")
     end
     
@@ -2917,6 +2923,7 @@ function Section:AddDropdown(options)
     })
     
     local optionButtons = {}
+    local toggleDropdown  -- forward declaration to allow use inside createOption
     
     local function createOption(item)
         local isSelected = false
@@ -3045,7 +3052,7 @@ function Section:AddDropdown(options)
         createOption(item)
     end
     
-    function toggleDropdown()
+    toggleDropdown = function()
         opened = not opened
         
         if opened then
@@ -3629,7 +3636,7 @@ function Section:AddColorPicker(options)
         Position = UDim2.new(1, -36, 0, 8),
         BackgroundColor3 = Color3.fromRGB(255, 255, 255),
         BorderSizePixel = 0,
-        Image = "rbxassetid://4155801252",
+        Image = "",
         ZIndex = 51,
     })
     
