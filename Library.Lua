@@ -251,35 +251,60 @@ local function MakeDraggable(frame, handle)
     handle = handle or frame
     local dragging, dragInput, mousePos, framePos
 
+    local function beginDrag(pos)
+        dragging = true
+        mousePos = pos
+        framePos = frame.Position
+    end
+
+    local function endDrag()
+        dragging = false
+    end
+
+    local function moveDrag(pos)
+        if dragging and mousePos then
+            local delta = pos - mousePos
+            -- Clamp so window stays on screen
+            local screen = GetScreenSize()
+            local absSize = frame.AbsoluteSize
+            local newX = math.clamp(framePos.X.Offset + delta.X, 0, screen.X - absSize.X)
+            local newY = math.clamp(framePos.Y.Offset + delta.Y, 0, screen.Y - absSize.Y)
+            frame.Position = UDim2.new(0, newX, 0, newY)
+        end
+    end
+
+    -- Mouse support
     handle.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = true
-            mousePos = input.Position
-            framePos = frame.Position
+            beginDrag(input.Position)
         end
     end)
-
     handle.InputEnded:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = false
+            endDrag()
+        end
+    end)
+    UserInputService.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement then
+            moveDrag(input.Position)
         end
     end)
 
-    UserInputService.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement then
+    -- Touch support (mobile)
+    handle.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.Touch then
+            beginDrag(input.Position)
             dragInput = input
         end
     end)
-
-    RunService.Heartbeat:Connect(function()
-        if dragging and dragInput then
-            local delta = dragInput.Position - mousePos
-            frame.Position = UDim2.new(
-                framePos.X.Scale,
-                framePos.X.Offset + delta.X,
-                framePos.Y.Scale,
-                framePos.Y.Offset + delta.Y
-            )
+    handle.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.Touch then
+            endDrag()
+        end
+    end)
+    handle.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.Touch then
+            moveDrag(input.Position)
         end
     end)
 end
@@ -322,6 +347,38 @@ local function FetchFromSite(url)
             return result.Body
         end
     end
+
+-- ═══════════════════════════════════════════════════
+--              MOBILE / SCREEN DETECTION
+-- ═══════════════════════════════════════════════════
+local ScreenGui_Ref  -- set after ScreenGui is created
+local Camera = workspace.CurrentCamera
+
+local function GetScreenSize()
+    return Camera.ViewportSize
+end
+
+local function IsMobile()
+    local screen = GetScreenSize()
+    return screen.X <= 500 or screen.Y <= 600
+end
+
+local function ScaleForScreen(pixelVal)
+    -- Scales a pixel value relative to a 390px reference width
+    local screen = GetScreenSize()
+    local refWidth = 390
+    local scale = math.clamp(screen.X / refWidth, 0.6, 1.2)
+    return math.round(pixelVal * scale)
+end
+
+local function MobileUDim2(xScale, xOff, yScale, yOff)
+    local screen = GetScreenSize()
+    local refW, refH = 390, 700
+    local scaleX = math.clamp(screen.X / refW, 0.55, 1.3)
+    local scaleY = math.clamp(screen.Y / refH, 0.55, 1.3)
+    return UDim2.new(xScale, math.round(xOff * scaleX), yScale, math.round(yOff * scaleY))
+end
+
     return nil
 end
 
@@ -423,7 +480,7 @@ function LolHub:ShowLoadingScreen()
     -- Center container
     local container = Instance.new("Frame")
     container.Name = "Container"
-    container.Size = UDim2.new(0, 212, 0, 212)
+    container.Size = UDim2.new(0.78, 0, 0.44, 0)
     container.Position = UDim2.new(0.5, -106, 0.5, -106)
     container.BackgroundColor3 = theme.TopBar
     container.BorderSizePixel = 0
@@ -611,7 +668,7 @@ function LolHub:ShowKeySystem()
     keyScreen.Parent = self.ScreenGui
     
     local keyContainer = Instance.new("Frame")
-    keyContainer.Size = UDim2.new(0, 250, 0, 200)
+    keyContainer.Size = UDim2.new(0.85, 0, 0.52, 0)
     keyContainer.Position = UDim2.new(0.5, -125, 0.5, -100)
     keyContainer.BackgroundColor3 = theme.TopBar
     keyContainer.BorderSizePixel = 0
@@ -832,9 +889,27 @@ function LolHub:CreateWindow(windowConfig)
     local theme = self.Theme
     
     local winTitle = windowConfig.Title or self.Config.Title
-    local winIcon = windowConfig.Icon or self.Config.WindowIcon
-    local winSize = windowConfig.Size or UDim2.new(0, 375, 0, 300)
-    local winPos = windowConfig.Position or UDim2.new(0.5, -188, 0.5, -150)
+    local winIcon  = windowConfig.Icon  or self.Config.WindowIcon
+
+    -- ── Responsive layout detection ──────────────────
+    local screen       = GetScreenSize()
+    local isMobile     = screen.X <= 500
+    local isSmallMob   = screen.X <= 320
+
+    local TB_H         = isSmallMob and 24 or (isMobile and 26 or 28)   -- topbar height px
+    local TAB_W        = isSmallMob and 76 or (isMobile and 82 or 88)   -- tab sidebar width px
+    local ELEM_SPACING = isSmallMob and 4  or (isMobile and 5  or 8)    -- gap between elements
+
+    local winSize = windowConfig.Size or (
+        isSmallMob  and UDim2.new(0.98, 0, 0.88, 0) or
+        isMobile    and UDim2.new(0.96, 0, 0.84, 0) or
+        UDim2.new(0.92, 0, 0.82, 0)
+    )
+    local winPos  = windowConfig.Position or (
+        isSmallMob  and UDim2.new(0.01, 0, 0.06, 0) or
+        isMobile    and UDim2.new(0.02, 0, 0.08, 0) or
+        UDim2.new(0.04, 0, 0.09, 0)
+    )
     
     local Window = {}
     Window.Tabs = {}
@@ -847,6 +922,13 @@ function LolHub:CreateWindow(windowConfig)
     mainFrame.Name = "Window_" .. winTitle
     mainFrame.Size = winSize
     mainFrame.Position = winPos
+    -- Convert to absolute position after first render for drag clamping
+    task.defer(function()
+        if mainFrame and mainFrame.Parent then
+            local abs = mainFrame.AbsolutePosition
+            mainFrame.Position = UDim2.new(0, abs.X, 0, abs.Y)
+        end
+    end)
     mainFrame.BackgroundColor3 = theme.Background
     mainFrame.BackgroundTransparency = self.Config.BlurBackground and 0.4 or 0
     mainFrame.BorderSizePixel = 0
@@ -868,7 +950,7 @@ function LolHub:CreateWindow(windowConfig)
     -- ─── Top Bar ───
     local topBar = Instance.new("Frame")
     topBar.Name = "TopBar"
-    topBar.Size = UDim2.new(1, 0, 0, 28)
+    topBar.Size = UDim2.new(1, 0, 0, TB_H)
     topBar.BackgroundColor3 = theme.TopBar
     topBar.BorderSizePixel = 0
     topBar.ZIndex = 11
@@ -876,7 +958,7 @@ function LolHub:CreateWindow(windowConfig)
     AddCorner(topBar, 8)
     
     local topBarFix = Instance.new("Frame")
-    topBarFix.Size = UDim2.new(1, 0, 0, 8)
+    topBarFix.Size = UDim2.new(1, 0, 0, math.floor(TB_H/3))
     topBarFix.Position = UDim2.new(0, 0, 1, -8)
     topBarFix.BackgroundColor3 = theme.TopBar
     topBarFix.BorderSizePixel = 0
@@ -894,7 +976,7 @@ function LolHub:CreateWindow(windowConfig)
     
     -- Icon
     local iconLabel = Instance.new("ImageLabel")
-    iconLabel.Size = UDim2.new(0, 18, 0, 18)
+    iconLabel.Size = UDim2.new(0, isMobile and 16 or 18, 0, isMobile and 16 or 18)
     iconLabel.Position = UDim2.new(0, 6, 0.5, -9)
     iconLabel.BackgroundTransparency = 1
     iconLabel.Image = winIcon ~= "" and ("rbxassetid://" .. winIcon) or ""
@@ -917,7 +999,7 @@ function LolHub:CreateWindow(windowConfig)
     
     -- ─── Window Buttons ───
     local btnContainer = Instance.new("Frame")
-    btnContainer.Size = UDim2.new(0, 65, 0, 19)
+    btnContainer.Size = UDim2.new(0, 62, 0, 19)
     btnContainer.Position = UDim2.new(1, -70, 0.5, -9)
     btnContainer.BackgroundTransparency = 1
     btnContainer.ZIndex = 12
@@ -969,7 +1051,7 @@ function LolHub:CreateWindow(windowConfig)
     resizeBtn.MouseButton1Click:Connect(function()
         isResized = not isResized
         if isResized then
-            Tween(mainFrame, {Size = UDim2.new(0, 500, 0, 362)}, 0.35)
+            Tween(mainFrame, {Size = UDim2.new(0.98, 0, 0.94, 0)}, 0.35)
         else
             Tween(mainFrame, {Size = winSize}, 0.35)
         end
@@ -979,10 +1061,12 @@ function LolHub:CreateWindow(windowConfig)
     minimizeBtn.MouseButton1Click:Connect(function()
         Window.IsMinimized = not Window.IsMinimized
         if Window.IsMinimized then
-            Tween(mainFrame, {Size = UDim2.new(0, mainFrame.AbsoluteSize.X, 0, 44)}, 0.3)
+            local curPos = mainFrame.AbsolutePosition
+            mainFrame.Position = UDim2.new(0, curPos.X, 0, curPos.Y)
+            Tween(mainFrame, {Size = UDim2.new(0, mainFrame.AbsoluteSize.X, 0, TB_H)}, 0.3)
             minimizeBtn.Text = "▢"
         else
-            local targetSize = isResized and UDim2.new(0, 500, 0, 362) or winSize
+            local targetSize = isResized and UDim2.new(math.min(0.98, 1), 0, math.min(0.94, 1), 0) or winSize
             Tween(mainFrame, {Size = targetSize}, 0.3)
             minimizeBtn.Text = "─"
         end
@@ -1007,15 +1091,15 @@ function LolHub:CreateWindow(windowConfig)
     -- ─── Tab Bar ───
     local tabBar = Instance.new("Frame")
     tabBar.Name = "TabBar"
-    tabBar.Size = UDim2.new(0, 94, 1, -30)
-    tabBar.Position = UDim2.new(0, 0, 0, 29)
+    tabBar.Size = UDim2.new(0, TAB_W, 1, -(TB_H+2))
+    tabBar.Position = UDim2.new(0, 0, 0, TB_H + 2)
     tabBar.BackgroundColor3 = theme.TopBar
     tabBar.BorderSizePixel = 0
     tabBar.ZIndex = 11
     tabBar.Parent = mainFrame
     
     local tabBarFix = Instance.new("Frame")
-    tabBarFix.Size = UDim2.new(0, 8, 1, 0)
+    tabBarFix.Size = UDim2.new(0, math.floor(TAB_W*0.08), 1, 0)
     tabBarFix.Position = UDim2.new(1, -8, 0, 0)
     tabBarFix.BackgroundColor3 = theme.TopBar
     tabBarFix.BorderSizePixel = 0
@@ -1036,8 +1120,8 @@ function LolHub:CreateWindow(windowConfig)
     -- ─── Content Area ───
     local contentArea = Instance.new("Frame")
     contentArea.Name = "ContentArea"
-    contentArea.Size = UDim2.new(1, -99, 1, -31)
-    contentArea.Position = UDim2.new(0, 98, 0, 30)
+    contentArea.Size = UDim2.new(1, -(TAB_W+5), 1, -(TB_H+4))
+    contentArea.Position = UDim2.new(0, TAB_W + 4, 0, TB_H + 2)
     contentArea.BackgroundTransparency = 1
     contentArea.ZIndex = 11
     contentArea.Parent = mainFrame
@@ -1047,7 +1131,7 @@ function LolHub:CreateWindow(windowConfig)
     contentScroll.Size = UDim2.new(1, 0, 1, 0)
     contentScroll.BackgroundTransparency = 1
     contentScroll.BorderSizePixel = 0
-    contentScroll.ScrollBarThickness = 3
+    contentScroll.ScrollBarThickness = 2
     contentScroll.ScrollBarImageColor3 = theme.Accent
     contentScroll.ZIndex = 11
     contentScroll.CanvasSize = UDim2.new(0, 0, 0, 0)
@@ -1167,6 +1251,12 @@ function LolHub:CreateWindow(windowConfig)
         -- ══════════════════════════════════════
         --     ELEMENT HELPER
         -- ══════════════════════════════════════
+
+        local function mTS(sz)
+            if _smallmob then return math.max(9, sz-2)
+            elseif _mob then return math.max(10, sz-1)
+            else return sz end
+        end
         local function makeContainer(height)
             local container = Instance.new("Frame")
             container.Size = UDim2.new(1, 0, 0, height)
@@ -1308,6 +1398,9 @@ function LolHub:CreateWindow(windowConfig)
             toggleBtn.MouseButton1Click:Connect(function()
                 setToggle(not currentVal)
             end)
+            toggleBtn.TouchTap:Connect(function()
+                setToggle(not currentVal)
+            end)
             
             -- Apply saved value
             if defaultVal then setToggle(true, true) end
@@ -1424,8 +1517,14 @@ function LolHub:CreateWindow(windowConfig)
             end
             
             trackBg.InputBegan:Connect(function(input)
-                if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                if input.UserInputType == Enum.UserInputType.MouseButton1
+                or input.UserInputType == Enum.UserInputType.Touch then
                     sliding = true
+                    updateSlider(input.Position)
+                end
+            end)
+            trackBg.InputChanged:Connect(function(input)
+                if sliding and input.UserInputType == Enum.UserInputType.Touch then
                     updateSlider(input.Position)
                 end
             end)
@@ -1530,7 +1629,7 @@ function LolHub:CreateWindow(windowConfig)
             menuPad.PaddingRight = UDim.new(0, 2)
             menuPad.Parent = dropMenu
             
-            local menuHeight = math.min(#options, 5) * 19 + 5
+            local menuHeight = math.min(#options, 5) * mobH(19) + 4
             
             for _, option in pairs(options) do
                 local optBtn = Instance.new("TextButton")
@@ -2386,8 +2485,10 @@ function LolHub:Notify(title, message, duration, notifType)
     -- Notification container (anchored bottom-right)
     local notifFrame = Instance.new("Frame")
     notifFrame.Name = "Notification"
-    notifFrame.Size = UDim2.new(0, 188, 0, 44)
-    notifFrame.Position = UDim2.new(1, 20, 1, -(#self.Notifications + 1) * 50 - 12)
+    local _ns = GetScreenSize()
+    local _nw = math.min(_ns.X - 16, 260)
+    notifFrame.Size = UDim2.new(0, _nw, 0, 46)
+    notifFrame.Position = UDim2.new(1.05, 0, 1, -(#self.Notifications + 1) * 50 - 12)
     notifFrame.BackgroundColor3 = theme.Notification
     notifFrame.BorderSizePixel = 0
     notifFrame.ZIndex = 100
@@ -2463,7 +2564,7 @@ function LolHub:Notify(title, message, duration, notifType)
     progFill.Parent = progBg
     
     -- Animate in
-    Tween(notifFrame, {Position = UDim2.new(1, -320, 1, -(#self.Notifications + 1) * 50 - 12)}, 0.35, "Back", "Out")
+    Tween(notifFrame, {Position = UDim2.new(0, 8, 1, -(#self.Notifications + 1) * 54 - 8)}, 0.35, "Back", "Out")
     table.insert(self.Notifications, notifFrame)
     
     -- Progress and auto-dismiss
@@ -2482,7 +2583,7 @@ function LolHub:Notify(title, message, duration, notifType)
         
         -- Restack remaining notifications
         for idx, n in pairs(self.Notifications) do
-            Tween(n, {Position = UDim2.new(1, -320, 1, -idx * 50 - 12)}, 0.3)
+            Tween(n, {Position = UDim2.new(0, 8, 1, -idx * 54 - 8)}, 0.25)
         end
     end)
 end
@@ -2502,7 +2603,7 @@ function LolHub:ShowConfirm(title, message, onYes, onCancel)
     overlay.Parent = self.ScreenGui
     
     local dialog = Instance.new("Frame")
-    dialog.Size = UDim2.new(0, 212, 0, 100)
+    dialog.Size = UDim2.new(0.82, 0, 0, 140)
     dialog.Position = UDim2.new(0.5, -106, 0.5, -50)
     dialog.BackgroundColor3 = theme.TopBar
     dialog.BorderSizePixel = 0
@@ -2514,7 +2615,7 @@ function LolHub:ShowConfirm(title, message, onYes, onCancel)
     -- Scale in
     dialog.Size = UDim2.new(0, 0, 0, 0)
     dialog.Position = UDim2.new(0.5, 0, 0.5, 0)
-    Tween(dialog, {Size = UDim2.new(0, 212, 0, 100), Position = UDim2.new(0.5, -106, 0.5, -50)}, 0.3, "Back", "Out")
+    Tween(dialog, {Size = UDim2.new(0.82, 0, 0, 140), Position = UDim2.new(0.5, -106, 0.5, -50)}, 0.3, "Back", "Out")
     
     local titleLabel = Instance.new("TextLabel")
     titleLabel.Size = UDim2.new(1, -12, 0, 22)
