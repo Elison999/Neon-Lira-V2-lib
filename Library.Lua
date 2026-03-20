@@ -214,31 +214,73 @@ local function Tween(obj, info, props)
 end
 
 local function MakeDraggable(topbar, frame)
-    local dragging, dragInput, dragStart, startPos = false, nil, nil, nil
-    topbar.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = true
-            dragStart = input.Position
-            startPos = frame.Position
+    local dragging  = false
+    local dragInput = nil
+    local dragStart = nil
+    local startPos  = nil
+
+    local function BeginDrag(inputPos)
+        dragging  = true
+        dragStart = inputPos
+        startPos  = frame.Position
+    end
+
+    local function UpdateDrag(inputPos)
+        if not dragging then return end
+        local delta = inputPos - dragStart
+        local vp    = workspace.CurrentCamera.ViewportSize
+        local newX  = math.clamp(startPos.X.Offset + delta.X, -frame.AbsoluteSize.X + 60, vp.X - 60)
+        local newY  = math.clamp(startPos.Y.Offset + delta.Y, 0, vp.Y - 40)
+        frame.Position = UDim2.new(0, newX, 0, newY)
+    end
+
+    local function EndDrag()
+        dragging  = false
+        dragInput = nil
+    end
+
+    -- PC: Mouse
+    topbar.InputBegan:Connect(function(inp)
+        if inp.UserInputType == Enum.UserInputType.MouseButton1 then
+            BeginDrag(inp.Position)
         end
     end)
-    topbar.InputEnded:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = false
+    topbar.InputEnded:Connect(function(inp)
+        if inp.UserInputType == Enum.UserInputType.MouseButton1 then
+            EndDrag()
         end
     end)
-    topbar.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement then
-            dragInput = input
+    topbar.InputChanged:Connect(function(inp)
+        if inp.UserInputType == Enum.UserInputType.MouseMovement then
+            dragInput = inp
         end
     end)
-    UserInputService.InputChanged:Connect(function(input)
-        if input == dragInput and dragging then
-            local delta = input.Position - dragStart
-            frame.Position = UDim2.new(
-                startPos.X.Scale, startPos.X.Offset + delta.X,
-                startPos.Y.Scale, startPos.Y.Offset + delta.Y
-            )
+    UserInputService.InputChanged:Connect(function(inp)
+        if inp == dragInput and dragging then
+            UpdateDrag(inp.Position)
+        end
+    end)
+
+    -- Mobile: Touch
+    topbar.InputBegan:Connect(function(inp)
+        if inp.UserInputType == Enum.UserInputType.Touch then
+            BeginDrag(inp.Position)
+        end
+    end)
+    topbar.InputChanged:Connect(function(inp)
+        if inp.UserInputType == Enum.UserInputType.Touch and dragging then
+            UpdateDrag(inp.Position)
+        end
+    end)
+    topbar.InputEnded:Connect(function(inp)
+        if inp.UserInputType == Enum.UserInputType.Touch then
+            EndDrag()
+        end
+    end)
+    -- Safety: soltar dedo em qualquer lugar da tela cancela o drag
+    UserInputService.InputEnded:Connect(function(inp)
+        if inp.UserInputType == Enum.UserInputType.Touch then
+            EndDrag()
         end
     end)
 end
@@ -672,7 +714,10 @@ function NeonLira:CreateWindow(config)
     local Main = Instance.new("Frame")
     Main.Name = "Main"
     Main.Size = UDim2.fromOffset(550, 400)
-    Main.Position = UDim2.new(0.5, -275, 0.5, -200)
+    Main.Position = UDim2.fromOffset(
+        math.floor((workspace.CurrentCamera.ViewportSize.X - 550) / 2),
+        math.floor((workspace.CurrentCamera.ViewportSize.Y - 400) / 2)
+    )
     Main.BackgroundColor3 = Theme.Background
     Main.BorderSizePixel = 0
     Main.ClipsDescendants = true
@@ -683,16 +728,13 @@ function NeonLira:CreateWindow(config)
     MainStroke.Color = Theme.Border
     MainStroke.Thickness = 1
 
-    -- Shadow
+    -- Shadow (posição e tamanho controlados via RenderStepped abaixo)
     local Shadow = Instance.new("ImageLabel")
     Shadow.Name = "Shadow"
-    Shadow.AnchorPoint = Vector2.new(0.5, 0.5)
     Shadow.BackgroundTransparency = 1
-    Shadow.Position = UDim2.new(0.5, 0, 0.5, 8)
-    Shadow.Size = UDim2.new(1, 30, 1, 30)
     Shadow.Image = "rbxassetid://6015897843"
     Shadow.ImageColor3 = Theme.Shadow
-    Shadow.ImageTransparency = 0.4
+    Shadow.ImageTransparency = 0.38
     Shadow.ScaleType = Enum.ScaleType.Slice
     Shadow.SliceCenter = Rect.new(49, 49, 450, 450)
     Shadow.ZIndex = 1
@@ -829,16 +871,21 @@ function NeonLira:CreateWindow(config)
     Div.ZIndex = 3
     Div.Parent = Content
 
-    -- Dragging
+    -- Dragging (PC + Mobile)
     MakeDraggable(TopBar, Main)
-    -- Also keep shadow in sync
-    local function SyncShadow()
-        Shadow.Position = UDim2.new(
-            Main.Position.X.Scale, Main.Position.X.Offset + Main.Size.X.Offset/2,
-            Main.Position.Y.Scale, Main.Position.Y.Offset + Main.Size.Y.Offset/2 + 8
-        )
-    end
-    RunService.RenderStepped:Connect(SyncShadow)
+
+    -- Shadow: acompanha posição E tamanho do Main em tempo real
+    local shadowPad = 35  -- quanto a sombra extrapola em cada lado
+    RunService.RenderStepped:Connect(function()
+        if not Main or not Main.Parent then return end
+        local mw = Main.Size.X.Offset
+        local mh = Main.Size.Y.Offset
+        local mx = Main.Position.X.Offset
+        local my = Main.Position.Y.Offset
+        Shadow.Size     = UDim2.fromOffset(mw + shadowPad * 2, mh + shadowPad * 2)
+        Shadow.Position = UDim2.fromOffset(mx - shadowPad, my - shadowPad + 8)
+        Shadow.AnchorPoint = Vector2.new(0, 0)
+    end)
 
     -- Window state
     local Window = {
@@ -867,27 +914,68 @@ function NeonLira:CreateWindow(config)
         end
     end)
 
-    -- ── Resize ──
-    local resizing = false
-    local resizeStart, resizeSize
+    -- ── Resize (PC + Mobile) ──
+    local resizing    = false
+    local resizeStart = nil
+    local resizeSize  = nil
+
+    local function BeginResize(pos)
+        resizing     = true
+        resizeStart  = pos
+        resizeSize   = Main.Size
+    end
+    local function UpdateResize(pos)
+        if not resizing then return end
+        local delta = pos - resizeStart
+        local newW  = math.clamp(resizeSize.X.Offset + delta.X, 380, 900)
+        local newH  = math.clamp(resizeSize.Y.Offset + delta.Y, 280, 700)
+        Main.Size = UDim2.fromOffset(newW, newH)
+    end
+    local function EndResize()
+        resizing = false
+    end
+
+    -- Mouse
     ResizeBtn.InputBegan:Connect(function(inp)
         if inp.UserInputType == Enum.UserInputType.MouseButton1 then
-            resizing = true
-            resizeStart = inp.Position
-            resizeSize = Main.Size
+            BeginResize(inp.Position)
         end
     end)
     ResizeBtn.InputEnded:Connect(function(inp)
         if inp.UserInputType == Enum.UserInputType.MouseButton1 then
-            resizing = false
+            EndResize()
         end
     end)
     UserInputService.InputChanged:Connect(function(inp)
         if inp.UserInputType == Enum.UserInputType.MouseMovement and resizing then
-            local delta = inp.Position - resizeStart
-            local newW = math.clamp(resizeSize.X.Offset + delta.X, 400, 900)
-            local newH = math.clamp(resizeSize.Y.Offset + delta.Y, 300, 700)
-            Main.Size = UDim2.fromOffset(newW, newH)
+            UpdateResize(inp.Position)
+        end
+    end)
+    UserInputService.InputEnded:Connect(function(inp)
+        if inp.UserInputType == Enum.UserInputType.MouseButton1 then
+            EndResize()
+        end
+    end)
+
+    -- Touch
+    ResizeBtn.InputBegan:Connect(function(inp)
+        if inp.UserInputType == Enum.UserInputType.Touch then
+            BeginResize(inp.Position)
+        end
+    end)
+    ResizeBtn.InputChanged:Connect(function(inp)
+        if inp.UserInputType == Enum.UserInputType.Touch and resizing then
+            UpdateResize(inp.Position)
+        end
+    end)
+    ResizeBtn.InputEnded:Connect(function(inp)
+        if inp.UserInputType == Enum.UserInputType.Touch then
+            EndResize()
+        end
+    end)
+    UserInputService.InputEnded:Connect(function(inp)
+        if inp.UserInputType == Enum.UserInputType.Touch then
+            EndResize()
         end
     end)
 
