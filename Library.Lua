@@ -236,8 +236,8 @@ end
 local function AddGlow(parent, color)
     local glow = Instance.new("ImageLabel")
     glow.Name = "Glow"
-    glow.Size = UDim2.new(1, 30, 1, 30)
-    glow.Position = UDim2.new(0, -15, 0, -15)
+    glow.Size = UDim2.new(1, 19, 1, 19)
+    glow.Position = UDim2.new(0, -9, 0, -9)
     glow.BackgroundTransparency = 1
     glow.Image = "rbxassetid://5028857472"
     glow.ImageColor3 = color or Color3.fromRGB(100, 60, 255)
@@ -423,20 +423,20 @@ function LolHub:ShowLoadingScreen()
     -- Center container
     local container = Instance.new("Frame")
     container.Name = "Container"
-    container.Size = UDim2.new(0, 340, 0, 340)
-    container.Position = UDim2.new(0.5, -170, 0.5, -170)
+    container.Size = UDim2.new(0, 212, 0, 212)
+    container.Position = UDim2.new(0.5, -106, 0.5, -106)
     container.BackgroundColor3 = theme.TopBar
     container.BorderSizePixel = 0
     container.ZIndex = 202
     container.Parent = loadingFrame
-    AddCorner(container, 20)
+    AddCorner(container, 12)
     AddStroke(container, theme.Accent, 2)
     AddGlow(container, theme.Accent)
     
     -- Spinning ring
     local ringOuter = Instance.new("ImageLabel")
-    ringOuter.Size = UDim2.new(0, 160, 0, 160)
-    ringOuter.Position = UDim2.new(0.5, -80, 0, 30)
+    ringOuter.Size = UDim2.new(0, 100, 0, 100)
+    ringOuter.Position = UDim2.new(0.5, -50, 0, 19)
     ringOuter.BackgroundTransparency = 1
     ringOuter.Image = "rbxassetid://4965945816"
     ringOuter.ImageColor3 = theme.Accent
@@ -446,16 +446,16 @@ function LolHub:ShowLoadingScreen()
     
     -- Logo/Image
     local logoFrame = Instance.new("Frame")
-    logoFrame.Size = UDim2.new(0, 110, 0, 110)
-    logoFrame.Position = UDim2.new(0.5, -55, 0, 55)
+    logoFrame.Size = UDim2.new(0, 69, 0, 69)
+    logoFrame.Position = UDim2.new(0.5, -34, 0, 34)
     logoFrame.BackgroundColor3 = theme.Element
     logoFrame.ZIndex = 204
     logoFrame.Parent = container
-    AddCorner(logoFrame, 55)
+    AddCorner(logoFrame, 34)
     
     local logoImage = Instance.new("ImageLabel")
-    logoImage.Size = UDim2.new(0, 80, 0, 80)
-    logoImage.Position = UDim2.new(0.5, -40, 0.5, -40)
+    logoImage.Size = UDim2.new(0, 50, 0, 50)
+    logoImage.Position = UDim2.new(0.5, -25, 0.5, -25)
     logoImage.BackgroundTransparency = 1
     logoImage.Image = self.Config.ImageId ~= "" and ("rbxassetid://" .. self.Config.ImageId) or "rbxasset://textures/loading/robloxTilt.png"
     logoImage.ZIndex = 205
@@ -463,12 +463,12 @@ function LolHub:ShowLoadingScreen()
     
     -- Loading text
     local loadingTitle = Instance.new("TextLabel")
-    loadingTitle.Size = UDim2.new(1, -20, 0, 30)
-    loadingTitle.Position = UDim2.new(0, 10, 0, 200)
+    loadingTitle.Size = UDim2.new(1, -12, 0, 19)
+    loadingTitle.Position = UDim2.new(0, 6, 0, 125)
     loadingTitle.BackgroundTransparency = 1
     loadingTitle.Text = self.Config.LoadingName
     loadingTitle.TextColor3 = theme.Text
-    loadingTitle.TextSize = 20
+    loadingTitle.TextSize = 14
     loadingTitle.Font = Enum.Font.GothamBold
     loadingTitle.TextXAlignment = Enum.TextXAlignment.Center
     loadingTitle.ZIndex = 203
@@ -476,12 +476,12 @@ function LolHub:ShowLoadingScreen()
     
     -- Status label
     local statusLabel = Instance.new("TextLabel")
-    statusLabel.Size = UDim2.new(1, -20, 0, 22)
-    statusLabel.Position = UDim2.new(0, 10, 0, 234)
+    statusLabel.Size = UDim2.new(1, -12, 0, 14)
+    statusLabel.Position = UDim2.new(0, 6, 0, 146)
     statusLabel.BackgroundTransparency = 1
     statusLabel.Text = "Initializing..."
     statusLabel.TextColor3 = theme.SubText
-    statusLabel.TextSize = 13
+    statusLabel.TextSize = 10
     statusLabel.Font = Enum.Font.Gotham
     statusLabel.TextXAlignment = Enum.TextXAlignment.Center
     statusLabel.ZIndex = 203
@@ -489,13 +489,13 @@ function LolHub:ShowLoadingScreen()
     
     -- Progress bar bg
     local progressBg = Instance.new("Frame")
-    progressBg.Size = UDim2.new(0, 280, 0, 6)
-    progressBg.Position = UDim2.new(0.5, -140, 0, 268)
+    progressBg.Size = UDim2.new(0, 175, 0, 4)
+    progressBg.Position = UDim2.new(0.5, -88, 0, 168)
     progressBg.BackgroundColor3 = theme.Element
     progressBg.BorderSizePixel = 0
     progressBg.ZIndex = 203
     progressBg.Parent = container
-    AddCorner(progressBg, 3)
+    AddCorner(progressBg, 4)
     
     -- Progress bar fill
     local progressFill = Instance.new("Frame")
@@ -504,16 +504,16 @@ function LolHub:ShowLoadingScreen()
     progressFill.BorderSizePixel = 0
     progressFill.ZIndex = 204
     progressFill.Parent = progressBg
-    AddCorner(progressFill, 3)
+    AddCorner(progressFill, 4)
     
     -- Version label
     local versionLabel = Instance.new("TextLabel")
-    versionLabel.Size = UDim2.new(1, -20, 0, 20)
-    versionLabel.Position = UDim2.new(0, 10, 0, 285)
+    versionLabel.Size = UDim2.new(1, -12, 0, 12)
+    versionLabel.Position = UDim2.new(0, 6, 0, 178)
     versionLabel.BackgroundTransparency = 1
     versionLabel.Text = "v2.0 Ultra Pro Max"
     versionLabel.TextColor3 = theme.SubText
-    versionLabel.TextSize = 11
+    versionLabel.TextSize = 10
     versionLabel.Font = Enum.Font.Gotham
     versionLabel.TextXAlignment = Enum.TextXAlignment.Center
     versionLabel.ZIndex = 203
@@ -611,29 +611,29 @@ function LolHub:ShowKeySystem()
     keyScreen.Parent = self.ScreenGui
     
     local keyContainer = Instance.new("Frame")
-    keyContainer.Size = UDim2.new(0, 400, 0, 320)
-    keyContainer.Position = UDim2.new(0.5, -200, 0.5, -160)
+    keyContainer.Size = UDim2.new(0, 250, 0, 200)
+    keyContainer.Position = UDim2.new(0.5, -125, 0.5, -100)
     keyContainer.BackgroundColor3 = theme.TopBar
     keyContainer.BorderSizePixel = 0
     keyContainer.ZIndex = 151
     keyContainer.Parent = keyScreen
-    AddCorner(keyContainer, 16)
+    AddCorner(keyContainer, 10)
     AddStroke(keyContainer, theme.Accent, 2)
     AddGlow(keyContainer, theme.Accent)
     
     -- Header
     local keyHeader = Instance.new("Frame")
-    keyHeader.Size = UDim2.new(1, 0, 0, 60)
+    keyHeader.Size = UDim2.new(1, 0, 0, 38)
     keyHeader.BackgroundColor3 = theme.Accent
     keyHeader.BorderSizePixel = 0
     keyHeader.ZIndex = 152
     keyHeader.Parent = keyContainer
-    AddCorner(keyHeader, 16)
+    AddCorner(keyHeader, 10)
     
     -- Fix rounded corners only top
     local headerFix = Instance.new("Frame")
-    headerFix.Size = UDim2.new(1, 0, 0, 20)
-    headerFix.Position = UDim2.new(0, 0, 1, -20)
+    headerFix.Size = UDim2.new(1, 0, 0, 12)
+    headerFix.Position = UDim2.new(0, 0, 1, -12)
     headerFix.BackgroundColor3 = theme.Accent
     headerFix.BorderSizePixel = 0
     headerFix.ZIndex = 152
@@ -644,19 +644,19 @@ function LolHub:ShowKeySystem()
     keyNameLabel.BackgroundTransparency = 1
     keyNameLabel.Text = "🔑  " .. self.Config.KeyName
     keyNameLabel.TextColor3 = Color3.fromRGB(255,255,255)
-    keyNameLabel.TextSize = 18
+    keyNameLabel.TextSize = 13
     keyNameLabel.Font = Enum.Font.GothamBold
     keyNameLabel.ZIndex = 153
     keyNameLabel.Parent = keyHeader
     
     -- Description
     local keyDesc = Instance.new("TextLabel")
-    keyDesc.Size = UDim2.new(1, -30, 0, 40)
-    keyDesc.Position = UDim2.new(0, 15, 0, 72)
+    keyDesc.Size = UDim2.new(1, -19, 0, 25)
+    keyDesc.Position = UDim2.new(0, 9, 0, 45)
     keyDesc.BackgroundTransparency = 1
     keyDesc.Text = "This script requires a valid key to run.\nEnter your key below to continue."
     keyDesc.TextColor3 = theme.SubText
-    keyDesc.TextSize = 13
+    keyDesc.TextSize = 10
     keyDesc.Font = Enum.Font.Gotham
     keyDesc.TextXAlignment = Enum.TextXAlignment.Left
     keyDesc.TextWrapped = true
@@ -666,17 +666,17 @@ function LolHub:ShowKeySystem()
     -- Get Key button (if site configured)
     if self.Config.GetKeyFromSite and self.Config.KeySite ~= "" then
         local getKeyBtn = Instance.new("TextButton")
-        getKeyBtn.Size = UDim2.new(0, 160, 0, 32)
-        getKeyBtn.Position = UDim2.new(0.5, -80, 0, 118)
+        getKeyBtn.Size = UDim2.new(0, 100, 0, 20)
+        getKeyBtn.Position = UDim2.new(0.5, -50, 0, 74)
         getKeyBtn.BackgroundColor3 = theme.Element
         getKeyBtn.Text = "🌐  Get Key"
         getKeyBtn.TextColor3 = theme.Accent
-        getKeyBtn.TextSize = 13
+        getKeyBtn.TextSize = 10
         getKeyBtn.Font = Enum.Font.GothamBold
         getKeyBtn.BorderSizePixel = 0
         getKeyBtn.ZIndex = 152
         getKeyBtn.Parent = keyContainer
-        AddCorner(getKeyBtn, 8)
+        AddCorner(getKeyBtn, 5)
         AddStroke(getKeyBtn, theme.Accent, 1)
         
         getKeyBtn.MouseButton1Click:Connect(function()
@@ -687,34 +687,34 @@ function LolHub:ShowKeySystem()
     
     -- Input box
     local inputBg = Instance.new("Frame")
-    inputBg.Size = UDim2.new(1, -30, 0, 46)
-    inputBg.Position = UDim2.new(0, 15, 0, 164)
+    inputBg.Size = UDim2.new(1, -19, 0, 29)
+    inputBg.Position = UDim2.new(0, 9, 0, 102)
     inputBg.BackgroundColor3 = theme.Element
     inputBg.BorderSizePixel = 0
     inputBg.ZIndex = 152
     inputBg.Parent = keyContainer
-    AddCorner(inputBg, 10)
+    AddCorner(inputBg, 6)
     AddStroke(inputBg, theme.Border, 1.5)
     
     local lockIcon = Instance.new("TextLabel")
-    lockIcon.Size = UDim2.new(0, 30, 1, 0)
-    lockIcon.Position = UDim2.new(0, 8, 0, 0)
+    lockIcon.Size = UDim2.new(0, 19, 1, 0)
+    lockIcon.Position = UDim2.new(0, 5, 0, 0)
     lockIcon.BackgroundTransparency = 1
     lockIcon.Text = "🔒"
-    lockIcon.TextSize = 16
+    lockIcon.TextSize = 12
     lockIcon.Font = Enum.Font.Gotham
     lockIcon.ZIndex = 153
     lockIcon.Parent = inputBg
     
     local keyInput = Instance.new("TextBox")
-    keyInput.Size = UDim2.new(1, -50, 1, -10)
-    keyInput.Position = UDim2.new(0, 40, 0, 5)
+    keyInput.Size = UDim2.new(1, -31, 1, -6)
+    keyInput.Position = UDim2.new(0, 25, 0, 3)
     keyInput.BackgroundTransparency = 1
     keyInput.Text = ""
     keyInput.PlaceholderText = "Enter your key here..."
     keyInput.PlaceholderColor3 = theme.SubText
     keyInput.TextColor3 = theme.Text
-    keyInput.TextSize = 14
+    keyInput.TextSize = 11
     keyInput.Font = Enum.Font.Gotham
     keyInput.TextXAlignment = Enum.TextXAlignment.Left
     keyInput.ClearTextOnFocus = false
@@ -723,12 +723,12 @@ function LolHub:ShowKeySystem()
     
     -- Status label
     local keyStatus = Instance.new("TextLabel")
-    keyStatus.Size = UDim2.new(1, -30, 0, 22)
-    keyStatus.Position = UDim2.new(0, 15, 0, 218)
+    keyStatus.Size = UDim2.new(1, -19, 0, 14)
+    keyStatus.Position = UDim2.new(0, 9, 0, 136)
     keyStatus.BackgroundTransparency = 1
     keyStatus.Text = ""
     keyStatus.TextColor3 = Color3.fromRGB(255, 80, 80)
-    keyStatus.TextSize = 13
+    keyStatus.TextSize = 10
     keyStatus.Font = Enum.Font.Gotham
     keyStatus.TextXAlignment = Enum.TextXAlignment.Center
     keyStatus.ZIndex = 152
@@ -736,17 +736,17 @@ function LolHub:ShowKeySystem()
     
     -- Submit button
     local submitBtn = Instance.new("TextButton")
-    submitBtn.Size = UDim2.new(0, 160, 0, 44)
-    submitBtn.Position = UDim2.new(0.5, -80, 0, 252)
+    submitBtn.Size = UDim2.new(0, 100, 0, 28)
+    submitBtn.Position = UDim2.new(0.5, -50, 0, 158)
     submitBtn.BackgroundColor3 = theme.Accent
     submitBtn.Text = "Verify Key"
     submitBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-    submitBtn.TextSize = 15
+    submitBtn.TextSize = 11
     submitBtn.Font = Enum.Font.GothamBold
     submitBtn.BorderSizePixel = 0
     submitBtn.ZIndex = 152
     submitBtn.Parent = keyContainer
-    AddCorner(submitBtn, 10)
+    AddCorner(submitBtn, 6)
     
     local function verifyKey()
         local entered = keyInput.Text:gsub("%s+", "")
@@ -833,8 +833,8 @@ function LolHub:CreateWindow(windowConfig)
     
     local winTitle = windowConfig.Title or self.Config.Title
     local winIcon = windowConfig.Icon or self.Config.WindowIcon
-    local winSize = windowConfig.Size or UDim2.new(0, 600, 0, 480)
-    local winPos = windowConfig.Position or UDim2.new(0.5, -300, 0.5, -240)
+    local winSize = windowConfig.Size or UDim2.new(0, 375, 0, 300)
+    local winPos = windowConfig.Position or UDim2.new(0.5, -188, 0.5, -150)
     
     local Window = {}
     Window.Tabs = {}
@@ -852,12 +852,12 @@ function LolHub:CreateWindow(windowConfig)
     mainFrame.BorderSizePixel = 0
     mainFrame.ZIndex = 10
     mainFrame.Parent = self.ScreenGui
-    AddCorner(mainFrame, 12)
+    AddCorner(mainFrame, 8)
     AddStroke(mainFrame, theme.Border, 1.5)
     
     local mainShadow = Instance.new("ImageLabel")
-    mainShadow.Size = UDim2.new(1, 50, 1, 50)
-    mainShadow.Position = UDim2.new(0, -25, 0, -25)
+    mainShadow.Size = UDim2.new(1, 31, 1, 31)
+    mainShadow.Position = UDim2.new(0, -16, 0, -16)
     mainShadow.BackgroundTransparency = 1
     mainShadow.Image = "rbxassetid://5028857472"
     mainShadow.ImageColor3 = Color3.fromRGB(0,0,0)
@@ -868,16 +868,16 @@ function LolHub:CreateWindow(windowConfig)
     -- ─── Top Bar ───
     local topBar = Instance.new("Frame")
     topBar.Name = "TopBar"
-    topBar.Size = UDim2.new(1, 0, 0, 44)
+    topBar.Size = UDim2.new(1, 0, 0, 28)
     topBar.BackgroundColor3 = theme.TopBar
     topBar.BorderSizePixel = 0
     topBar.ZIndex = 11
     topBar.Parent = mainFrame
-    AddCorner(topBar, 12)
+    AddCorner(topBar, 8)
     
     local topBarFix = Instance.new("Frame")
-    topBarFix.Size = UDim2.new(1, 0, 0, 12)
-    topBarFix.Position = UDim2.new(0, 0, 1, -12)
+    topBarFix.Size = UDim2.new(1, 0, 0, 8)
+    topBarFix.Position = UDim2.new(0, 0, 1, -8)
     topBarFix.BackgroundColor3 = theme.TopBar
     topBarFix.BorderSizePixel = 0
     topBarFix.ZIndex = 11
@@ -885,8 +885,8 @@ function LolHub:CreateWindow(windowConfig)
     
     -- Accent line at bottom of topbar
     local accentLine = Instance.new("Frame")
-    accentLine.Size = UDim2.new(1, 0, 0, 2)
-    accentLine.Position = UDim2.new(0, 0, 1, -2)
+    accentLine.Size = UDim2.new(1, 0, 0, 1)
+    accentLine.Position = UDim2.new(0, 0, 1, -1)
     accentLine.BackgroundColor3 = theme.Accent
     accentLine.BorderSizePixel = 0
     accentLine.ZIndex = 12
@@ -894,22 +894,22 @@ function LolHub:CreateWindow(windowConfig)
     
     -- Icon
     local iconLabel = Instance.new("ImageLabel")
-    iconLabel.Size = UDim2.new(0, 28, 0, 28)
-    iconLabel.Position = UDim2.new(0, 10, 0.5, -14)
+    iconLabel.Size = UDim2.new(0, 18, 0, 18)
+    iconLabel.Position = UDim2.new(0, 6, 0.5, -9)
     iconLabel.BackgroundTransparency = 1
     iconLabel.Image = winIcon ~= "" and ("rbxassetid://" .. winIcon) or ""
     iconLabel.ZIndex = 12
     iconLabel.Parent = topBar
-    AddCorner(iconLabel, 6)
+    AddCorner(iconLabel, 4)
     
     -- Title
     local titleLabel = Instance.new("TextLabel")
-    titleLabel.Size = UDim2.new(1, -150, 1, 0)
+    titleLabel.Size = UDim2.new(1, -94, 1, 0)
     titleLabel.Position = UDim2.new(0, winIcon ~= "" and 46 or 14, 0, 0)
     titleLabel.BackgroundTransparency = 1
     titleLabel.Text = winTitle
     titleLabel.TextColor3 = theme.Text
-    titleLabel.TextSize = 15
+    titleLabel.TextSize = 11
     titleLabel.Font = Enum.Font.GothamBold
     titleLabel.TextXAlignment = Enum.TextXAlignment.Left
     titleLabel.ZIndex = 12
@@ -917,8 +917,8 @@ function LolHub:CreateWindow(windowConfig)
     
     -- ─── Window Buttons ───
     local btnContainer = Instance.new("Frame")
-    btnContainer.Size = UDim2.new(0, 104, 0, 30)
-    btnContainer.Position = UDim2.new(1, -112, 0.5, -15)
+    btnContainer.Size = UDim2.new(0, 65, 0, 19)
+    btnContainer.Position = UDim2.new(1, -70, 0.5, -9)
     btnContainer.BackgroundTransparency = 1
     btnContainer.ZIndex = 12
     btnContainer.Parent = topBar
@@ -927,29 +927,29 @@ function LolHub:CreateWindow(windowConfig)
     UIListLayout.FillDirection = Enum.FillDirection.Horizontal
     UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
     UIListLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-    UIListLayout.Padding = UDim.new(0, 5)
+    UIListLayout.Padding = UDim.new(0, 3)
     UIListLayout.Parent = btnContainer
     
     local function makeWindowBtn(icon, color, hoverColor, zIndex)
         local btn = Instance.new("TextButton")
-        btn.Size = UDim2.new(0, 28, 0, 28)
+        btn.Size = UDim2.new(0, 18, 0, 18)
         btn.BackgroundColor3 = color
         btn.Text = icon
         btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-        btn.TextSize = 12
+        btn.TextSize = 10
         btn.Font = Enum.Font.GothamBold
         btn.BorderSizePixel = 0
         btn.ZIndex = zIndex or 12
         btn.Parent = btnContainer
-        AddCorner(btn, 6)
+        AddCorner(btn, 4)
         
         btn.MouseEnter:Connect(function()
             Tween(btn, {BackgroundColor3 = hoverColor}, 0.15)
-            Tween(btn, {Size = UDim2.new(0, 30, 0, 30)}, 0.1)
+            Tween(btn, {Size = UDim2.new(0, 19, 0, 19)}, 0.1)
         end)
         btn.MouseLeave:Connect(function()
             Tween(btn, {BackgroundColor3 = color}, 0.15)
-            Tween(btn, {Size = UDim2.new(0, 28, 0, 28)}, 0.1)
+            Tween(btn, {Size = UDim2.new(0, 18, 0, 18)}, 0.1)
         end)
         return btn
     end
@@ -969,7 +969,7 @@ function LolHub:CreateWindow(windowConfig)
     resizeBtn.MouseButton1Click:Connect(function()
         isResized = not isResized
         if isResized then
-            Tween(mainFrame, {Size = UDim2.new(0, 800, 0, 580)}, 0.35)
+            Tween(mainFrame, {Size = UDim2.new(0, 500, 0, 362)}, 0.35)
         else
             Tween(mainFrame, {Size = winSize}, 0.35)
         end
@@ -982,7 +982,7 @@ function LolHub:CreateWindow(windowConfig)
             Tween(mainFrame, {Size = UDim2.new(0, mainFrame.AbsoluteSize.X, 0, 44)}, 0.3)
             minimizeBtn.Text = "▢"
         else
-            local targetSize = isResized and UDim2.new(0, 800, 0, 580) or winSize
+            local targetSize = isResized and UDim2.new(0, 500, 0, 362) or winSize
             Tween(mainFrame, {Size = targetSize}, 0.3)
             minimizeBtn.Text = "─"
         end
@@ -1007,16 +1007,16 @@ function LolHub:CreateWindow(windowConfig)
     -- ─── Tab Bar ───
     local tabBar = Instance.new("Frame")
     tabBar.Name = "TabBar"
-    tabBar.Size = UDim2.new(0, 150, 1, -48)
-    tabBar.Position = UDim2.new(0, 0, 0, 46)
+    tabBar.Size = UDim2.new(0, 94, 1, -30)
+    tabBar.Position = UDim2.new(0, 0, 0, 29)
     tabBar.BackgroundColor3 = theme.TopBar
     tabBar.BorderSizePixel = 0
     tabBar.ZIndex = 11
     tabBar.Parent = mainFrame
     
     local tabBarFix = Instance.new("Frame")
-    tabBarFix.Size = UDim2.new(0, 12, 1, 0)
-    tabBarFix.Position = UDim2.new(1, -12, 0, 0)
+    tabBarFix.Size = UDim2.new(0, 8, 1, 0)
+    tabBarFix.Position = UDim2.new(1, -8, 0, 0)
     tabBarFix.BackgroundColor3 = theme.TopBar
     tabBarFix.BorderSizePixel = 0
     tabBarFix.ZIndex = 11
@@ -1024,20 +1024,20 @@ function LolHub:CreateWindow(windowConfig)
     
     local tabListLayout = Instance.new("UIListLayout")
     tabListLayout.FillDirection = Enum.FillDirection.Vertical
-    tabListLayout.Padding = UDim.new(0, 4)
+    tabListLayout.Padding = UDim.new(0, 2)
     tabListLayout.Parent = tabBar
     
     local tabPadding = Instance.new("UIPadding")
-    tabPadding.PaddingTop = UDim.new(0, 10)
-    tabPadding.PaddingLeft = UDim.new(0, 8)
-    tabPadding.PaddingRight = UDim.new(0, 8)
+    tabPadding.PaddingTop = UDim.new(0, 6)
+    tabPadding.PaddingLeft = UDim.new(0, 5)
+    tabPadding.PaddingRight = UDim.new(0, 5)
     tabPadding.Parent = tabBar
     
     -- ─── Content Area ───
     local contentArea = Instance.new("Frame")
     contentArea.Name = "ContentArea"
-    contentArea.Size = UDim2.new(1, -158, 1, -50)
-    contentArea.Position = UDim2.new(0, 156, 0, 48)
+    contentArea.Size = UDim2.new(1, -99, 1, -31)
+    contentArea.Position = UDim2.new(0, 98, 0, 30)
     contentArea.BackgroundTransparency = 1
     contentArea.ZIndex = 11
     contentArea.Parent = mainFrame
@@ -1078,37 +1078,37 @@ function LolHub:CreateWindow(windowConfig)
         -- Tab button
         local tabBtn = Instance.new("TextButton")
         tabBtn.Name = "Tab_" .. tabName
-        tabBtn.Size = UDim2.new(1, 0, 0, 36)
+        tabBtn.Size = UDim2.new(1, 0, 0, 22)
         tabBtn.BackgroundColor3 = theme.Element
         tabBtn.BackgroundTransparency = 1
         tabBtn.Text = (tabIcon ~= "" and tabIcon .. "  " or "") .. tabName
         tabBtn.TextColor3 = theme.SubText
-        tabBtn.TextSize = 13
+        tabBtn.TextSize = 10
         tabBtn.Font = Enum.Font.GothamSemibold
         tabBtn.TextXAlignment = Enum.TextXAlignment.Left
         tabBtn.BorderSizePixel = 0
         tabBtn.ZIndex = 12
         tabBtn.Parent = self.TabBar
-        AddCorner(tabBtn, 8)
+        AddCorner(tabBtn, 5)
         
         local tabPaddingInner = Instance.new("UIPadding")
-        tabPaddingInner.PaddingLeft = UDim.new(0, 10)
+        tabPaddingInner.PaddingLeft = UDim.new(0, 6)
         tabPaddingInner.Parent = tabBtn
         
         local tabIndicator = Instance.new("Frame")
-        tabIndicator.Size = UDim2.new(0, 3, 0.7, 0)
-        tabIndicator.Position = UDim2.new(0, -4, 0.15, 0)
+        tabIndicator.Size = UDim2.new(0, 2, 0.7, 0)
+        tabIndicator.Position = UDim2.new(0, -2, 0.15, 0)
         tabIndicator.BackgroundColor3 = theme.Accent
         tabIndicator.BorderSizePixel = 0
         tabIndicator.BackgroundTransparency = 1
         tabIndicator.ZIndex = 13
         tabIndicator.Parent = tabBtn
-        AddCorner(tabIndicator, 2)
+        AddCorner(tabIndicator, 4)
         
         -- Tab content frame
         local tabFrame = Instance.new("Frame")
-        tabFrame.Size = UDim2.new(1, -10, 1, -10)
-        tabFrame.Position = UDim2.new(0, 5, 0, 5)
+        tabFrame.Size = UDim2.new(1, -6, 1, -6)
+        tabFrame.Position = UDim2.new(0, 3, 0, 3)
         tabFrame.BackgroundTransparency = 1
         tabFrame.Visible = false
         tabFrame.ZIndex = 12
@@ -1116,12 +1116,12 @@ function LolHub:CreateWindow(windowConfig)
         
         local elementList = Instance.new("UIListLayout")
         elementList.FillDirection = Enum.FillDirection.Vertical
-        elementList.Padding = UDim.new(0, 8)
+        elementList.Padding = UDim.new(0, 5)
         elementList.Parent = tabFrame
         
         local tabFramePad = Instance.new("UIPadding")
-        tabFramePad.PaddingTop = UDim.new(0, 4)
-        tabFramePad.PaddingBottom = UDim.new(0, 8)
+        tabFramePad.PaddingTop = UDim.new(0, 2)
+        tabFramePad.PaddingBottom = UDim.new(0, 5)
         tabFramePad.Parent = tabFrame
         
         Tab.Frame = tabFrame
@@ -1174,7 +1174,7 @@ function LolHub:CreateWindow(windowConfig)
             container.BorderSizePixel = 0
             container.ZIndex = 13
             container.Parent = tabFrame
-            AddCorner(container, 8)
+            AddCorner(container, 5)
             AddStroke(container, theme.Border, 1)
             return container
         end
@@ -1185,20 +1185,20 @@ function LolHub:CreateWindow(windowConfig)
         function Tab:AddButton(btnConfig)
             btnConfig = btnConfig or {}
             local theme = self._lib.Theme
-            local container = makeContainer(46)
+            local container = makeContainer(29)
             
             local btn = Instance.new("TextButton")
-            btn.Size = UDim2.new(1, -20, 0, 34)
-            btn.Position = UDim2.new(0, 10, 0.5, -17)
+            btn.Size = UDim2.new(1, -12, 0, 21)
+            btn.Position = UDim2.new(0, 6, 0.5, -11)
             btn.BackgroundColor3 = theme.Accent
             btn.Text = btnConfig.Name or "Button"
             btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-            btn.TextSize = 14
+            btn.TextSize = 11
             btn.Font = Enum.Font.GothamSemibold
             btn.BorderSizePixel = 0
             btn.ZIndex = 14
             btn.Parent = container
-            AddCorner(btn, 7)
+            AddCorner(btn, 4)
             
             btn.MouseEnter:Connect(function()
                 Tween(btn, {BackgroundColor3 = theme.AccentGlow}, 0.15)
@@ -1223,7 +1223,7 @@ function LolHub:CreateWindow(windowConfig)
             toggleConfig = toggleConfig or {}
             local theme = self._lib.Theme
             local flagName = toggleConfig.Flag or toggleConfig.Name
-            local container = makeContainer(50)
+            local container = makeContainer(31)
             
             local defaultVal = toggleConfig.Default or false
             if flagName and self._lib.Flags[flagName] ~= nil then
@@ -1234,26 +1234,26 @@ function LolHub:CreateWindow(windowConfig)
             
             -- Label
             local label = Instance.new("TextLabel")
-            label.Size = UDim2.new(1, -80, 1, 0)
-            label.Position = UDim2.new(0, 14, 0, 0)
+            label.Size = UDim2.new(1, -50, 1, 0)
+            label.Position = UDim2.new(0, 9, 0, 0)
             label.BackgroundTransparency = 1
             label.Text = toggleConfig.Name or "Toggle"
             label.TextColor3 = theme.Text
-            label.TextSize = 14
+            label.TextSize = 11
             label.Font = Enum.Font.GothamSemibold
             label.TextXAlignment = Enum.TextXAlignment.Left
             label.ZIndex = 14
             label.Parent = container
             
             if toggleConfig.Description then
-                label.Size = UDim2.new(1, -80, 0.55, 0)
+                label.Size = UDim2.new(1, -50, 0.55, 0)
                 local desc = Instance.new("TextLabel")
-                desc.Size = UDim2.new(1, -80, 0.45, 0)
-                desc.Position = UDim2.new(0, 14, 0.55, 0)
+                desc.Size = UDim2.new(1, -50, 0.45, 0)
+                desc.Position = UDim2.new(0, 9, 0.55, 0)
                 desc.BackgroundTransparency = 1
                 desc.Text = toggleConfig.Description
                 desc.TextColor3 = theme.SubText
-                desc.TextSize = 11
+                desc.TextSize = 10
                 desc.Font = Enum.Font.Gotham
                 desc.TextXAlignment = Enum.TextXAlignment.Left
                 desc.ZIndex = 14
@@ -1262,23 +1262,23 @@ function LolHub:CreateWindow(windowConfig)
             
             -- Toggle background
             local toggleBg = Instance.new("Frame")
-            toggleBg.Size = UDim2.new(0, 46, 0, 26)
-            toggleBg.Position = UDim2.new(1, -60, 0.5, -13)
+            toggleBg.Size = UDim2.new(0, 29, 0, 16)
+            toggleBg.Position = UDim2.new(1, -38, 0.5, -8)
             toggleBg.BackgroundColor3 = currentVal and theme.Toggle_ON or theme.Toggle_OFF
             toggleBg.BorderSizePixel = 0
             toggleBg.ZIndex = 14
             toggleBg.Parent = container
-            AddCorner(toggleBg, 13)
+            AddCorner(toggleBg, 8)
             
             -- Toggle knob
             local toggleKnob = Instance.new("Frame")
-            toggleKnob.Size = UDim2.new(0, 20, 0, 20)
-            toggleKnob.Position = currentVal and UDim2.new(0, 23, 0.5, -10) or UDim2.new(0, 3, 0.5, -10)
+            toggleKnob.Size = UDim2.new(0, 12, 0, 12)
+            toggleKnob.Position = currentVal and UDim2.new(0, 15, 0.5, -6) or UDim2.new(0, 2, 0.5, -6)
             toggleKnob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
             toggleKnob.BorderSizePixel = 0
             toggleKnob.ZIndex = 15
             toggleKnob.Parent = toggleBg
-            AddCorner(toggleKnob, 10)
+            AddCorner(toggleKnob, 6)
             
             local toggleBtn = Instance.new("TextButton")
             toggleBtn.Size = UDim2.new(1, 0, 1, 0)
@@ -1292,7 +1292,7 @@ function LolHub:CreateWindow(windowConfig)
                 if flagName then self._lib.Flags[flagName] = val end
                 
                 Tween(toggleBg, {BackgroundColor3 = val and theme.Toggle_ON or theme.Toggle_OFF}, 0.2)
-                Tween(toggleKnob, {Position = val and UDim2.new(0, 23, 0.5, -10) or UDim2.new(0, 3, 0.5, -10)}, 0.2)
+                Tween(toggleKnob, {Position = val and UDim2.new(0, 15, 0.5, -6) or UDim2.new(0, 2, 0.5, -6)}, 0.2)
                 
                 if not skipCallback and toggleConfig.Callback then
                     toggleConfig.Callback(val)
@@ -1327,7 +1327,7 @@ function LolHub:CreateWindow(windowConfig)
             sliderConfig = sliderConfig or {}
             local theme = self._lib.Theme
             local flagName = sliderConfig.Flag or sliderConfig.Name
-            local container = makeContainer(64)
+            local container = makeContainer(40)
             
             local minVal = sliderConfig.Min or 0
             local maxVal = sliderConfig.Max or 100
@@ -1340,8 +1340,8 @@ function LolHub:CreateWindow(windowConfig)
             
             -- Header row
             local headerRow = Instance.new("Frame")
-            headerRow.Size = UDim2.new(1, -24, 0, 26)
-            headerRow.Position = UDim2.new(0, 12, 0, 8)
+            headerRow.Size = UDim2.new(1, -15, 0, 16)
+            headerRow.Position = UDim2.new(0, 8, 0, 5)
             headerRow.BackgroundTransparency = 1
             headerRow.ZIndex = 14
             headerRow.Parent = container
@@ -1351,7 +1351,7 @@ function LolHub:CreateWindow(windowConfig)
             nameLabel.BackgroundTransparency = 1
             nameLabel.Text = sliderConfig.Name or "Slider"
             nameLabel.TextColor3 = theme.Text
-            nameLabel.TextSize = 13
+            nameLabel.TextSize = 10
             nameLabel.Font = Enum.Font.GothamSemibold
             nameLabel.TextXAlignment = Enum.TextXAlignment.Left
             nameLabel.ZIndex = 14
@@ -1363,7 +1363,7 @@ function LolHub:CreateWindow(windowConfig)
             valueLabel.BackgroundTransparency = 1
             valueLabel.Text = tostring(currentVal)
             valueLabel.TextColor3 = theme.Accent
-            valueLabel.TextSize = 13
+            valueLabel.TextSize = 10
             valueLabel.Font = Enum.Font.GothamBold
             valueLabel.TextXAlignment = Enum.TextXAlignment.Right
             valueLabel.ZIndex = 14
@@ -1371,8 +1371,8 @@ function LolHub:CreateWindow(windowConfig)
             
             -- Track
             local trackBg = Instance.new("Frame")
-            trackBg.Size = UDim2.new(1, -24, 0, 8)
-            trackBg.Position = UDim2.new(0, 12, 0, 42)
+            trackBg.Size = UDim2.new(1, -15, 0, 5)
+            trackBg.Position = UDim2.new(0, 8, 0, 26)
             trackBg.BackgroundColor3 = theme.Toggle_OFF
             trackBg.BorderSizePixel = 0
             trackBg.ZIndex = 14
@@ -1390,13 +1390,13 @@ function LolHub:CreateWindow(windowConfig)
             -- Knob
             local knob = Instance.new("Frame")
             local fillPct = (currentVal - minVal) / (maxVal - minVal)
-            knob.Size = UDim2.new(0, 16, 0, 16)
-            knob.Position = UDim2.new(fillPct, -8, 0.5, -8)
+            knob.Size = UDim2.new(0, 10, 0, 10)
+            knob.Position = UDim2.new(fillPct, -5, 0.5, -5)
             knob.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
             knob.BorderSizePixel = 0
             knob.ZIndex = 16
             knob.Parent = trackBg
-            AddCorner(knob, 8)
+            AddCorner(knob, 5)
             AddStroke(knob, theme.Accent, 2)
             
             -- Interaction
@@ -1412,7 +1412,7 @@ function LolHub:CreateWindow(windowConfig)
                 local pct = (currentVal - minVal) / (maxVal - minVal)
                 
                 trackFill.Size = UDim2.new(pct, 0, 1, 0)
-                knob.Position = UDim2.new(pct, -8, 0.5, -8)
+                knob.Position = UDim2.new(pct, -5, 0.5, -5)
                 valueLabel.Text = tostring(currentVal)
                 
                 if flagName then self._lib.Flags[flagName] = currentVal end
@@ -1450,7 +1450,7 @@ function LolHub:CreateWindow(windowConfig)
                 currentVal = math.clamp(val, minVal, maxVal)
                 local pct = (currentVal - minVal) / (maxVal - minVal)
                 Tween(trackFill, {Size = UDim2.new(pct, 0, 1, 0)}, 0.2)
-                knob.Position = UDim2.new(pct, -8, 0.5, -8)
+                knob.Position = UDim2.new(pct, -5, 0.5, -5)
                 valueLabel.Text = tostring(currentVal)
                 if flagName then self._lib.Flags[flagName] = currentVal end
             end
@@ -1468,7 +1468,7 @@ function LolHub:CreateWindow(windowConfig)
             local theme = self._lib.Theme
             local flagName = dropConfig.Flag or dropConfig.Name
             local options = dropConfig.Options or {}
-            local container = makeContainer(50)
+            local container = makeContainer(31)
             container.ClipsDescendants = false
             container.ZIndex = 20
             
@@ -1481,41 +1481,41 @@ function LolHub:CreateWindow(windowConfig)
             
             local label = Instance.new("TextLabel")
             label.Size = UDim2.new(0.45, 0, 1, 0)
-            label.Position = UDim2.new(0, 14, 0, 0)
+            label.Position = UDim2.new(0, 9, 0, 0)
             label.BackgroundTransparency = 1
             label.Text = dropConfig.Name or "Dropdown"
             label.TextColor3 = theme.Text
-            label.TextSize = 13
+            label.TextSize = 10
             label.Font = Enum.Font.GothamSemibold
             label.TextXAlignment = Enum.TextXAlignment.Left
             label.ZIndex = 21
             label.Parent = container
             
             local dropBtn = Instance.new("TextButton")
-            dropBtn.Size = UDim2.new(0.5, -10, 0, 34)
-            dropBtn.Position = UDim2.new(0.5, 5, 0.5, -17)
+            dropBtn.Size = UDim2.new(0.5, -6, 0, 21)
+            dropBtn.Position = UDim2.new(0.5, 3, 0.5, -11)
             dropBtn.BackgroundColor3 = theme.Dropdown
             dropBtn.Text = currentVal .. "  ▾"
             dropBtn.TextColor3 = theme.Text
-            dropBtn.TextSize = 12
+            dropBtn.TextSize = 10
             dropBtn.Font = Enum.Font.GothamSemibold
             dropBtn.BorderSizePixel = 0
             dropBtn.ZIndex = 21
             dropBtn.Parent = container
-            AddCorner(dropBtn, 7)
+            AddCorner(dropBtn, 4)
             AddStroke(dropBtn, theme.Border, 1)
             
             -- Dropdown menu
             local dropMenu = Instance.new("Frame")
-            dropMenu.Size = UDim2.new(0.5, -10, 0, 0)
-            dropMenu.Position = UDim2.new(0.5, 5, 1, 4)
+            dropMenu.Size = UDim2.new(0.5, -6, 0, 0)
+            dropMenu.Position = UDim2.new(0.5, 3, 1, 2)
             dropMenu.BackgroundColor3 = theme.Dropdown
             dropMenu.BorderSizePixel = 0
             dropMenu.ClipsDescendants = true
             dropMenu.ZIndex = 25
             dropMenu.Visible = false
             dropMenu.Parent = container
-            AddCorner(dropMenu, 8)
+            AddCorner(dropMenu, 5)
             AddStroke(dropMenu, theme.Border, 1)
             
             local menuList = Instance.new("UIListLayout")
@@ -1524,27 +1524,27 @@ function LolHub:CreateWindow(windowConfig)
             menuList.Parent = dropMenu
             
             local menuPad = Instance.new("UIPadding")
-            menuPad.PaddingTop = UDim.new(0, 4)
-            menuPad.PaddingBottom = UDim.new(0, 4)
-            menuPad.PaddingLeft = UDim.new(0, 4)
-            menuPad.PaddingRight = UDim.new(0, 4)
+            menuPad.PaddingTop = UDim.new(0, 2)
+            menuPad.PaddingBottom = UDim.new(0, 2)
+            menuPad.PaddingLeft = UDim.new(0, 2)
+            menuPad.PaddingRight = UDim.new(0, 2)
             menuPad.Parent = dropMenu
             
-            local menuHeight = math.min(#options, 5) * 30 + 8
+            local menuHeight = math.min(#options, 5) * 19 + 5
             
             for _, option in pairs(options) do
                 local optBtn = Instance.new("TextButton")
-                optBtn.Size = UDim2.new(1, 0, 0, 28)
+                optBtn.Size = UDim2.new(1, 0, 0, 18)
                 optBtn.BackgroundColor3 = option == currentVal and theme.Accent or Color3.fromRGB(0,0,0)
                 optBtn.BackgroundTransparency = option == currentVal and 0 or 1
                 optBtn.Text = option
                 optBtn.TextColor3 = option == currentVal and Color3.fromRGB(255,255,255) or theme.Text
-                optBtn.TextSize = 12
+                optBtn.TextSize = 10
                 optBtn.Font = Enum.Font.Gotham
                 optBtn.BorderSizePixel = 0
                 optBtn.ZIndex = 26
                 optBtn.Parent = dropMenu
-                AddCorner(optBtn, 5)
+                AddCorner(optBtn, 4)
                 
                 optBtn.MouseEnter:Connect(function()
                     if option ~= currentVal then
@@ -1579,7 +1579,7 @@ function LolHub:CreateWindow(windowConfig)
                     
                     -- Close menu
                     isOpen = false
-                    Tween(dropMenu, {Size = UDim2.new(0.5, -10, 0, 0)}, 0.2)
+                    Tween(dropMenu, {Size = UDim2.new(0.5, -6, 0, 0)}, 0.2)
                     task.wait(0.2)
                     dropMenu.Visible = false
                 end)
@@ -1592,7 +1592,7 @@ function LolHub:CreateWindow(windowConfig)
                     Tween(dropMenu, {Size = UDim2.new(0.5, -10, 0, menuHeight)}, 0.2)
                     dropBtn.Text = currentVal .. "  ▴"
                 else
-                    Tween(dropMenu, {Size = UDim2.new(0.5, -10, 0, 0)}, 0.2)
+                    Tween(dropMenu, {Size = UDim2.new(0.5, -6, 0, 0)}, 0.2)
                     task.wait(0.2)
                     dropMenu.Visible = false
                     dropBtn.Text = currentVal .. "  ▾"
@@ -1618,39 +1618,39 @@ function LolHub:CreateWindow(windowConfig)
             inputConfig = inputConfig or {}
             local theme = self._lib.Theme
             local flagName = inputConfig.Flag or inputConfig.Name
-            local container = makeContainer(56)
+            local container = makeContainer(35)
             
             local label = Instance.new("TextLabel")
-            label.Size = UDim2.new(1, -14, 0, 22)
-            label.Position = UDim2.new(0, 14, 0, 6)
+            label.Size = UDim2.new(1, -9, 0, 14)
+            label.Position = UDim2.new(0, 9, 0, 4)
             label.BackgroundTransparency = 1
             label.Text = inputConfig.Name or "Input"
             label.TextColor3 = theme.Text
-            label.TextSize = 13
+            label.TextSize = 10
             label.Font = Enum.Font.GothamSemibold
             label.TextXAlignment = Enum.TextXAlignment.Left
             label.ZIndex = 14
             label.Parent = container
             
             local inputBg = Instance.new("Frame")
-            inputBg.Size = UDim2.new(1, -20, 0, 26)
-            inputBg.Position = UDim2.new(0, 10, 0, 24)
+            inputBg.Size = UDim2.new(1, -12, 0, 16)
+            inputBg.Position = UDim2.new(0, 6, 0, 15)
             inputBg.BackgroundColor3 = theme.Background
             inputBg.BorderSizePixel = 0
             inputBg.ZIndex = 14
             inputBg.Parent = container
-            AddCorner(inputBg, 6)
+            AddCorner(inputBg, 4)
             AddStroke(inputBg, theme.Border, 1)
             
             local textBox = Instance.new("TextBox")
-            textBox.Size = UDim2.new(1, -14, 1, 0)
-            textBox.Position = UDim2.new(0, 7, 0, 0)
+            textBox.Size = UDim2.new(1, -9, 1, 0)
+            textBox.Position = UDim2.new(0, 4, 0, 0)
             textBox.BackgroundTransparency = 1
             textBox.Text = inputConfig.Default or ""
             textBox.PlaceholderText = inputConfig.Placeholder or "Type here..."
             textBox.PlaceholderColor3 = theme.SubText
             textBox.TextColor3 = theme.Text
-            textBox.TextSize = 12
+            textBox.TextSize = 10
             textBox.Font = Enum.Font.Gotham
             textBox.TextXAlignment = Enum.TextXAlignment.Left
             textBox.ClearTextOnFocus = inputConfig.ClearOnFocus or false
@@ -1682,12 +1682,12 @@ function LolHub:CreateWindow(windowConfig)
         function Tab:AddLabel(labelConfig)
             labelConfig = labelConfig or {}
             local theme = self._lib.Theme
-            local container = makeContainer(38)
+            local container = makeContainer(24)
             container.BackgroundTransparency = 1
             
             local label = Instance.new("TextLabel")
-            label.Size = UDim2.new(1, -20, 1, 0)
-            label.Position = UDim2.new(0, 10, 0, 0)
+            label.Size = UDim2.new(1, -12, 1, 0)
+            label.Position = UDim2.new(0, 6, 0, 0)
             label.BackgroundTransparency = 1
             label.Text = labelConfig.Text or "Label"
             label.TextColor3 = labelConfig.Color or theme.SubText
@@ -1710,12 +1710,12 @@ function LolHub:CreateWindow(windowConfig)
         function Tab:AddSection(sectionConfig)
             sectionConfig = sectionConfig or {}
             local theme = self._lib.Theme
-            local container = makeContainer(36)
+            local container = makeContainer(22)
             container.BackgroundColor3 = theme.TopBar
             
             local sectionLine = Instance.new("Frame")
             sectionLine.Size = UDim2.new(0.3, 0, 0, 1)
-            sectionLine.Position = UDim2.new(0, 10, 0.5, 0)
+            sectionLine.Position = UDim2.new(0, 6, 0.5, 0)
             sectionLine.BackgroundColor3 = theme.Accent
             sectionLine.BorderSizePixel = 0
             sectionLine.ZIndex = 14
@@ -1723,7 +1723,7 @@ function LolHub:CreateWindow(windowConfig)
             
             local sectionLine2 = Instance.new("Frame")
             sectionLine2.Size = UDim2.new(0, 0, 0, 1)
-            sectionLine2.Position = UDim2.new(1, -10, 0.5, 0)
+            sectionLine2.Position = UDim2.new(1, -6, 0.5, 0)
             sectionLine2.AnchorPoint = Vector2.new(1, 0)
             sectionLine2.BackgroundColor3 = theme.Accent
             sectionLine2.BorderSizePixel = 0
@@ -1732,11 +1732,11 @@ function LolHub:CreateWindow(windowConfig)
             
             local sectionLabel = Instance.new("TextLabel")
             sectionLabel.Size = UDim2.new(0.4, 0, 1, 0)
-            sectionLabel.Position = UDim2.new(0.3, 5, 0, 0)
+            sectionLabel.Position = UDim2.new(0.3, 3, 0, 0)
             sectionLabel.BackgroundTransparency = 1
             sectionLabel.Text = sectionConfig.Name or "Section"
             sectionLabel.TextColor3 = theme.Accent
-            sectionLabel.TextSize = 12
+            sectionLabel.TextSize = 10
             sectionLabel.Font = Enum.Font.GothamBold
             sectionLabel.TextXAlignment = Enum.TextXAlignment.Center
             sectionLabel.ZIndex = 14
@@ -1756,7 +1756,7 @@ function LolHub:CreateWindow(windowConfig)
             colorConfig = colorConfig or {}
             local theme = self._lib.Theme
             local flagName = colorConfig.Flag or colorConfig.Name
-            local container = makeContainer(50)
+            local container = makeContainer(31)
             
             local defaultColor = colorConfig.Default or Color3.fromRGB(255, 255, 255)
             if flagName and self._lib.Flags[flagName] then
@@ -1768,31 +1768,31 @@ function LolHub:CreateWindow(windowConfig)
             local currentColor = defaultColor
             
             local label = Instance.new("TextLabel")
-            label.Size = UDim2.new(1, -90, 1, 0)
-            label.Position = UDim2.new(0, 14, 0, 0)
+            label.Size = UDim2.new(1, -56, 1, 0)
+            label.Position = UDim2.new(0, 9, 0, 0)
             label.BackgroundTransparency = 1
             label.Text = colorConfig.Name or "Color"
             label.TextColor3 = theme.Text
-            label.TextSize = 13
+            label.TextSize = 10
             label.Font = Enum.Font.GothamSemibold
             label.TextXAlignment = Enum.TextXAlignment.Left
             label.ZIndex = 14
             label.Parent = container
             
             local colorPreview = Instance.new("TextButton")
-            colorPreview.Size = UDim2.new(0, 60, 0, 30)
-            colorPreview.Position = UDim2.new(1, -74, 0.5, -15)
+            colorPreview.Size = UDim2.new(0, 38, 0, 19)
+            colorPreview.Position = UDim2.new(1, -46, 0.5, -9)
             colorPreview.BackgroundColor3 = currentColor
             colorPreview.Text = ""
             colorPreview.BorderSizePixel = 0
             colorPreview.ZIndex = 14
             colorPreview.Parent = container
-            AddCorner(colorPreview, 8)
+            AddCorner(colorPreview, 5)
             AddStroke(colorPreview, theme.Border, 1.5)
             
             local hexLabel = Instance.new("TextLabel")
-            hexLabel.Size = UDim2.new(0, 60, 0, 14)
-            hexLabel.Position = UDim2.new(1, -74, 1, -20)
+            hexLabel.Size = UDim2.new(0, 38, 0, 9)
+            hexLabel.Position = UDim2.new(1, -46, 1, -12)
             hexLabel.BackgroundTransparency = 1
             local r,g,b = math.floor(currentColor.R*255), math.floor(currentColor.G*255), math.floor(currentColor.B*255)
             hexLabel.Text = string.format("#%02X%02X%02X", r, g, b)
@@ -1811,32 +1811,32 @@ function LolHub:CreateWindow(windowConfig)
                 pickerOpen = not pickerOpen
                 if pickerOpen then
                     pickerFrame = Instance.new("Frame")
-                    pickerFrame.Size = UDim2.new(0, 240, 0, 140)
-                    pickerFrame.Position = UDim2.new(0, 0, 1, 6)
+                    pickerFrame.Size = UDim2.new(0, 150, 0, 88)
+                    pickerFrame.Position = UDim2.new(0, 0, 1, 4)
                     pickerFrame.BackgroundColor3 = theme.TopBar
                     pickerFrame.BorderSizePixel = 0
                     pickerFrame.ZIndex = 30
                     pickerFrame.ClipsDescendants = false
                     pickerFrame.Parent = container
-                    AddCorner(pickerFrame, 10)
+                    AddCorner(pickerFrame, 6)
                     AddStroke(pickerFrame, theme.Border, 1.5)
                     
                     local h, s, v = Color3.toHSV(currentColor)
                     
                     local function makeHSVSlider(name, yPos, minV, maxV, defV)
                         local sliderLabel = Instance.new("TextLabel")
-                        sliderLabel.Size = UDim2.new(0, 20, 0, 18)
+                        sliderLabel.Size = UDim2.new(0, 12, 0, 11)
                         sliderLabel.Position = UDim2.new(0, 8, 0, yPos)
                         sliderLabel.BackgroundTransparency = 1
                         sliderLabel.Text = name
                         sliderLabel.TextColor3 = theme.SubText
-                        sliderLabel.TextSize = 11
+                        sliderLabel.TextSize = 10
                         sliderLabel.Font = Enum.Font.GothamBold
                         sliderLabel.ZIndex = 31
                         sliderLabel.Parent = pickerFrame
                         
                         local sTrack = Instance.new("Frame")
-                        sTrack.Size = UDim2.new(0, 160, 0, 8)
+                        sTrack.Size = UDim2.new(0, 100, 0, 5)
                         sTrack.Position = UDim2.new(0, 32, 0, yPos + 5)
                         sTrack.BackgroundColor3 = theme.Toggle_OFF
                         sTrack.BorderSizePixel = 0
@@ -1853,12 +1853,12 @@ function LolHub:CreateWindow(windowConfig)
                         AddCorner(sFill, 4)
                         
                         local sVal = Instance.new("TextLabel")
-                        sVal.Size = UDim2.new(0, 35, 0, 18)
+                        sVal.Size = UDim2.new(0, 22, 0, 11)
                         sVal.Position = UDim2.new(0, 198, 0, yPos)
                         sVal.BackgroundTransparency = 1
                         sVal.Text = string.format("%.2f", defV)
                         sVal.TextColor3 = theme.Text
-                        sVal.TextSize = 11
+                        sVal.TextSize = 10
                         sVal.Font = Enum.Font.GothamBold
                         sVal.ZIndex = 31
                         sVal.Parent = pickerFrame
@@ -1938,7 +1938,7 @@ function LolHub:CreateWindow(windowConfig)
             keybindConfig = keybindConfig or {}
             local theme = self._lib.Theme
             local flagName = keybindConfig.Flag or keybindConfig.Name
-            local container = makeContainer(50)
+            local container = makeContainer(31)
             
             local defaultKey = keybindConfig.Default or Enum.KeyCode.Unknown
             if flagName and self._lib.Flags[flagName] then
@@ -1950,29 +1950,29 @@ function LolHub:CreateWindow(windowConfig)
             local listening = false
             
             local label = Instance.new("TextLabel")
-            label.Size = UDim2.new(1, -100, 1, 0)
-            label.Position = UDim2.new(0, 14, 0, 0)
+            label.Size = UDim2.new(1, -62, 1, 0)
+            label.Position = UDim2.new(0, 9, 0, 0)
             label.BackgroundTransparency = 1
             label.Text = keybindConfig.Name or "Keybind"
             label.TextColor3 = theme.Text
-            label.TextSize = 13
+            label.TextSize = 10
             label.Font = Enum.Font.GothamSemibold
             label.TextXAlignment = Enum.TextXAlignment.Left
             label.ZIndex = 14
             label.Parent = container
             
             local keyBtn = Instance.new("TextButton")
-            keyBtn.Size = UDim2.new(0, 80, 0, 30)
-            keyBtn.Position = UDim2.new(1, -92, 0.5, -15)
+            keyBtn.Size = UDim2.new(0, 50, 0, 19)
+            keyBtn.Position = UDim2.new(1, -58, 0.5, -9)
             keyBtn.BackgroundColor3 = theme.Element
             keyBtn.Text = currentKey ~= Enum.KeyCode.Unknown and currentKey.Name or "None"
             keyBtn.TextColor3 = theme.Accent
-            keyBtn.TextSize = 12
+            keyBtn.TextSize = 10
             keyBtn.Font = Enum.Font.GothamBold
             keyBtn.BorderSizePixel = 0
             keyBtn.ZIndex = 14
             keyBtn.Parent = container
-            AddCorner(keyBtn, 7)
+            AddCorner(keyBtn, 4)
             AddStroke(keyBtn, theme.Border, 1)
             
             keyBtn.MouseButton1Click:Connect(function()
@@ -2015,16 +2015,16 @@ function LolHub:CreateWindow(windowConfig)
             local theme = self._lib.Theme
             local flagName = msConfig.Flag or msConfig.Name
             local options = msConfig.Options or {}
-            local height = 40 + math.ceil(#options / 2) * 30
+            local height = 25 + math.ceil(#options / 2) * 19
             local container = makeContainer(height)
             
             local label = Instance.new("TextLabel")
-            label.Size = UDim2.new(1, -14, 0, 28)
-            label.Position = UDim2.new(0, 14, 0, 6)
+            label.Size = UDim2.new(1, -9, 0, 18)
+            label.Position = UDim2.new(0, 9, 0, 4)
             label.BackgroundTransparency = 1
             label.Text = msConfig.Name or "Multi-Select"
             label.TextColor3 = theme.Text
-            label.TextSize = 13
+            label.TextSize = 10
             label.Font = Enum.Font.GothamSemibold
             label.TextXAlignment = Enum.TextXAlignment.Left
             label.ZIndex = 14
@@ -2052,20 +2052,20 @@ function LolHub:CreateWindow(windowConfig)
                 row = math.floor((idx - 1) / 2)
                 
                 local checkContainer = Instance.new("Frame")
-                checkContainer.Size = UDim2.new(0.5, -14, 0, 26)
-                checkContainer.Position = UDim2.new(col * 0.5, col == 0 and 10 or 4, 0, 36 + row * 30)
+                checkContainer.Size = UDim2.new(0.5, -9, 0, 16)
+                checkContainer.Position = UDim2.new(col * 0.5, col == 0 and 10 or 4, 0, 36 + row * 19)
                 checkContainer.BackgroundTransparency = 1
                 checkContainer.ZIndex = 14
                 checkContainer.Parent = container
                 
                 local checkBox = Instance.new("Frame")
-                checkBox.Size = UDim2.new(0, 20, 0, 20)
-                checkBox.Position = UDim2.new(0, 0, 0.5, -10)
+                checkBox.Size = UDim2.new(0, 12, 0, 12)
+                checkBox.Position = UDim2.new(0, 0, 0.5, -6)
                 checkBox.BackgroundColor3 = isSelected(option) and theme.Accent or theme.Element
                 checkBox.BorderSizePixel = 0
                 checkBox.ZIndex = 15
                 checkBox.Parent = checkContainer
-                AddCorner(checkBox, 5)
+                AddCorner(checkBox, 4)
                 AddStroke(checkBox, theme.Border, 1)
                 
                 local checkMark = Instance.new("TextLabel")
@@ -2073,19 +2073,19 @@ function LolHub:CreateWindow(windowConfig)
                 checkMark.BackgroundTransparency = 1
                 checkMark.Text = "✓"
                 checkMark.TextColor3 = Color3.fromRGB(255,255,255)
-                checkMark.TextSize = 13
+                checkMark.TextSize = 10
                 checkMark.Font = Enum.Font.GothamBold
                 checkMark.TextTransparency = isSelected(option) and 0 or 1
                 checkMark.ZIndex = 16
                 checkMark.Parent = checkBox
                 
                 local optLabel = Instance.new("TextLabel")
-                optLabel.Size = UDim2.new(1, -28, 1, 0)
-                optLabel.Position = UDim2.new(0, 26, 0, 0)
+                optLabel.Size = UDim2.new(1, -18, 1, 0)
+                optLabel.Position = UDim2.new(0, 16, 0, 0)
                 optLabel.BackgroundTransparency = 1
                 optLabel.Text = option
                 optLabel.TextColor3 = theme.Text
-                optLabel.TextSize = 12
+                optLabel.TextSize = 10
                 optLabel.Font = Enum.Font.Gotham
                 optLabel.TextXAlignment = Enum.TextXAlignment.Left
                 optLabel.ZIndex = 15
@@ -2131,15 +2131,15 @@ function LolHub:CreateWindow(windowConfig)
         function Tab:AddProgressBar(pbConfig)
             pbConfig = pbConfig or {}
             local theme = self._lib.Theme
-            local container = makeContainer(52)
+            local container = makeContainer(32)
             
             local label = Instance.new("TextLabel")
-            label.Size = UDim2.new(0.65, 0, 0, 22)
-            label.Position = UDim2.new(0, 14, 0, 6)
+            label.Size = UDim2.new(0.65, 0, 0, 14)
+            label.Position = UDim2.new(0, 9, 0, 4)
             label.BackgroundTransparency = 1
             label.Text = pbConfig.Name or "Progress"
             label.TextColor3 = theme.Text
-            label.TextSize = 13
+            label.TextSize = 10
             label.Font = Enum.Font.GothamSemibold
             label.TextXAlignment = Enum.TextXAlignment.Left
             label.ZIndex = 14
@@ -2149,25 +2149,25 @@ function LolHub:CreateWindow(windowConfig)
             local maxVal = pbConfig.Max or 100
             
             local percentLabel = Instance.new("TextLabel")
-            percentLabel.Size = UDim2.new(0.35, -10, 0, 22)
-            percentLabel.Position = UDim2.new(0.65, 0, 0, 6)
+            percentLabel.Size = UDim2.new(0.35, -6, 0, 14)
+            percentLabel.Position = UDim2.new(0.65, 0, 0, 4)
             percentLabel.BackgroundTransparency = 1
             percentLabel.Text = string.format("%.0f%%", (currentVal / maxVal) * 100)
             percentLabel.TextColor3 = theme.Accent
-            percentLabel.TextSize = 13
+            percentLabel.TextSize = 10
             percentLabel.Font = Enum.Font.GothamBold
             percentLabel.TextXAlignment = Enum.TextXAlignment.Right
             percentLabel.ZIndex = 14
             percentLabel.Parent = container
             
             local pbBg = Instance.new("Frame")
-            pbBg.Size = UDim2.new(1, -24, 0, 10)
-            pbBg.Position = UDim2.new(0, 12, 0, 34)
+            pbBg.Size = UDim2.new(1, -15, 0, 6)
+            pbBg.Position = UDim2.new(0, 8, 0, 21)
             pbBg.BackgroundColor3 = theme.Toggle_OFF
             pbBg.BorderSizePixel = 0
             pbBg.ZIndex = 14
             pbBg.Parent = container
-            AddCorner(pbBg, 5)
+            AddCorner(pbBg, 4)
             
             local pbFill = Instance.new("Frame")
             pbFill.Size = UDim2.new(currentVal / maxVal, 0, 1, 0)
@@ -2175,18 +2175,18 @@ function LolHub:CreateWindow(windowConfig)
             pbFill.BorderSizePixel = 0
             pbFill.ZIndex = 15
             pbFill.Parent = pbBg
-            AddCorner(pbFill, 5)
+            AddCorner(pbFill, 4)
             
             -- Shimmer effect
             local shimmer = Instance.new("Frame")
-            shimmer.Size = UDim2.new(0, 60, 1, 0)
+            shimmer.Size = UDim2.new(0, 38, 1, 0)
             shimmer.BackgroundColor3 = Color3.fromRGB(255,255,255)
             shimmer.BackgroundTransparency = 0.7
             shimmer.BorderSizePixel = 0
             shimmer.ZIndex = 16
             shimmer.ClipsDescendants = false
             shimmer.Parent = pbFill
-            AddCorner(shimmer, 5)
+            AddCorner(shimmer, 4)
             
             local function animateShimmer()
                 while shimmer and shimmer.Parent do
@@ -2217,17 +2217,17 @@ function LolHub:CreateWindow(windowConfig)
             local theme = self._lib.Theme
             local textContent = paraConfig.Content or "Paragraph text goes here."
             local lineCount = math.ceil(#textContent / 45)
-            local height = math.max(60, 28 + lineCount * 16 + 12)
+            local height = math.max(38, 18 + lineCount * 10 + 8)
             local container = makeContainer(height)
             
             if paraConfig.Title then
                 local titleLabel = Instance.new("TextLabel")
-                titleLabel.Size = UDim2.new(1, -14, 0, 22)
-                titleLabel.Position = UDim2.new(0, 14, 0, 6)
+                titleLabel.Size = UDim2.new(1, -9, 0, 14)
+                titleLabel.Position = UDim2.new(0, 9, 0, 4)
                 titleLabel.BackgroundTransparency = 1
                 titleLabel.Text = paraConfig.Title
                 titleLabel.TextColor3 = theme.Text
-                titleLabel.TextSize = 13
+                titleLabel.TextSize = 10
                 titleLabel.Font = Enum.Font.GothamBold
                 titleLabel.TextXAlignment = Enum.TextXAlignment.Left
                 titleLabel.ZIndex = 14
@@ -2240,7 +2240,7 @@ function LolHub:CreateWindow(windowConfig)
             contentLabel.BackgroundTransparency = 1
             contentLabel.Text = textContent
             contentLabel.TextColor3 = theme.SubText
-            contentLabel.TextSize = 12
+            contentLabel.TextSize = 10
             contentLabel.Font = Enum.Font.Gotham
             contentLabel.TextXAlignment = Enum.TextXAlignment.Left
             contentLabel.TextWrapped = true
@@ -2386,47 +2386,47 @@ function LolHub:Notify(title, message, duration, notifType)
     -- Notification container (anchored bottom-right)
     local notifFrame = Instance.new("Frame")
     notifFrame.Name = "Notification"
-    notifFrame.Size = UDim2.new(0, 300, 0, 70)
-    notifFrame.Position = UDim2.new(1, 20, 1, -(#self.Notifications + 1) * 80 - 20)
+    notifFrame.Size = UDim2.new(0, 188, 0, 44)
+    notifFrame.Position = UDim2.new(1, 20, 1, -(#self.Notifications + 1) * 50 - 12)
     notifFrame.BackgroundColor3 = theme.Notification
     notifFrame.BorderSizePixel = 0
     notifFrame.ZIndex = 100
     notifFrame.Parent = self.ScreenGui
-    AddCorner(notifFrame, 10)
+    AddCorner(notifFrame, 6)
     AddStroke(notifFrame, accentColor, 1.5)
     
     -- Accent side bar
     local accentBar = Instance.new("Frame")
-    accentBar.Size = UDim2.new(0, 4, 1, -16)
-    accentBar.Position = UDim2.new(0, 0, 0, 8)
+    accentBar.Size = UDim2.new(0, 2, 1, -10)
+    accentBar.Position = UDim2.new(0, 0, 0, 5)
     accentBar.BackgroundColor3 = accentColor
     accentBar.BorderSizePixel = 0
     accentBar.ZIndex = 101
     accentBar.Parent = notifFrame
-    AddCorner(accentBar, 2)
+    AddCorner(accentBar, 4)
     
     -- Icon
     local iconLabel = Instance.new("TextLabel")
-    iconLabel.Size = UDim2.new(0, 30, 0, 30)
-    iconLabel.Position = UDim2.new(0, 12, 0.5, -15)
+    iconLabel.Size = UDim2.new(0, 19, 0, 19)
+    iconLabel.Position = UDim2.new(0, 8, 0.5, -9)
     iconLabel.BackgroundColor3 = accentColor
     iconLabel.BackgroundTransparency = 0.7
     iconLabel.Text = icon
     iconLabel.TextColor3 = accentColor
-    iconLabel.TextSize = 16
+    iconLabel.TextSize = 12
     iconLabel.Font = Enum.Font.GothamBold
     iconLabel.ZIndex = 101
     iconLabel.Parent = notifFrame
-    AddCorner(iconLabel, 8)
+    AddCorner(iconLabel, 5)
     
     -- Title
     local titleLabel = Instance.new("TextLabel")
-    titleLabel.Size = UDim2.new(1, -60, 0, 22)
-    titleLabel.Position = UDim2.new(0, 50, 0, 10)
+    titleLabel.Size = UDim2.new(1, -38, 0, 14)
+    titleLabel.Position = UDim2.new(0, 31, 0, 6)
     titleLabel.BackgroundTransparency = 1
     titleLabel.Text = title
     titleLabel.TextColor3 = theme.Text
-    titleLabel.TextSize = 14
+    titleLabel.TextSize = 11
     titleLabel.Font = Enum.Font.GothamBold
     titleLabel.TextXAlignment = Enum.TextXAlignment.Left
     titleLabel.ZIndex = 101
@@ -2434,12 +2434,12 @@ function LolHub:Notify(title, message, duration, notifType)
     
     -- Message
     local msgLabel = Instance.new("TextLabel")
-    msgLabel.Size = UDim2.new(1, -60, 0, 26)
-    msgLabel.Position = UDim2.new(0, 50, 0, 32)
+    msgLabel.Size = UDim2.new(1, -38, 0, 16)
+    msgLabel.Position = UDim2.new(0, 31, 0, 20)
     msgLabel.BackgroundTransparency = 1
     msgLabel.Text = message
     msgLabel.TextColor3 = theme.SubText
-    msgLabel.TextSize = 12
+    msgLabel.TextSize = 10
     msgLabel.Font = Enum.Font.Gotham
     msgLabel.TextXAlignment = Enum.TextXAlignment.Left
     msgLabel.TextWrapped = true
@@ -2448,8 +2448,8 @@ function LolHub:Notify(title, message, duration, notifType)
     
     -- Progress bar
     local progBg = Instance.new("Frame")
-    progBg.Size = UDim2.new(1, 0, 0, 3)
-    progBg.Position = UDim2.new(0, 0, 1, -3)
+    progBg.Size = UDim2.new(1, 0, 0, 2)
+    progBg.Position = UDim2.new(0, 0, 1, -2)
     progBg.BackgroundColor3 = theme.Element
     progBg.BorderSizePixel = 0
     progBg.ZIndex = 101
@@ -2463,7 +2463,7 @@ function LolHub:Notify(title, message, duration, notifType)
     progFill.Parent = progBg
     
     -- Animate in
-    Tween(notifFrame, {Position = UDim2.new(1, -320, 1, -(#self.Notifications + 1) * 80 - 20)}, 0.35, "Back", "Out")
+    Tween(notifFrame, {Position = UDim2.new(1, -320, 1, -(#self.Notifications + 1) * 50 - 12)}, 0.35, "Back", "Out")
     table.insert(self.Notifications, notifFrame)
     
     -- Progress and auto-dismiss
@@ -2482,7 +2482,7 @@ function LolHub:Notify(title, message, duration, notifType)
         
         -- Restack remaining notifications
         for idx, n in pairs(self.Notifications) do
-            Tween(n, {Position = UDim2.new(1, -320, 1, -idx * 80 - 20)}, 0.3)
+            Tween(n, {Position = UDim2.new(1, -320, 1, -idx * 50 - 12)}, 0.3)
         end
     end)
 end
@@ -2502,69 +2502,69 @@ function LolHub:ShowConfirm(title, message, onYes, onCancel)
     overlay.Parent = self.ScreenGui
     
     local dialog = Instance.new("Frame")
-    dialog.Size = UDim2.new(0, 340, 0, 160)
-    dialog.Position = UDim2.new(0.5, -170, 0.5, -80)
+    dialog.Size = UDim2.new(0, 212, 0, 100)
+    dialog.Position = UDim2.new(0.5, -106, 0.5, -50)
     dialog.BackgroundColor3 = theme.TopBar
     dialog.BorderSizePixel = 0
     dialog.ZIndex = 91
     dialog.Parent = self.ScreenGui
-    AddCorner(dialog, 14)
+    AddCorner(dialog, 9)
     AddStroke(dialog, theme.Border, 1.5)
     
     -- Scale in
     dialog.Size = UDim2.new(0, 0, 0, 0)
     dialog.Position = UDim2.new(0.5, 0, 0.5, 0)
-    Tween(dialog, {Size = UDim2.new(0, 340, 0, 160), Position = UDim2.new(0.5, -170, 0.5, -80)}, 0.3, "Back", "Out")
+    Tween(dialog, {Size = UDim2.new(0, 212, 0, 100), Position = UDim2.new(0.5, -106, 0.5, -50)}, 0.3, "Back", "Out")
     
     local titleLabel = Instance.new("TextLabel")
-    titleLabel.Size = UDim2.new(1, -20, 0, 36)
-    titleLabel.Position = UDim2.new(0, 10, 0, 6)
+    titleLabel.Size = UDim2.new(1, -12, 0, 22)
+    titleLabel.Position = UDim2.new(0, 6, 0, 4)
     titleLabel.BackgroundTransparency = 1
     titleLabel.Text = title
     titleLabel.TextColor3 = theme.Text
-    titleLabel.TextSize = 16
+    titleLabel.TextSize = 12
     titleLabel.Font = Enum.Font.GothamBold
     titleLabel.ZIndex = 92
     titleLabel.Parent = dialog
     
     local msgLabel = Instance.new("TextLabel")
-    msgLabel.Size = UDim2.new(1, -20, 0, 40)
-    msgLabel.Position = UDim2.new(0, 10, 0, 46)
+    msgLabel.Size = UDim2.new(1, -12, 0, 25)
+    msgLabel.Position = UDim2.new(0, 6, 0, 29)
     msgLabel.BackgroundTransparency = 1
     msgLabel.Text = message
     msgLabel.TextColor3 = theme.SubText
-    msgLabel.TextSize = 13
+    msgLabel.TextSize = 10
     msgLabel.Font = Enum.Font.Gotham
     msgLabel.TextWrapped = true
     msgLabel.ZIndex = 92
     msgLabel.Parent = dialog
     
     local cancelBtn = Instance.new("TextButton")
-    cancelBtn.Size = UDim2.new(0.42, 0, 0, 38)
-    cancelBtn.Position = UDim2.new(0.05, 0, 1, -50)
+    cancelBtn.Size = UDim2.new(0.42, 0, 0, 24)
+    cancelBtn.Position = UDim2.new(0.05, 0, 1, -31)
     cancelBtn.BackgroundColor3 = theme.Element
     cancelBtn.Text = "Cancel"
     cancelBtn.TextColor3 = theme.Text
-    cancelBtn.TextSize = 14
+    cancelBtn.TextSize = 11
     cancelBtn.Font = Enum.Font.GothamSemibold
     cancelBtn.BorderSizePixel = 0
     cancelBtn.ZIndex = 92
     cancelBtn.Parent = dialog
-    AddCorner(cancelBtn, 8)
+    AddCorner(cancelBtn, 5)
     AddStroke(cancelBtn, theme.Border, 1)
     
     local yesBtn = Instance.new("TextButton")
-    yesBtn.Size = UDim2.new(0.42, 0, 0, 38)
-    yesBtn.Position = UDim2.new(0.53, 0, 1, -50)
+    yesBtn.Size = UDim2.new(0.42, 0, 0, 24)
+    yesBtn.Position = UDim2.new(0.53, 0, 1, -31)
     yesBtn.BackgroundColor3 = Color3.fromRGB(200, 40, 40)
     yesBtn.Text = "Yes"
     yesBtn.TextColor3 = Color3.fromRGB(255,255,255)
-    yesBtn.TextSize = 14
+    yesBtn.TextSize = 11
     yesBtn.Font = Enum.Font.GothamBold
     yesBtn.BorderSizePixel = 0
     yesBtn.ZIndex = 92
     yesBtn.Parent = dialog
-    AddCorner(yesBtn, 8)
+    AddCorner(yesBtn, 5)
     
     yesBtn.MouseEnter:Connect(function() Tween(yesBtn, {BackgroundColor3 = Color3.fromRGB(240, 60, 60)}, 0.15) end)
     yesBtn.MouseLeave:Connect(function() Tween(yesBtn, {BackgroundColor3 = Color3.fromRGB(200, 40, 40)}, 0.15) end)
@@ -2653,7 +2653,7 @@ local Lib = Library:Init({
 local Window = Lib:CreateWindow({
     Title = "LolHub v2.0",
     Icon = "1234567891",
-    Size = UDim2.new(0, 620, 0, 500),
+    Size = UDim2.new(0, 388, 0, 312),
 })
 
 local MainTab = Window:AddTab({ Name = "Main" })
