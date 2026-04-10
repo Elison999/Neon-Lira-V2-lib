@@ -1,10 +1,13 @@
 --[[
     ╔══════════════════════════════════════════════════════╗
-    ║           ModernUI Library - Roblox  v3.0            ║
-    ║   Draggable | Resizable | Minimizable | 13 Elements  ║
+    ║           ModernUI Library - Roblox  v3.1            ║
+    ║   Draggable | Resizable | Minimizable | 14 Elements  ║
     ╠══════════════════════════════════════════════════════╣
-    ║  NOVIDADES v3.0:                                     ║
-    ║  • Floating Draggable Button/Toggle                  ║
+    ║  NOVIDADES v3.1:                                     ║
+    ║  • sec:AddFloatingButton(label, size, callback)      ║
+    ║    → toggle na section; ativado = botão arrastável   ║
+    ║  • sec:AddFloatingToggleSwitch(label, size, cb)      ║
+    ║    → toggle na section; ativado = toggle arrastável  ║
     ║  • Dropdown/MultiDropdown empurram elementos         ║
     ║  • Scroll automático nos dropdowns                   ║
     ║  • 20 temas completos na tab Config                  ║
@@ -13,7 +16,7 @@
     ELEMENTOS: Button, Toggle, Slider, Dropdown, TextBox,
                ColorPicker, Keybind, Label, Paragraph,
                Separator, ProgressBar, MultiDropdown,
-               FloatingDraggable
+               FloatingButton, FloatingToggleSwitch
 ]]
 
 local Library = {}
@@ -1825,163 +1828,329 @@ function Library._MakeSection(parent, name, lib)
         return Reg(text, "MultiDropdown", api)
     end
 
-    return S
-end
+    -- ══════════════════════════════════════
+    --  14. FLOATING BUTTON (via section toggle)
+    --  sec:AddFloatingButton(text, label, size, callback)
+    --  Mostra um toggle switch na section. Quando ativado,
+    --  aparece um botão arrastável com o tema atual da UI.
+    -- ══════════════════════════════════════
+    function S:AddFloatingButton(text, label, size, callback)
+        label    = label or "▶"
+        size     = size  or 52
+        local enabled = false
+        local fab     = nil
 
--- ══ Floating Draggable Button / Toggle ══
---[[
-    Win:AddFloatingDraggable({
-        mode      = "button" | "toggle"  -- default: "button"
-        label     = "string"             -- emoji or short text
-        position  = UDim2                -- starting position (default bottom-right)
-        size      = number               -- diameter in px (default 48)
-        callback  = function(state)      -- for toggle: receives bool; for button: receives nil
-    })
-]]
-function Library:AddFloatingDraggable(opts)
-    opts = opts or {}
-    local mode     = opts.mode     or "button"
-    local label    = opts.label    or (mode == "toggle" and "⚡" or "▶")
-    local btnSize  = opts.size     or 48
-    local startPos = opts.position or UDim2.new(1, -(btnSize + 16), 1, -(btnSize + 16))
-    local callback = opts.callback
+        -- ── toggle row na section ──
+        local elem = BaseElem(30)
+        LeftLabel(elem, text or "Floating Button")
 
-    local togState = false
+        local trackBg = Instance.new("Frame")
+        trackBg.Size             = UDim2.new(0, 38, 0, 20)
+        trackBg.Position         = UDim2.new(1, -46, 0.5, -10)
+        trackBg.BackgroundColor3 = T.ToggleOff
+        trackBg.BorderSizePixel  = 0
+        trackBg.Parent           = elem
+        Corner(trackBg, 10)
 
-    -- Outer frame (the draggable container)
-    local fab = Instance.new("Frame")
-    fab.Name              = "FloatingDraggable"
-    fab.Size              = UDim2.new(0, btnSize, 0, btnSize)
-    fab.Position          = startPos
-    fab.BackgroundColor3  = T.Accent
-    fab.BorderSizePixel   = 0
-    fab.ZIndex            = 100
-    fab.Parent            = self.ScreenGui
-    Corner(fab, btnSize / 2)
+        local dot = Instance.new("Frame")
+        dot.Size             = UDim2.new(0, 14, 0, 14)
+        dot.Position         = UDim2.new(0, 3, 0.5, -7)
+        dot.BackgroundColor3 = Color3.new(1,1,1)
+        dot.BorderSizePixel  = 0
+        dot.Parent           = trackBg
+        Corner(dot, 7)
 
-    -- Glow ring
-    local glow = Instance.new("UIStroke")
-    glow.Color     = T.AccentGlow
-    glow.Thickness = 2
-    glow.Parent    = fab
+        local clickArea = Instance.new("TextButton")
+        clickArea.Size             = UDim2.new(1, 0, 1, 0)
+        clickArea.BackgroundTransparency = 1
+        clickArea.Text             = ""
+        clickArea.Parent           = elem
 
-    -- Inner gradient
-    local innerGrad = Instance.new("Frame")
-    innerGrad.Size             = UDim2.new(1, 0, 1, 0)
-    innerGrad.BackgroundTransparency = 0.35
-    innerGrad.BackgroundColor3 = Color3.new(1, 1, 1)
-    innerGrad.BorderSizePixel  = 0
-    innerGrad.ZIndex           = 101
-    innerGrad.Parent           = fab
-    Corner(innerGrad, btnSize / 2)
-    Gradient(innerGrad, Color3.fromRGB(255,255,255), Color3.fromRGB(0,0,0), 90)
+        -- ── função que cria o floating button arrastável ──
+        local function createFab()
+            local startPos = UDim2.new(1, -(size + 16), 0.5, 0)
+            fab = Instance.new("Frame")
+            fab.Name              = "FloatingButton"
+            fab.Size              = UDim2.new(0, size, 0, size)
+            fab.Position          = startPos
+            fab.BackgroundColor3  = T.Accent
+            fab.BorderSizePixel   = 0
+            fab.ZIndex            = 100
+            fab.Parent            = lib.ScreenGui
+            Corner(fab, size / 2)
 
-    -- Label / icon
-    local iconBtn = Instance.new("TextButton")
-    iconBtn.Size             = UDim2.new(1, 0, 1, 0)
-    iconBtn.BackgroundTransparency = 1
-    iconBtn.Text             = label
-    iconBtn.TextColor3       = Color3.new(1, 1, 1)
-    iconBtn.Font             = Enum.Font.GothamBold
-    iconBtn.TextSize         = math.floor(btnSize * 0.4)
-    iconBtn.BorderSizePixel  = 0
-    iconBtn.ZIndex           = 102
-    iconBtn.Parent           = fab
+            local glow = Instance.new("UIStroke")
+            glow.Color     = T.AccentGlow
+            glow.Thickness = 2
+            glow.Parent    = fab
 
-    -- Toggle indicator dot (only for toggle mode)
-    local toggleDot
-    if mode == "toggle" then
-        toggleDot = Instance.new("Frame")
-        toggleDot.Size             = UDim2.new(0, 10, 0, 10)
-        toggleDot.Position         = UDim2.new(1, -12, 0, 2)
-        toggleDot.BackgroundColor3 = T.ToggleOff
-        toggleDot.BorderSizePixel  = 0
-        toggleDot.ZIndex           = 103
-        toggleDot.Parent           = fab
-        Corner(toggleDot, 5)
-        Stroke(toggleDot, Color3.new(0,0,0), 1)
-    end
+            local innerGrad = Instance.new("Frame")
+            innerGrad.Size             = UDim2.new(1, 0, 1, 0)
+            innerGrad.BackgroundTransparency = 0.35
+            innerGrad.BackgroundColor3 = Color3.new(1, 1, 1)
+            innerGrad.BorderSizePixel  = 0
+            innerGrad.ZIndex           = 101
+            innerGrad.Parent           = fab
+            Corner(innerGrad, size / 2)
+            Gradient(innerGrad, Color3.fromRGB(255,255,255), Color3.fromRGB(0,0,0), 90)
 
-    -- Shadow
-    Shadow(fab, 20, 0.5)
+            Shadow(fab, 20, 0.5)
 
-    -- ── Drag logic ──
-    local dragging2, dragStart2, fabStart2 = false, nil, nil
+            local iconBtn = Instance.new("TextButton")
+            iconBtn.Size             = UDim2.new(1, 0, 1, 0)
+            iconBtn.BackgroundTransparency = 1
+            iconBtn.Text             = label
+            iconBtn.TextColor3       = Color3.new(1, 1, 1)
+            iconBtn.Font             = Enum.Font.GothamBold
+            iconBtn.TextSize         = math.floor(size * 0.4)
+            iconBtn.BorderSizePixel  = 0
+            iconBtn.ZIndex           = 102
+            iconBtn.Parent           = fab
 
-    ConnectInputBegan(fab, function(inp)
-        dragging2  = true
-        dragStart2 = inp.Position
-        fabStart2  = fab.Position
-        Tween(fab, {BackgroundColor3 = T.AccentDark}, 0.08)
-    end)
+            -- drag
+            local dragging3, dragStart3, fabStart3 = false, nil, nil
+            ConnectInputBegan(fab, function(inp)
+                dragging3  = true
+                dragStart3 = inp.Position
+                fabStart3  = fab.Position
+                Tween(fab, {BackgroundColor3 = T.AccentDark}, 0.08)
+            end)
+            UserInputService.InputChanged:Connect(function(inp)
+                if not dragging3 then return end
+                if inp.UserInputType == Enum.UserInputType.MouseMovement
+                or inp.UserInputType == Enum.UserInputType.Touch then
+                    local d = inp.Position - dragStart3
+                    fab.Position = UDim2.new(
+                        fabStart3.X.Scale, fabStart3.X.Offset + d.X,
+                        fabStart3.Y.Scale, fabStart3.Y.Offset + d.Y
+                    )
+                end
+            end)
+            UserInputService.InputEnded:Connect(function(inp)
+                if inp.UserInputType == Enum.UserInputType.MouseButton1
+                or inp.UserInputType == Enum.UserInputType.Touch then
+                    dragging3 = false
+                    Tween(fab, {BackgroundColor3 = T.Accent}, 0.12)
+                end
+            end)
 
-    UserInputService.InputChanged:Connect(function(inp)
-        if not dragging2 then return end
-        if inp.UserInputType == Enum.UserInputType.MouseMovement
-        or inp.UserInputType == Enum.UserInputType.Touch then
-            local d = inp.Position - dragStart2
-            fab.Position = UDim2.new(
-                fabStart2.X.Scale, fabStart2.X.Offset + d.X,
-                fabStart2.Y.Scale, fabStart2.Y.Offset + d.Y
-            )
+            -- click + bounce
+            iconBtn.MouseButton1Click:Connect(function()
+                if callback then task.spawn(callback) end
+                TweenService:Create(fab, TweenInfo.new(0.08, Enum.EasingStyle.Back, Enum.EasingDirection.In),
+                    {Size = UDim2.new(0, size - 6, 0, size - 6)}):Play()
+                task.delay(0.08, function()
+                    TweenService:Create(fab, TweenInfo.new(0.12, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
+                        {Size = UDim2.new(0, size, 0, size)}):Play()
+                end)
+            end)
+            iconBtn.MouseEnter:Connect(function()
+                if not dragging3 then Tween(fab, {BackgroundColor3 = T.AccentGlow}, 0.12) end
+            end)
+            iconBtn.MouseLeave:Connect(function()
+                if not dragging3 then Tween(fab, {BackgroundColor3 = T.Accent}, 0.12) end
+            end)
+
+            -- aparece com tween de escala
+            fab.Size = UDim2.new(0, 0, 0, 0)
+            Tween(fab, {Size = UDim2.new(0, size, 0, size)}, 0.22, Enum.EasingStyle.Back)
         end
-    end)
 
-    UserInputService.InputEnded:Connect(function(inp)
-        if inp.UserInputType == Enum.UserInputType.MouseButton1
-        or inp.UserInputType == Enum.UserInputType.Touch then
-            dragging2 = false
-            Tween(fab, {BackgroundColor3 = T.Accent}, 0.12)
-        end
-    end)
-
-    -- ── Click logic ──
-    iconBtn.MouseButton1Click:Connect(function()
-        if mode == "toggle" then
-            togState = not togState
-            if togState then
-                Tween(fab, {BackgroundColor3 = T.AccentDark}, 0.15)
-                if toggleDot then Tween(toggleDot, {BackgroundColor3 = T.Green}, 0.15) end
-                iconBtn.Text = label
+        -- ── toggle click ──
+        clickArea.MouseButton1Click:Connect(function()
+            enabled = not enabled
+            Tween(trackBg, {BackgroundColor3 = enabled and T.ToggleOn or T.ToggleOff}, 0.18)
+            Tween(dot, {Position = UDim2.new(0, enabled and 21 or 3, 0.5, -7)}, 0.18)
+            if enabled then
+                createFab()
             else
-                Tween(fab, {BackgroundColor3 = T.Accent}, 0.15)
-                if toggleDot then Tween(toggleDot, {BackgroundColor3 = T.ToggleOff}, 0.15) end
+                if fab then
+                    Tween(fab, {Size = UDim2.new(0, 0, 0, 0)}, 0.18, Enum.EasingStyle.Back)
+                    task.delay(0.2, function() fab:Destroy(); fab = nil end)
+                end
             end
-        end
-        if callback then task.spawn(callback, togState) end
-        -- bounce animation
-        TweenService:Create(fab, TweenInfo.new(0.08, Enum.EasingStyle.Back, Enum.EasingDirection.In), {
-            Size = UDim2.new(0, btnSize - 6, 0, btnSize - 6)
-        }):Play()
-        task.delay(0.08, function()
-            TweenService:Create(fab, TweenInfo.new(0.12, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
-                Size = UDim2.new(0, btnSize, 0, btnSize)
-            }):Play()
         end)
-    end)
 
-    -- Hover
-    iconBtn.MouseEnter:Connect(function()
-        if not dragging2 then
-            Tween(fab, {BackgroundColor3 = T.AccentGlow}, 0.12)
+        local api = {}
+        function api:Get() return enabled end
+        function api:Set(v)
+            if v == enabled then return end
+            clickArea.MouseButton1Click:Fire()
         end
-    end)
-    iconBtn.MouseLeave:Connect(function()
-        if not dragging2 then
-            Tween(fab, {BackgroundColor3 = togState and T.AccentDark or T.Accent}, 0.12)
-        end
-    end)
-
-    local api = {}
-    function api:SetLabel(lbl) iconBtn.Text = lbl end
-    function api:GetState()    return togState    end
-    function api:SetState(v)
-        togState = v
-        Tween(fab, {BackgroundColor3 = v and T.AccentDark or T.Accent}, 0.15)
-        if toggleDot then Tween(toggleDot, {BackgroundColor3 = v and T.Green or T.ToggleOff}, 0.15) end
+        return api
     end
-    function api:Destroy() fab:Destroy() end
-    return api
+
+    -- ══════════════════════════════════════
+    --  15. FLOATING TOGGLE SWITCH (via section toggle)
+    --  sec:AddFloatingToggleSwitch(text, label, size, callback)
+    --  Mostra um toggle switch na section. Quando ativado,
+    --  aparece um toggle switch arrastável com o tema atual da UI.
+    -- ══════════════════════════════════════
+    function S:AddFloatingToggleSwitch(text, label, size, callback)
+        label    = label or "⚡"
+        size     = size  or 52
+        local enabled  = false
+        local fab      = nil
+        local togState = false
+
+        -- ── toggle row na section ──
+        local elem = BaseElem(30)
+        LeftLabel(elem, text or "Floating Toggle")
+
+        local trackBg = Instance.new("Frame")
+        trackBg.Size             = UDim2.new(0, 38, 0, 20)
+        trackBg.Position         = UDim2.new(1, -46, 0.5, -10)
+        trackBg.BackgroundColor3 = T.ToggleOff
+        trackBg.BorderSizePixel  = 0
+        trackBg.Parent           = elem
+        Corner(trackBg, 10)
+
+        local dot = Instance.new("Frame")
+        dot.Size             = UDim2.new(0, 14, 0, 14)
+        dot.Position         = UDim2.new(0, 3, 0.5, -7)
+        dot.BackgroundColor3 = Color3.new(1,1,1)
+        dot.BorderSizePixel  = 0
+        dot.Parent           = trackBg
+        Corner(dot, 7)
+
+        local clickArea = Instance.new("TextButton")
+        clickArea.Size             = UDim2.new(1, 0, 1, 0)
+        clickArea.BackgroundTransparency = 1
+        clickArea.Text             = ""
+        clickArea.Parent           = elem
+
+        -- ── função que cria o floating toggle switch arrastável ──
+        local function createFab()
+            local startPos = UDim2.new(0, 16, 0.5, 0)
+            fab = Instance.new("Frame")
+            fab.Name              = "FloatingToggleSwitch"
+            fab.Size              = UDim2.new(0, size, 0, size)
+            fab.Position          = startPos
+            fab.BackgroundColor3  = T.Accent
+            fab.BorderSizePixel   = 0
+            fab.ZIndex            = 100
+            fab.Parent            = lib.ScreenGui
+            Corner(fab, size / 2)
+
+            local glow = Instance.new("UIStroke")
+            glow.Color     = T.AccentGlow
+            glow.Thickness = 2
+            glow.Parent    = fab
+
+            local innerGrad = Instance.new("Frame")
+            innerGrad.Size             = UDim2.new(1, 0, 1, 0)
+            innerGrad.BackgroundTransparency = 0.35
+            innerGrad.BackgroundColor3 = Color3.new(1, 1, 1)
+            innerGrad.BorderSizePixel  = 0
+            innerGrad.ZIndex           = 101
+            innerGrad.Parent           = fab
+            Corner(innerGrad, size / 2)
+            Gradient(innerGrad, Color3.fromRGB(255,255,255), Color3.fromRGB(0,0,0), 90)
+
+            Shadow(fab, 20, 0.5)
+
+            -- toggle indicator dot
+            local toggleDot = Instance.new("Frame")
+            toggleDot.Size             = UDim2.new(0, 10, 0, 10)
+            toggleDot.Position         = UDim2.new(1, -12, 0, 2)
+            toggleDot.BackgroundColor3 = T.ToggleOff
+            toggleDot.BorderSizePixel  = 0
+            toggleDot.ZIndex           = 103
+            toggleDot.Parent           = fab
+            Corner(toggleDot, 5)
+            Stroke(toggleDot, Color3.new(0,0,0), 1)
+
+            local iconBtn = Instance.new("TextButton")
+            iconBtn.Size             = UDim2.new(1, 0, 1, 0)
+            iconBtn.BackgroundTransparency = 1
+            iconBtn.Text             = label
+            iconBtn.TextColor3       = Color3.new(1, 1, 1)
+            iconBtn.Font             = Enum.Font.GothamBold
+            iconBtn.TextSize         = math.floor(size * 0.4)
+            iconBtn.BorderSizePixel  = 0
+            iconBtn.ZIndex           = 102
+            iconBtn.Parent           = fab
+
+            -- drag
+            local dragging4, dragStart4, fabStart4 = false, nil, nil
+            ConnectInputBegan(fab, function(inp)
+                dragging4  = true
+                dragStart4 = inp.Position
+                fabStart4  = fab.Position
+                Tween(fab, {BackgroundColor3 = togState and T.AccentDark or T.AccentDark}, 0.08)
+            end)
+            UserInputService.InputChanged:Connect(function(inp)
+                if not dragging4 then return end
+                if inp.UserInputType == Enum.UserInputType.MouseMovement
+                or inp.UserInputType == Enum.UserInputType.Touch then
+                    local d = inp.Position - dragStart4
+                    fab.Position = UDim2.new(
+                        fabStart4.X.Scale, fabStart4.X.Offset + d.X,
+                        fabStart4.Y.Scale, fabStart4.Y.Offset + d.Y
+                    )
+                end
+            end)
+            UserInputService.InputEnded:Connect(function(inp)
+                if inp.UserInputType == Enum.UserInputType.MouseButton1
+                or inp.UserInputType == Enum.UserInputType.Touch then
+                    dragging4 = false
+                    Tween(fab, {BackgroundColor3 = togState and T.AccentDark or T.Accent}, 0.12)
+                end
+            end)
+
+            -- click: alterna estado interno do toggle flutuante
+            iconBtn.MouseButton1Click:Connect(function()
+                togState = not togState
+                if togState then
+                    Tween(fab, {BackgroundColor3 = T.AccentDark}, 0.15)
+                    Tween(toggleDot, {BackgroundColor3 = T.Green}, 0.15)
+                else
+                    Tween(fab, {BackgroundColor3 = T.Accent}, 0.15)
+                    Tween(toggleDot, {BackgroundColor3 = T.ToggleOff}, 0.15)
+                end
+                if callback then task.spawn(callback, togState) end
+                TweenService:Create(fab, TweenInfo.new(0.08, Enum.EasingStyle.Back, Enum.EasingDirection.In),
+                    {Size = UDim2.new(0, size - 6, 0, size - 6)}):Play()
+                task.delay(0.08, function()
+                    TweenService:Create(fab, TweenInfo.new(0.12, Enum.EasingStyle.Back, Enum.EasingDirection.Out),
+                        {Size = UDim2.new(0, size, 0, size)}):Play()
+                end)
+            end)
+            iconBtn.MouseEnter:Connect(function()
+                if not dragging4 then Tween(fab, {BackgroundColor3 = T.AccentGlow}, 0.12) end
+            end)
+            iconBtn.MouseLeave:Connect(function()
+                if not dragging4 then Tween(fab, {BackgroundColor3 = togState and T.AccentDark or T.Accent}, 0.12) end
+            end)
+
+            -- aparece com tween
+            fab.Size = UDim2.new(0, 0, 0, 0)
+            Tween(fab, {Size = UDim2.new(0, size, 0, size)}, 0.22, Enum.EasingStyle.Back)
+        end
+
+        -- ── toggle click (seção) ──
+        clickArea.MouseButton1Click:Connect(function()
+            enabled = not enabled
+            Tween(trackBg, {BackgroundColor3 = enabled and T.ToggleOn or T.ToggleOff}, 0.18)
+            Tween(dot, {Position = UDim2.new(0, enabled and 21 or 3, 0.5, -7)}, 0.18)
+            if enabled then
+                togState = false
+                createFab()
+            else
+                if fab then
+                    Tween(fab, {Size = UDim2.new(0, 0, 0, 0)}, 0.18, Enum.EasingStyle.Back)
+                    task.delay(0.2, function() fab:Destroy(); fab = nil end)
+                end
+            end
+        end)
+
+        local api = {}
+        function api:Get() return togState end
+        function api:GetEnabled() return enabled end
+        return api
+    end
+
+    return S
 end
 
 -- ══ AddConfig ══
@@ -2212,7 +2381,7 @@ return Library
 local Lib = loadstring(game:HttpGet("https://raw.githubusercontent.com/Elison999/Neon-Lira-V2-lib/refs/heads/main/Library.Lua"))()
 -- OU se for módulo local: local Lib = require(script.ModernUILibrary)
 
-local Win = Lib.new("ModernScript", "v3.0")
+local Win = Lib.new("ModernScript", "v3.1")
 
 -- Cria tabs com ícone (emoji ou texto)
 local tabMain   = Win:AddTab("Principal", "⚙")
@@ -2222,30 +2391,20 @@ local tabPlayer = Win:AddTab("Player",    "👤")
 -- Tab de configuração automática (transparência, efeitos, save/load, TEMAS)
 Win:AddConfig()
 
--- ── Floating Draggable Button ──
-local floatBtn = Win:AddFloatingDraggable({
-    mode     = "button",
-    label    = "🎮",
-    size     = 52,
-    position = UDim2.new(1, -68, 0.5, 0),
-    callback = function()
-        print("Floating button clicado!")
-    end
-})
-
--- ── Floating Draggable Toggle ──
-local floatTog = Win:AddFloatingDraggable({
-    mode     = "toggle",
-    label    = "⚡",
-    size     = 48,
-    position = UDim2.new(0, 16, 0.5, 0),
-    callback = function(state)
-        print("Floating toggle:", state)
-    end
-})
-
 -- ── Seção na tab Principal ──
 local sec = tabMain:AddSection("Configurações Gerais")
+
+-- Floating Button: toggle switch na section.
+-- Ao ativar → aparece um botão arrastável combinando com o tema atual.
+sec:AddFloatingButton("Botão Flutuante", "🎮", 52, function()
+    print("Floating button clicado!")
+end)
+
+-- Floating Toggle Switch: toggle switch na section.
+-- Ao ativar → aparece um toggle switch arrastável combinando com o tema atual.
+sec:AddFloatingToggleSwitch("Toggle Flutuante", "⚡", 48, function(state)
+    print("Floating toggle:", state)
+end)
 
 sec:AddButton("Executar Script", function()
     print("Executando!")
@@ -2271,7 +2430,7 @@ local multi = sec:AddMultiDropdown("Itens", {"Espada","Escudo","Poção","Armadu
 end)
 
 sec:AddSeparator("Extras")
-sec:AddLabel("ModernUI Library  •  v3.0  •  Roblox")
+sec:AddLabel("ModernUI Library  •  v3.1  •  Roblox")
 
 -- ── Tab Visual ──
 local secVis = tabVisual:AddSection("ESP & Aimbot")
@@ -2287,4 +2446,4 @@ secPly:AddSlider("JumpPower",  50, 350, 50)
 secPly:AddToggle("Fly",        false)
 secPly:AddToggle("Noclip",     false)
 
-]]
+]] 
