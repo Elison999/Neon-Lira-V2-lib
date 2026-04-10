@@ -184,7 +184,7 @@ function Library.new(title, subtitle)
         local subLbl = Instance.new("TextLabel")
         subLbl.Text           = subtitle
         subLbl.Size           = UDim2.new(0, 200, 1, 0)
-        subLbl.Position       = UDim2.new(0, 28 + titleLbl.TextBounds.X + 8, 0, 0)
+        subLbl.Position       = UDim2.new(0, 28 + 90, 0, 0) -- placeholder, adjusted below
         subLbl.BackgroundTransparency = 1
         subLbl.TextColor3     = T.TextMuted
         subLbl.Font           = Enum.Font.Gotham
@@ -192,6 +192,10 @@ function Library.new(title, subtitle)
         subLbl.TextXAlignment = Enum.TextXAlignment.Left
         subLbl.ZIndex         = 3
         subLbl.Parent         = titleBar
+        -- Fix: TextBounds is 0 at creation time; wait for it to be calculated
+        titleLbl:GetPropertyChangedSignal("TextBounds"):Connect(function()
+            subLbl.Position = UDim2.new(0, 28 + titleLbl.TextBounds.X + 8, 0, 0)
+        end)
     end
 
     -- minimize button
@@ -252,7 +256,6 @@ function Library.new(title, subtitle)
     sideHeader.Font           = Enum.Font.GothamBold
     sideHeader.TextSize       = 9
     sideHeader.TextXAlignment = Enum.TextXAlignment.Left
-    sideHeader.LetterSpacing  = 2
     sideHeader.Parent         = sidebar
 
     -- separator under header
@@ -384,12 +387,12 @@ function Library.new(title, subtitle)
         self.Minimized = not self.Minimized
         if self.Minimized then
             storedH = win.AbsoluteSize.Y
-            Tween(win,    {Size = UDim2.new(0, win.AbsoluteSize.X, 0, 40)}, 0.28, Enum.EasingStyle.Quart)
-            Tween(content,{GroupTransparency = 1}, 0.12)
+            Tween(win, {Size = UDim2.new(0, win.AbsoluteSize.X, 0, 40)}, 0.28, Enum.EasingStyle.Quart)
+            task.delay(0.1, function() content.Visible = false end)
             minBtn.Text = "+"
         else
-            Tween(win,    {Size = UDim2.new(0, win.AbsoluteSize.X, 0, storedH)}, 0.28, Enum.EasingStyle.Quart)
-            Tween(content,{GroupTransparency = 0}, 0.28)
+            content.Visible = true
+            Tween(win, {Size = UDim2.new(0, win.AbsoluteSize.X, 0, storedH)}, 0.28, Enum.EasingStyle.Quart)
             minBtn.Text = "—"
         end
     end)
@@ -986,8 +989,11 @@ function Library._MakeSection(parent, name)
         pLayout.Parent    = picker
 
         local pPad = Instance.new("UIPadding")
-        pPad.PaddingAll = UDim.new(0, 8)
-        pPad.Parent     = picker
+        pPad.PaddingLeft   = UDim.new(0, 8)
+        pPad.PaddingRight  = UDim.new(0, 8)
+        pPad.PaddingTop    = UDim.new(0, 8)
+        pPad.PaddingBottom = UDim.new(0, 8)
+        pPad.Parent        = picker
 
         local function recalc()
             color = Color3.fromRGB(r, g, b)
@@ -1199,8 +1205,11 @@ function Library._MakeSection(parent, name)
         inner.Padding   = UDim.new(0, 2)
         inner.Parent    = elem
         local ipad = Instance.new("UIPadding")
-        ipad.PaddingAll = UDim.new(0, 8)
-        ipad.Parent     = elem
+        ipad.PaddingLeft   = UDim.new(0, 8)
+        ipad.PaddingRight  = UDim.new(0, 8)
+        ipad.PaddingTop    = UDim.new(0, 8)
+        ipad.PaddingBottom = UDim.new(0, 8)
+        ipad.Parent        = elem
 
         local tLbl = Instance.new("TextLabel")
         tLbl.Text           = title or "Title"
@@ -1495,7 +1504,7 @@ return Library
   EXEMPLO DE USO — cole em um LocalScript
 ══════════════════════════════════════════════════
 
-local Lib = loadstring(game:HttpGet("URL_DO_SEU_SCRIPT"))()
+local Lib = loadstring(game:HttpGet("https://raw.githubusercontent.com/Elison999/Neon-Lira-V2-lib/refs/heads/main/Library.Lua"))()
 -- OU se for módulo local: local Lib = require(script.ModernUILibrary)
 
 local Win = Lib.new("ModernScript", "v2.0")
