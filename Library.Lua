@@ -119,6 +119,7 @@ function Library.new(title, subtitle)
     self.Tabs       = {}
     self.ActiveTab  = nil
     self.Minimized  = false
+    self._Elements  = {}  -- { id = string, type = string, api = table }
 
     -- ── ScreenGui ──
     local gui = Instance.new("ScreenGui")
@@ -161,14 +162,13 @@ function Library.new(title, subtitle)
     titleBar.ZIndex           = 2
     titleBar.Parent           = win
     Corner(titleBar, 10)
-    -- fix bottom corners
-    local fix = Instance.new("Frame")
-    fix.Size             = UDim2.new(1, 0, 0, 10)
-    fix.Position         = UDim2.new(0, 0, 1, -10)
-    fix.BackgroundColor3 = T.Secondary
-    fix.BorderSizePixel  = 0
-    fix.ZIndex           = 2
-    fix.Parent           = titleBar
+    -- patch bottom-left and bottom-right corners square (only top corners rounded)
+    local tbBL = Instance.new("Frame")
+    tbBL.Size = UDim2.new(0,10,0,10); tbBL.Position = UDim2.new(0,0,1,-10)
+    tbBL.BackgroundColor3 = T.Secondary; tbBL.BorderSizePixel = 0; tbBL.ZIndex = 2; tbBL.Parent = titleBar
+    local tbBR = Instance.new("Frame")
+    tbBR.Size = UDim2.new(0,10,0,10); tbBR.Position = UDim2.new(1,-10,1,-10)
+    tbBR.BackgroundColor3 = T.Secondary; tbBR.BorderSizePixel = 0; tbBR.ZIndex = 2; tbBR.Parent = titleBar
 
     -- accent underline
     local accentBar = Instance.new("Frame")
@@ -289,13 +289,14 @@ function Library.new(title, subtitle)
     sidebar.Parent           = content
     self._Sidebar = sidebar
     self._SidebarOpen = true
-    -- right square corner fix
-    local sidebarFix = Instance.new("Frame")
-    sidebarFix.Size             = UDim2.new(0, 10, 1, 0)
-    sidebarFix.Position         = UDim2.new(1, -10, 0, 0)
-    sidebarFix.BackgroundColor3 = T.Secondary
-    sidebarFix.BorderSizePixel  = 0
-    sidebarFix.Parent           = sidebar
+    -- patch only right corners square (left corners are rounded to match window)
+    Corner(sidebar, 10)
+    local sbTR = Instance.new("Frame")
+    sbTR.Size = UDim2.new(0,10,0,10); sbTR.Position = UDim2.new(1,-10,0,0)
+    sbTR.BackgroundColor3 = T.Secondary; sbTR.BorderSizePixel = 0; sbTR.Parent = sidebar
+    local sbBR = Instance.new("Frame")
+    sbBR.Size = UDim2.new(0,10,0,10); sbBR.Position = UDim2.new(1,-10,1,-10)
+    sbBR.BackgroundColor3 = T.Secondary; sbBR.BorderSizePixel = 0; sbBR.Parent = sidebar
 
     -- sidebar header
     local sideHeader = Instance.new("TextLabel")
@@ -410,6 +411,7 @@ function Library.new(title, subtitle)
     local MIN_W, MIN_H = isMobile and 280 or 420, isMobile and 220 or 300
 
     ConnectInputBegan(resizeHandle, function(inp)
+        if self.Minimized then return end
         resizing    = true
         resizeStart = inp.Position
         startSize   = Vector2.new(win.AbsoluteSize.X, win.AbsoluteSize.Y)
@@ -419,6 +421,7 @@ function Library.new(title, subtitle)
     end)
     UserInputService.InputChanged:Connect(function(inp)
         if not resizing then return end
+        if self.Minimized then resizing = false; return end
         if inp.UserInputType == Enum.UserInputType.MouseMovement
         or inp.UserInputType == Enum.UserInputType.Touch then
             local d  = inp.Position - resizeStart
@@ -533,9 +536,11 @@ function Library:AddTab(name, icon)
     pagePad.PaddingBottom = UDim.new(0, 8)
     pagePad.Parent        = page
 
-    pageLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-        page.CanvasSize = UDim2.new(0, 0, 0, pageLayout.AbsoluteContentSize.Y + 16)
-    end)
+    -- Auto-scroll: recalculate canvas whenever content changes size
+    local function updateCanvas()
+        page.CanvasSize = UDim2.new(0, 0, 0, pageLayout.AbsoluteContentSize.Y + 20)
+    end
+    pageLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(updateCanvas)
 
     local tabData = {
         Name     = name,
@@ -567,7 +572,7 @@ function Library:AddTab(name, icon)
     -- return tab API
     local tabAPI = { _data = tabData, _lib = self }
     function tabAPI:AddSection(sname)
-        return Library._MakeSection(page, sname)
+        return Library._MakeSection(page, sname, self._lib)
     end
     return tabAPI
 end
@@ -589,7 +594,7 @@ function Library:_SelectTab(tab)
 end
 
 -- ══ Section ══
-function Library._MakeSection(parent, name)
+function Library._MakeSection(parent, name, lib)
     local section = Instance.new("Frame")
     section.Name             = "Section_" .. name
     section.Size             = UDim2.new(1, 0, 0, 0)
@@ -647,6 +652,14 @@ function Library._MakeSection(parent, name)
 
     -- ── Element Builder ──
     local S = {}   -- section object
+
+    -- Register an element for config save/load
+    local function Reg(id, elemType, api)
+        if lib then
+            table.insert(lib._Elements, {id = id, elemType = elemType, api = api})
+        end
+        return api
+    end
 
     local function BaseElem(h)
         local f = Instance.new("Frame")
@@ -768,11 +781,8 @@ function Library._MakeSection(parent, name)
         local api = {}
         function api:Set(v) update(v) end
         function api:Get() return val end
-        return api
+        return Reg(text, "Toggle", api)
     end
-
-    -- ══════════════════════════════════════
-    --  3. SLIDER
     -- ══════════════════════════════════════
     function S:AddSlider(text, min, max, default, callback)
         min = min or 0; max = max or 100
@@ -863,11 +873,8 @@ function Library._MakeSection(parent, name)
             valLbl.Text     = tostring(val)
         end
         function api:Get() return val end
-        return api
+        return Reg(text, "Slider", api)
     end
-
-    -- ══════════════════════════════════════
-    --  4. DROPDOWN
     -- ══════════════════════════════════════
     function S:AddDropdown(text, options, default, callback)
         local val  = default or (options and options[1]) or ""
@@ -968,7 +975,7 @@ function Library._MakeSection(parent, name)
         function api:Get() return val end
         function api:Set(v) val = v; dropBtn.Text = v end
         function api:GetOptions() return options end
-        return api
+        return Reg(text, "Dropdown", api)
     end
 
     -- ══════════════════════════════════════
@@ -1012,7 +1019,7 @@ function Library._MakeSection(parent, name)
         local api = {}
         function api:Get() return tb.Text end
         function api:Set(v) tb.Text = v end
-        return api
+        return Reg(text, "TextBox", api)
     end
 
     -- ══════════════════════════════════════
@@ -1181,7 +1188,7 @@ function Library._MakeSection(parent, name)
             r,g,b = math.floor(c.R*255), math.floor(c.G*255), math.floor(c.B*255)
             preview.BackgroundColor3 = c
         end
-        return api
+        return Reg(text, "ColorPicker", api)
     end
 
     -- ══════════════════════════════════════
@@ -1231,7 +1238,7 @@ function Library._MakeSection(parent, name)
             key = k
             keyBtn.Text = k == Enum.KeyCode.Unknown and "NONE" or k.Name
         end
-        return api
+        return Reg(text, "Keybind", api)
     end
 
     -- ══════════════════════════════════════
@@ -1564,10 +1571,187 @@ function Library._MakeSection(parent, name)
             selected = tbl
             refreshLabel()
         end
-        return api
+        return Reg(text, "MultiDropdown", api)
     end
 
     return S
+end
+
+-- ══ AddConfig ══
+function Library:AddConfig()
+    local configTab = self:AddTab("⚙ Config", "⚙")
+    local sec = configTab:AddSection("Interface")
+    local win = self.Window
+
+    -- ── Transparência ──
+    sec:AddToggle("Transparência 60%", false, function(v)
+        local goal = v and 0.6 or 0
+        for _, d in ipairs(win:GetDescendants()) do
+            if (d:IsA("Frame") or d:IsA("ScrollingFrame")) and d.BackgroundTransparency < 1 then
+                Tween(d, {BackgroundTransparency = goal}, 0.35, Enum.EasingStyle.Quart)
+            end
+        end
+        if win.BackgroundTransparency < 1 or goal == 0 then
+            Tween(win, {BackgroundTransparency = goal}, 0.35, Enum.EasingStyle.Quart)
+        end
+    end)
+
+    -- ── Efeitos Visuais ──
+    local effectsActive = false
+    local particles = {}
+
+    local function spawnParticle()
+        local p = Instance.new("Frame")
+        p.Size             = UDim2.new(0, math.random(3,8), 0, math.random(3,8))
+        p.Position         = UDim2.new(math.random()*0.9, 0, math.random()*0.85 + 0.1, 0)
+        p.BackgroundColor3 = Color3.fromHSV(0.62 + math.random()*0.1, 0.85, 1)
+        p.BackgroundTransparency = 0.15
+        p.BorderSizePixel  = 0
+        p.ZIndex           = 50
+        p.Parent           = win
+        Corner(p, 4)
+        table.insert(particles, p)
+        TweenService:Create(p, TweenInfo.new(2, Enum.EasingStyle.Sine), {
+            Position = UDim2.new(p.Position.X.Scale, 0, p.Position.Y.Scale - 0.35, 0),
+            BackgroundTransparency = 1
+        }):Play()
+        task.delay(2.1, function()
+            if p and p.Parent then p:Destroy() end
+            for i,v in ipairs(particles) do if v == p then table.remove(particles,i); break end end
+        end)
+    end
+
+    sec:AddToggle("Efeitos Visuais", false, function(v)
+        effectsActive = v
+        if v then
+            task.spawn(function()
+                while effectsActive do
+                    spawnParticle()
+                    task.wait(0.35)
+                end
+            end)
+        else
+            for _, p in ipairs(particles) do
+                if p and p.Parent then p:Destroy() end
+            end
+            particles = {}
+        end
+    end)
+
+    -- ── Save/Load ──
+    local secSave = configTab:AddSection("Salvar / Carregar")
+    local FOLDER  = "Neon-Saves"
+
+    local function ensureFolder()
+        pcall(function() if not isfolder(FOLDER) then makefolder(FOLDER) end end)
+    end
+
+    local function listSaves()
+        ensureFolder()
+        local names = {}
+        local ok, lst = pcall(listfiles, FOLDER)
+        if ok then
+            for _, path in ipairs(lst) do
+                local n = (path:match("([^/\\]+)$") or path):gsub("%.json$","")
+                table.insert(names, n)
+            end
+        end
+        return names
+    end
+
+    local saveNameApi  = secSave:AddTextBox("Nome da Save", "minha-config")
+    local savesDropApi = secSave:AddDropdown("Saves", listSaves(), nil, nil)
+
+    -- Simple JSON encoder
+    local function encode(v)
+        local t = type(v)
+        if t == "string"  then return '"'..v:gsub('\\','\\\\'):gsub('"','\\"')..'"'
+        elseif t == "number"  then return tostring(v)
+        elseif t == "boolean" then return v and "true" or "false"
+        elseif t == "table"   then
+            if #v > 0 then
+                local p = {}; for _,i in ipairs(v) do table.insert(p, encode(i)) end
+                return "["..table.concat(p,",").."]"
+            else
+                local p = {}; for k,i in pairs(v) do table.insert(p,'"'..k..'":'..encode(i)) end
+                return "{"..table.concat(p,",").."}"
+            end
+        end
+        return "null"
+    end
+
+    secSave:AddButton("💾 Salvar", function()
+        local name = saveNameApi:Get()
+        if not name or name == "" then name = "config" end
+        ensureFolder()
+        local data = {}
+        for _, entry in ipairs(self._Elements) do
+            local ok, val = pcall(function() return entry.api:Get() end)
+            if ok and val ~= nil then
+                local et = entry.elemType
+                if et == "Toggle"   then data[entry.id] = {t=et, v=val}
+                elseif et == "Slider"   then data[entry.id] = {t=et, v=val}
+                elseif et == "Dropdown" then data[entry.id] = {t=et, v=val}
+                elseif et == "TextBox"  then data[entry.id] = {t=et, v=val}
+                elseif et == "ColorPicker" then
+                    data[entry.id] = {t=et, r=math.floor(val.R*255), g=math.floor(val.G*255), b=math.floor(val.B*255)}
+                elseif et == "Keybind" then
+                    data[entry.id] = {t=et, v=tostring(val)}
+                elseif et == "MultiDropdown" then
+                    local arr = {}; for k in pairs(val) do table.insert(arr,k) end
+                    data[entry.id] = {t=et, v=arr}
+                end
+            end
+        end
+        pcall(writefile, FOLDER.."/"..name..".json", encode(data))
+        -- Refresh saves list
+        local saves = listSaves()
+        savesDropApi:Set(name)
+        _ = saves -- list refreshed next open
+    end)
+
+    secSave:AddButton("📂 Carregar", function()
+        local name = savesDropApi:Get()
+        if not name or name == "" then return end
+        local ok, content = pcall(readfile, FOLDER.."/"..name..".json")
+        if not ok or not content then return end
+
+        -- Decode: convert JSON to Lua table via string transforms
+        local s = content
+        -- replace "key": -> ["key"]=
+        s = s:gsub('"([^"]+)"%s*:', '["$1"]=')
+        -- fix booleans
+        s = s:gsub(': ?true',  '=true')
+        s = s:gsub(': ?false', '=false')
+        -- wrap in return
+        local fn = loadstring("return "..s)
+        if not fn then return end
+        local ok2, data = pcall(fn)
+        if not ok2 or type(data) ~= "table" then return end
+
+        for _, entry in ipairs(self._Elements) do
+            local saved = data[entry.id]
+            if saved then
+                pcall(function()
+                    local et = saved.t
+                    if et == "Toggle"   then entry.api:Set(saved.v == true)
+                    elseif et == "Slider"   then entry.api:Set(tonumber(saved.v) or 0)
+                    elseif et == "Dropdown" then entry.api:Set(tostring(saved.v or ""))
+                    elseif et == "TextBox"  then entry.api:Set(tostring(saved.v or ""))
+                    elseif et == "ColorPicker" then
+                        entry.api:Set(Color3.fromRGB(tonumber(saved.r) or 0, tonumber(saved.g) or 0, tonumber(saved.b) or 0))
+                    elseif et == "Keybind" then
+                        local kc = Enum.KeyCode[tostring(saved.v)]
+                        if kc then entry.api:Set(kc) end
+                    elseif et == "MultiDropdown" then
+                        local tbl = {}
+                        if type(saved.v) == "table" then for _,k in ipairs(saved.v) do tbl[k]=true end end
+                        entry.api:Set(tbl)
+                    end
+                end)
+            end
+        end
+    end)
 end
 
 return Library
@@ -1586,6 +1770,9 @@ local Win = Lib.new("ModernScript", "v2.0")
 local tabMain   = Win:AddTab("Principal", "⚙")
 local tabVisual = Win:AddTab("Visual",    "👁")
 local tabPlayer = Win:AddTab("Player",    "👤")
+
+-- Tab de configuração automática (transparência, efeitos, save/load)
+Win:AddConfig()
 
 -- ── Seção na tab Principal ──
 local sec = tabMain:AddSection("Configurações Gerais")
