@@ -1,12 +1,19 @@
 --[[
     ╔══════════════════════════════════════════════════════╗
-    ║           ModernUI Library - Roblox                  ║
-    ║   Draggable | Resizable | Minimizable | 12 Elements  ║
+    ║           ModernUI Library - Roblox  v3.0            ║
+    ║   Draggable | Resizable | Minimizable | 13 Elements  ║
+    ╠══════════════════════════════════════════════════════╣
+    ║  NOVIDADES v3.0:                                     ║
+    ║  • Floating Draggable Button/Toggle                  ║
+    ║  • Dropdown/MultiDropdown empurram elementos         ║
+    ║  • Scroll automático nos dropdowns                   ║
+    ║  • 20 temas completos na tab Config                  ║
     ╚══════════════════════════════════════════════════════╝
     
     ELEMENTOS: Button, Toggle, Slider, Dropdown, TextBox,
                ColorPicker, Keybind, Label, Paragraph,
-               Separator, ProgressBar, MultiDropdown
+               Separator, ProgressBar, MultiDropdown,
+               FloatingDraggable
 ]]
 
 local Library = {}
@@ -41,6 +48,200 @@ local T = {
     Green       = Color3.fromRGB(80, 200, 120),
     Red         = Color3.fromRGB(220, 80, 80),
 }
+
+-- ══ Themes (20 temas completos) ══
+local Themes = {
+    ["Neon Blue"] = {
+        Bg=Color3.fromRGB(12,12,18), Secondary=Color3.fromRGB(18,18,26), Tertiary=Color3.fromRGB(24,24,34),
+        Accent=Color3.fromRGB(90,140,255), AccentDark=Color3.fromRGB(55,95,200), AccentGlow=Color3.fromRGB(110,160,255),
+        Text=Color3.fromRGB(235,235,250), TextMuted=Color3.fromRGB(130,130,155), Border=Color3.fromRGB(35,35,50),
+        BorderLight=Color3.fromRGB(50,50,70), Section=Color3.fromRGB(20,20,30), Element=Color3.fromRGB(28,28,40),
+        ElementHov=Color3.fromRGB(36,36,52), Input=Color3.fromRGB(22,22,32), SliderBar=Color3.fromRGB(30,30,44),
+        ToggleOn=Color3.fromRGB(90,140,255), ToggleOff=Color3.fromRGB(44,44,60),
+        Green=Color3.fromRGB(80,200,120), Red=Color3.fromRGB(220,80,80),
+    },
+    ["Crimson"] = {
+        Bg=Color3.fromRGB(14,8,8), Secondary=Color3.fromRGB(22,12,12), Tertiary=Color3.fromRGB(30,16,16),
+        Accent=Color3.fromRGB(220,55,75), AccentDark=Color3.fromRGB(165,30,50), AccentGlow=Color3.fromRGB(255,85,105),
+        Text=Color3.fromRGB(250,235,235), TextMuted=Color3.fromRGB(160,120,125), Border=Color3.fromRGB(50,25,28),
+        BorderLight=Color3.fromRGB(70,35,38), Section=Color3.fromRGB(20,10,12), Element=Color3.fromRGB(30,15,17),
+        ElementHov=Color3.fromRGB(42,20,22), Input=Color3.fromRGB(24,12,14), SliderBar=Color3.fromRGB(40,20,22),
+        ToggleOn=Color3.fromRGB(220,55,75), ToggleOff=Color3.fromRGB(60,30,32),
+        Green=Color3.fromRGB(80,200,120), Red=Color3.fromRGB(255,80,80),
+    },
+    ["Emerald"] = {
+        Bg=Color3.fromRGB(8,14,10), Secondary=Color3.fromRGB(10,22,14), Tertiary=Color3.fromRGB(14,30,18),
+        Accent=Color3.fromRGB(45,200,120), AccentDark=Color3.fromRGB(25,145,80), AccentGlow=Color3.fromRGB(70,230,145),
+        Text=Color3.fromRGB(230,250,235), TextMuted=Color3.fromRGB(110,155,125), Border=Color3.fromRGB(20,45,28),
+        BorderLight=Color3.fromRGB(28,62,38), Section=Color3.fromRGB(10,20,13), Element=Color3.fromRGB(14,28,18),
+        ElementHov=Color3.fromRGB(18,40,25), Input=Color3.fromRGB(10,22,14), SliderBar=Color3.fromRGB(18,38,24),
+        ToggleOn=Color3.fromRGB(45,200,120), ToggleOff=Color3.fromRGB(22,55,32),
+        Green=Color3.fromRGB(45,220,130), Red=Color3.fromRGB(220,80,80),
+    },
+    ["Purple Haze"] = {
+        Bg=Color3.fromRGB(12,8,18), Secondary=Color3.fromRGB(18,12,28), Tertiary=Color3.fromRGB(24,16,38),
+        Accent=Color3.fromRGB(160,80,255), AccentDark=Color3.fromRGB(110,45,200), AccentGlow=Color3.fromRGB(190,110,255),
+        Text=Color3.fromRGB(240,235,255), TextMuted=Color3.fromRGB(140,120,170), Border=Color3.fromRGB(40,25,60),
+        BorderLight=Color3.fromRGB(58,38,85), Section=Color3.fromRGB(16,10,26), Element=Color3.fromRGB(24,15,38),
+        ElementHov=Color3.fromRGB(34,22,54), Input=Color3.fromRGB(18,12,30), SliderBar=Color3.fromRGB(30,18,48),
+        ToggleOn=Color3.fromRGB(160,80,255), ToggleOff=Color3.fromRGB(48,28,75),
+        Green=Color3.fromRGB(80,200,120), Red=Color3.fromRGB(220,80,80),
+    },
+    ["Sunset"] = {
+        Bg=Color3.fromRGB(16,10,8), Secondary=Color3.fromRGB(26,15,10), Tertiary=Color3.fromRGB(36,20,12),
+        Accent=Color3.fromRGB(255,130,50), AccentDark=Color3.fromRGB(200,90,25), AccentGlow=Color3.fromRGB(255,165,85),
+        Text=Color3.fromRGB(255,245,235), TextMuted=Color3.fromRGB(170,140,120), Border=Color3.fromRGB(55,30,15),
+        BorderLight=Color3.fromRGB(75,42,20), Section=Color3.fromRGB(22,13,8), Element=Color3.fromRGB(32,18,11),
+        ElementHov=Color3.fromRGB(44,25,15), Input=Color3.fromRGB(24,14,9), SliderBar=Color3.fromRGB(40,22,12),
+        ToggleOn=Color3.fromRGB(255,130,50), ToggleOff=Color3.fromRGB(65,35,18),
+        Green=Color3.fromRGB(80,200,120), Red=Color3.fromRGB(220,80,80),
+    },
+    ["Arctic"] = {
+        Bg=Color3.fromRGB(8,12,18), Secondary=Color3.fromRGB(12,18,26), Tertiary=Color3.fromRGB(16,24,36),
+        Accent=Color3.fromRGB(80,200,240), AccentDark=Color3.fromRGB(45,155,195), AccentGlow=Color3.fromRGB(110,220,255),
+        Text=Color3.fromRGB(230,245,255), TextMuted=Color3.fromRGB(110,145,170), Border=Color3.fromRGB(20,35,52),
+        BorderLight=Color3.fromRGB(28,48,70), Section=Color3.fromRGB(10,16,24), Element=Color3.fromRGB(14,22,34),
+        ElementHov=Color3.fromRGB(20,30,48), Input=Color3.fromRGB(10,18,26), SliderBar=Color3.fromRGB(18,28,44),
+        ToggleOn=Color3.fromRGB(80,200,240), ToggleOff=Color3.fromRGB(22,42,60),
+        Green=Color3.fromRGB(80,200,120), Red=Color3.fromRGB(220,80,80),
+    },
+    ["Rose Gold"] = {
+        Bg=Color3.fromRGB(18,10,12), Secondary=Color3.fromRGB(28,16,18), Tertiary=Color3.fromRGB(38,22,24),
+        Accent=Color3.fromRGB(225,145,145), AccentDark=Color3.fromRGB(185,100,105), AccentGlow=Color3.fromRGB(245,170,170),
+        Text=Color3.fromRGB(255,240,240), TextMuted=Color3.fromRGB(175,135,138), Border=Color3.fromRGB(55,28,30),
+        BorderLight=Color3.fromRGB(78,40,43), Section=Color3.fromRGB(22,12,14), Element=Color3.fromRGB(34,18,20),
+        ElementHov=Color3.fromRGB(48,25,28), Input=Color3.fromRGB(26,14,16), SliderBar=Color3.fromRGB(42,22,24),
+        ToggleOn=Color3.fromRGB(225,145,145), ToggleOff=Color3.fromRGB(65,32,35),
+        Green=Color3.fromRGB(80,200,120), Red=Color3.fromRGB(220,80,80),
+    },
+    ["Cyber Yellow"] = {
+        Bg=Color3.fromRGB(10,10,6), Secondary=Color3.fromRGB(16,16,8), Tertiary=Color3.fromRGB(22,22,10),
+        Accent=Color3.fromRGB(240,220,30), AccentDark=Color3.fromRGB(185,165,15), AccentGlow=Color3.fromRGB(255,240,70),
+        Text=Color3.fromRGB(255,255,230), TextMuted=Color3.fromRGB(165,160,110), Border=Color3.fromRGB(45,42,12),
+        BorderLight=Color3.fromRGB(62,58,18), Section=Color3.fromRGB(14,14,7), Element=Color3.fromRGB(22,22,10),
+        ElementHov=Color3.fromRGB(32,30,14), Input=Color3.fromRGB(16,16,8), SliderBar=Color3.fromRGB(28,27,12),
+        ToggleOn=Color3.fromRGB(240,220,30), ToggleOff=Color3.fromRGB(55,52,15),
+        Green=Color3.fromRGB(80,200,120), Red=Color3.fromRGB(220,80,80),
+    },
+    ["Midnight"] = {
+        Bg=Color3.fromRGB(6,6,10), Secondary=Color3.fromRGB(10,10,16), Tertiary=Color3.fromRGB(14,14,22),
+        Accent=Color3.fromRGB(100,100,200), AccentDark=Color3.fromRGB(65,65,155), AccentGlow=Color3.fromRGB(130,130,230),
+        Text=Color3.fromRGB(220,220,240), TextMuted=Color3.fromRGB(110,110,140), Border=Color3.fromRGB(22,22,38),
+        BorderLight=Color3.fromRGB(32,32,55), Section=Color3.fromRGB(9,9,14), Element=Color3.fromRGB(14,14,22),
+        ElementHov=Color3.fromRGB(20,20,32), Input=Color3.fromRGB(10,10,18), SliderBar=Color3.fromRGB(18,18,30),
+        ToggleOn=Color3.fromRGB(100,100,200), ToggleOff=Color3.fromRGB(28,28,50),
+        Green=Color3.fromRGB(80,200,120), Red=Color3.fromRGB(220,80,80),
+    },
+    ["Forest"] = {
+        Bg=Color3.fromRGB(8,12,8), Secondary=Color3.fromRGB(12,18,12), Tertiary=Color3.fromRGB(16,24,16),
+        Accent=Color3.fromRGB(95,175,75), AccentDark=Color3.fromRGB(60,130,45), AccentGlow=Color3.fromRGB(120,205,100),
+        Text=Color3.fromRGB(230,245,225), TextMuted=Color3.fromRGB(115,148,110), Border=Color3.fromRGB(22,40,20),
+        BorderLight=Color3.fromRGB(30,55,28), Section=Color3.fromRGB(10,16,10), Element=Color3.fromRGB(14,22,14),
+        ElementHov=Color3.fromRGB(20,32,18), Input=Color3.fromRGB(10,18,10), SliderBar=Color3.fromRGB(18,30,16),
+        ToggleOn=Color3.fromRGB(95,175,75), ToggleOff=Color3.fromRGB(24,45,22),
+        Green=Color3.fromRGB(95,220,80), Red=Color3.fromRGB(220,80,80),
+    },
+    ["Ocean"] = {
+        Bg=Color3.fromRGB(5,12,20), Secondary=Color3.fromRGB(8,18,30), Tertiary=Color3.fromRGB(10,24,40),
+        Accent=Color3.fromRGB(30,160,220), AccentDark=Color3.fromRGB(15,115,175), AccentGlow=Color3.fromRGB(55,190,245),
+        Text=Color3.fromRGB(220,240,255), TextMuted=Color3.fromRGB(95,140,175), Border=Color3.fromRGB(12,35,58),
+        BorderLight=Color3.fromRGB(18,48,78), Section=Color3.fromRGB(6,15,25), Element=Color3.fromRGB(9,22,36),
+        ElementHov=Color3.fromRGB(13,30,50), Input=Color3.fromRGB(7,16,28), SliderBar=Color3.fromRGB(10,24,40),
+        ToggleOn=Color3.fromRGB(30,160,220), ToggleOff=Color3.fromRGB(12,38,60),
+        Green=Color3.fromRGB(80,200,120), Red=Color3.fromRGB(220,80,80),
+    },
+    ["Lava"] = {
+        Bg=Color3.fromRGB(16,6,4), Secondary=Color3.fromRGB(26,8,5), Tertiary=Color3.fromRGB(36,10,6),
+        Accent=Color3.fromRGB(255,80,30), AccentDark=Color3.fromRGB(200,50,15), AccentGlow=Color3.fromRGB(255,115,65),
+        Text=Color3.fromRGB(255,238,230), TextMuted=Color3.fromRGB(175,125,112), Border=Color3.fromRGB(60,18,10),
+        BorderLight=Color3.fromRGB(85,25,14), Section=Color3.fromRGB(20,7,5), Element=Color3.fromRGB(32,9,6),
+        ElementHov=Color3.fromRGB(46,12,8), Input=Color3.fromRGB(24,7,5), SliderBar=Color3.fromRGB(40,10,7),
+        ToggleOn=Color3.fromRGB(255,80,30), ToggleOff=Color3.fromRGB(70,18,10),
+        Green=Color3.fromRGB(80,200,120), Red=Color3.fromRGB(255,60,60),
+    },
+    ["Sakura"] = {
+        Bg=Color3.fromRGB(18,10,14), Secondary=Color3.fromRGB(28,15,20), Tertiary=Color3.fromRGB(38,20,28),
+        Accent=Color3.fromRGB(240,130,175), AccentDark=Color3.fromRGB(200,90,138), AccentGlow=Color3.fromRGB(255,160,200),
+        Text=Color3.fromRGB(255,240,248), TextMuted=Color3.fromRGB(178,138,158), Border=Color3.fromRGB(58,25,38),
+        BorderLight=Color3.fromRGB(80,35,52), Section=Color3.fromRGB(22,12,17), Element=Color3.fromRGB(34,17,25),
+        ElementHov=Color3.fromRGB(48,23,35), Input=Color3.fromRGB(26,13,19), SliderBar=Color3.fromRGB(44,20,30),
+        ToggleOn=Color3.fromRGB(240,130,175), ToggleOff=Color3.fromRGB(68,28,45),
+        Green=Color3.fromRGB(80,200,120), Red=Color3.fromRGB(220,80,80),
+    },
+    ["Monochrome"] = {
+        Bg=Color3.fromRGB(8,8,8), Secondary=Color3.fromRGB(14,14,14), Tertiary=Color3.fromRGB(20,20,20),
+        Accent=Color3.fromRGB(200,200,200), AccentDark=Color3.fromRGB(145,145,145), AccentGlow=Color3.fromRGB(230,230,230),
+        Text=Color3.fromRGB(245,245,245), TextMuted=Color3.fromRGB(140,140,140), Border=Color3.fromRGB(35,35,35),
+        BorderLight=Color3.fromRGB(50,50,50), Section=Color3.fromRGB(12,12,12), Element=Color3.fromRGB(20,20,20),
+        ElementHov=Color3.fromRGB(30,30,30), Input=Color3.fromRGB(16,16,16), SliderBar=Color3.fromRGB(28,28,28),
+        ToggleOn=Color3.fromRGB(200,200,200), ToggleOff=Color3.fromRGB(45,45,45),
+        Green=Color3.fromRGB(180,180,180), Red=Color3.fromRGB(120,120,120),
+    },
+    ["Toxic"] = {
+        Bg=Color3.fromRGB(6,14,6), Secondary=Color3.fromRGB(8,22,8), Tertiary=Color3.fromRGB(10,30,10),
+        Accent=Color3.fromRGB(130,255,50), AccentDark=Color3.fromRGB(90,195,25), AccentGlow=Color3.fromRGB(165,255,85),
+        Text=Color3.fromRGB(230,255,225), TextMuted=Color3.fromRGB(120,170,108), Border=Color3.fromRGB(18,48,14),
+        BorderLight=Color3.fromRGB(25,68,18), Section=Color3.fromRGB(7,18,7), Element=Color3.fromRGB(10,27,9),
+        ElementHov=Color3.fromRGB(14,38,12), Input=Color3.fromRGB(8,20,8), SliderBar=Color3.fromRGB(12,34,10),
+        ToggleOn=Color3.fromRGB(130,255,50), ToggleOff=Color3.fromRGB(20,52,14),
+        Green=Color3.fromRGB(130,255,50), Red=Color3.fromRGB(220,80,80),
+    },
+    ["Candy"] = {
+        Bg=Color3.fromRGB(16,8,16), Secondary=Color3.fromRGB(25,12,26), Tertiary=Color3.fromRGB(34,16,36),
+        Accent=Color3.fromRGB(255,100,220), AccentDark=Color3.fromRGB(200,60,175), AccentGlow=Color3.fromRGB(255,140,240),
+        Text=Color3.fromRGB(255,235,255), TextMuted=Color3.fromRGB(178,130,180), Border=Color3.fromRGB(55,20,58),
+        BorderLight=Color3.fromRGB(78,28,82), Section=Color3.fromRGB(20,10,21), Element=Color3.fromRGB(30,14,32),
+        ElementHov=Color3.fromRGB(44,20,46), Input=Color3.fromRGB(22,10,24), SliderBar=Color3.fromRGB(38,16,40),
+        ToggleOn=Color3.fromRGB(255,100,220), ToggleOff=Color3.fromRGB(65,22,68),
+        Green=Color3.fromRGB(80,200,120), Red=Color3.fromRGB(220,80,80),
+    },
+    ["Deep Space"] = {
+        Bg=Color3.fromRGB(4,4,12), Secondary=Color3.fromRGB(6,6,20), Tertiary=Color3.fromRGB(8,8,28),
+        Accent=Color3.fromRGB(70,110,255), AccentDark=Color3.fromRGB(40,70,210), AccentGlow=Color3.fromRGB(95,140,255),
+        Text=Color3.fromRGB(215,220,255), TextMuted=Color3.fromRGB(100,108,158), Border=Color3.fromRGB(16,16,45),
+        BorderLight=Color3.fromRGB(22,22,62), Section=Color3.fromRGB(5,5,16), Element=Color3.fromRGB(8,8,26),
+        ElementHov=Color3.fromRGB(12,12,38), Input=Color3.fromRGB(6,6,20), SliderBar=Color3.fromRGB(10,10,32),
+        ToggleOn=Color3.fromRGB(70,110,255), ToggleOff=Color3.fromRGB(18,18,55),
+        Green=Color3.fromRGB(80,200,120), Red=Color3.fromRGB(220,80,80),
+    },
+    ["Bronze"] = {
+        Bg=Color3.fromRGB(14,10,6), Secondary=Color3.fromRGB(22,15,8), Tertiary=Color3.fromRGB(30,20,10),
+        Accent=Color3.fromRGB(200,148,70), AccentDark=Color3.fromRGB(155,110,42), AccentGlow=Color3.fromRGB(230,178,100),
+        Text=Color3.fromRGB(255,248,230), TextMuted=Color3.fromRGB(170,145,108), Border=Color3.fromRGB(50,34,15),
+        BorderLight=Color3.fromRGB(70,48,20), Section=Color3.fromRGB(18,13,7), Element=Color3.fromRGB(28,19,10),
+        ElementHov=Color3.fromRGB(40,27,14), Input=Color3.fromRGB(20,14,7), SliderBar=Color3.fromRGB(36,24,12),
+        ToggleOn=Color3.fromRGB(200,148,70), ToggleOff=Color3.fromRGB(58,40,18),
+        Green=Color3.fromRGB(80,200,120), Red=Color3.fromRGB(220,80,80),
+    },
+    ["Ice Cream"] = {
+        Bg=Color3.fromRGB(10,8,16), Secondary=Color3.fromRGB(16,12,26), Tertiary=Color3.fromRGB(22,16,36),
+        Accent=Color3.fromRGB(155,210,255), AccentDark=Color3.fromRGB(105,165,220), AccentGlow=Color3.fromRGB(185,230,255),
+        Text=Color3.fromRGB(235,245,255), TextMuted=Color3.fromRGB(130,155,185), Border=Color3.fromRGB(30,25,50),
+        BorderLight=Color3.fromRGB(44,35,70), Section=Color3.fromRGB(13,10,21), Element=Color3.fromRGB(20,15,33),
+        ElementHov=Color3.fromRGB(28,22,46), Input=Color3.fromRGB(14,11,24), SliderBar=Color3.fromRGB(24,18,40),
+        ToggleOn=Color3.fromRGB(155,210,255), ToggleOff=Color3.fromRGB(38,28,62),
+        Green=Color3.fromRGB(80,200,120), Red=Color3.fromRGB(220,80,80),
+    },
+    ["Void"] = {
+        Bg=Color3.fromRGB(2,2,4), Secondary=Color3.fromRGB(4,4,8), Tertiary=Color3.fromRGB(6,6,12),
+        Accent=Color3.fromRGB(180,50,255), AccentDark=Color3.fromRGB(130,20,205), AccentGlow=Color3.fromRGB(210,85,255),
+        Text=Color3.fromRGB(230,215,255), TextMuted=Color3.fromRGB(120,98,158), Border=Color3.fromRGB(20,8,35),
+        BorderLight=Color3.fromRGB(30,12,50), Section=Color3.fromRGB(3,3,6), Element=Color3.fromRGB(6,5,12),
+        ElementHov=Color3.fromRGB(10,8,20), Input=Color3.fromRGB(4,4,8), SliderBar=Color3.fromRGB(8,6,16),
+        ToggleOn=Color3.fromRGB(180,50,255), ToggleOff=Color3.fromRGB(24,8,42),
+        Green=Color3.fromRGB(80,200,120), Red=Color3.fromRGB(220,80,80),
+    },
+}
+local ThemeNames = {}
+for k in pairs(Themes) do table.insert(ThemeNames, k) end
+table.sort(ThemeNames)
+
+-- apply a theme to T and all existing UI (called from Config tab)
+local function ApplyTheme(themeName)
+    local th = Themes[themeName]
+    if not th then return end
+    for k, v in pairs(th) do T[k] = v end
+end
 
 -- ══ Mobile Detection ══
 local isMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
@@ -881,9 +1082,23 @@ function Library._MakeSection(parent, name, lib)
         local open = false
         options    = options or {}
 
-        local elem = BaseElem(30)
-        elem.ClipsDescendants = false
-        elem.ZIndex = 6
+        -- Wrapper that can grow vertically (pushes siblings down)
+        local wrapper = Instance.new("Frame")
+        wrapper.Name             = "DropWrapper_" .. text
+        wrapper.Size             = UDim2.new(1, 0, 0, isMobile and 38 or 30)
+        wrapper.BackgroundTransparency = 1
+        wrapper.BorderSizePixel  = 0
+        wrapper.ClipsDescendants = false
+        wrapper.ZIndex           = 6
+        wrapper.Parent           = holder
+
+        local elem = Instance.new("Frame")
+        elem.Size             = UDim2.new(1, 0, 0, isMobile and 38 or 30)
+        elem.BackgroundColor3 = T.Element
+        elem.BorderSizePixel  = 0
+        elem.ZIndex           = 6
+        elem.Parent           = wrapper
+        Corner(elem, 6)
         LeftLabel(elem, text)
 
         local dropBtn = Instance.new("TextButton")
@@ -911,15 +1126,24 @@ function Library._MakeSection(parent, name, lib)
         arrow.ZIndex         = 7
         arrow.Parent         = dropBtn
 
-        local list = Instance.new("Frame")
-        list.Size             = UDim2.new(0, 108, 0, 0)
-        list.Position         = UDim2.new(1, -114, 1, 3)
-        list.BackgroundColor3 = T.Secondary
-        list.BorderSizePixel  = 0
-        list.ClipsDescendants = true
-        list.ZIndex           = 30
-        list.Visible          = false
-        list.Parent           = elem
+        -- ScrollingFrame list (auto-scroll)
+        local ITEM_H  = 24
+        local MAX_VIS = 5  -- max items visible before scroll kicks in
+        local listH   = math.min(#options, MAX_VIS) * ITEM_H
+        local MARGIN  = 4
+
+        local list = Instance.new("ScrollingFrame")
+        list.Size                  = UDim2.new(0, 108, 0, 0)
+        list.Position              = UDim2.new(1, -114, 1, 3)
+        list.BackgroundColor3      = T.Secondary
+        list.BorderSizePixel       = 0
+        list.ScrollBarThickness    = 3
+        list.ScrollBarImageColor3  = T.Accent
+        list.CanvasSize            = UDim2.new(0, 0, 0, #options * ITEM_H)
+        list.ClipsDescendants      = true
+        list.ZIndex                = 30
+        list.Visible               = false
+        list.Parent                = wrapper  -- parent to wrapper so it escapes elem clip
         Corner(list, 5)
         Stroke(list, T.BorderLight, 1)
 
@@ -927,10 +1151,9 @@ function Library._MakeSection(parent, name, lib)
         listLayout.SortOrder = Enum.SortOrder.LayoutOrder
         listLayout.Parent    = list
 
-        local totalH = 0
         for _, opt in ipairs(options) do
             local ob = Instance.new("TextButton")
-            ob.Size             = UDim2.new(1, 0, 0, 24)
+            ob.Size             = UDim2.new(1, 0, 0, ITEM_H)
             ob.BackgroundTransparency = 1
             ob.Text             = opt
             ob.TextColor3       = T.TextMuted
@@ -953,21 +1176,26 @@ function Library._MakeSection(parent, name, lib)
                 Tween(list, {Size = UDim2.new(0, 108, 0, 0)}, 0.18)
                 task.delay(0.18, function() list.Visible = false end)
                 Tween(arrow, {Rotation = 0}, 0.18)
+                -- shrink wrapper back
+                Tween(wrapper, {Size = UDim2.new(1, 0, 0, isMobile and 38 or 30)}, 0.18)
                 if callback then task.spawn(callback, val) end
             end)
-            totalH = totalH + 24
         end
 
         dropBtn.MouseButton1Click:Connect(function()
             open = not open
             if open then
                 list.Visible = true
-                Tween(list, {Size = UDim2.new(0, 108, 0, math.min(totalH, 128))}, 0.18)
+                local targetListH = listH + MARGIN
+                Tween(list, {Size = UDim2.new(0, 108, 0, targetListH)}, 0.18)
                 Tween(arrow, {Rotation = 180}, 0.18)
+                -- expand wrapper to push siblings down
+                Tween(wrapper, {Size = UDim2.new(1, 0, 0, (isMobile and 38 or 30) + targetListH + 3)}, 0.18)
             else
                 Tween(list, {Size = UDim2.new(0, 108, 0, 0)}, 0.18)
                 task.delay(0.18, function() list.Visible = false end)
                 Tween(arrow, {Rotation = 0}, 0.18)
+                Tween(wrapper, {Size = UDim2.new(1, 0, 0, isMobile and 38 or 30)}, 0.18)
             end
         end)
 
@@ -1432,9 +1660,23 @@ function Library._MakeSection(parent, name, lib)
         local open     = false
         options        = options or {}
 
-        local elem = BaseElem(30)
-        elem.ClipsDescendants = false
-        elem.ZIndex = 4
+        -- Wrapper that can grow vertically (pushes siblings down)
+        local wrapper = Instance.new("Frame")
+        wrapper.Name             = "MultiDropWrapper_" .. text
+        wrapper.Size             = UDim2.new(1, 0, 0, isMobile and 38 or 30)
+        wrapper.BackgroundTransparency = 1
+        wrapper.BorderSizePixel  = 0
+        wrapper.ClipsDescendants = false
+        wrapper.ZIndex           = 4
+        wrapper.Parent           = holder
+
+        local elem = Instance.new("Frame")
+        elem.Size             = UDim2.new(1, 0, 0, isMobile and 38 or 30)
+        elem.BackgroundColor3 = T.Element
+        elem.BorderSizePixel  = 0
+        elem.ZIndex           = 4
+        elem.Parent           = wrapper
+        Corner(elem, 6)
         LeftLabel(elem, text)
 
         local dropBtn = Instance.new("TextButton")
@@ -1462,15 +1704,24 @@ function Library._MakeSection(parent, name, lib)
         arrow2.ZIndex         = 5
         arrow2.Parent         = dropBtn
 
-        local list2 = Instance.new("Frame")
-        list2.Size             = UDim2.new(0, 125, 0, 0)
-        list2.Position         = UDim2.new(1, -131, 1, 3)
-        list2.BackgroundColor3 = T.Secondary
-        list2.BorderSizePixel  = 0
-        list2.ClipsDescendants = true
-        list2.ZIndex           = 28
-        list2.Visible          = false
-        list2.Parent           = elem
+        -- ScrollingFrame list (auto-scroll)
+        local ITEM_H  = 26
+        local MAX_VIS = 5
+        local listH   = math.min(#options, MAX_VIS) * ITEM_H
+        local MARGIN  = 4
+
+        local list2 = Instance.new("ScrollingFrame")
+        list2.Size                  = UDim2.new(0, 125, 0, 0)
+        list2.Position              = UDim2.new(1, -131, 1, 3)
+        list2.BackgroundColor3      = T.Secondary
+        list2.BorderSizePixel       = 0
+        list2.ScrollBarThickness    = 3
+        list2.ScrollBarImageColor3  = T.Accent
+        list2.CanvasSize            = UDim2.new(0, 0, 0, #options * ITEM_H)
+        list2.ClipsDescendants      = true
+        list2.ZIndex                = 28
+        list2.Visible               = false
+        list2.Parent                = wrapper
         Corner(list2, 5)
         Stroke(list2, T.BorderLight, 1)
 
@@ -1485,10 +1736,9 @@ function Library._MakeSection(parent, name, lib)
             dropBtn.TextColor3 = cnt == 0 and T.TextMuted or T.Text
         end
 
-        local totalH2 = 0
         for _, opt in ipairs(options) do
             local row = Instance.new("Frame")
-            row.Size             = UDim2.new(1, 0, 0, 26)
+            row.Size             = UDim2.new(1, 0, 0, ITEM_H)
             row.BackgroundTransparency = 1
             row.ZIndex           = 29
             row.Parent           = list2
@@ -1548,20 +1798,21 @@ function Library._MakeSection(parent, name, lib)
                 refreshLabel()
                 if callback then task.spawn(callback, selected) end
             end)
-
-            totalH2 = totalH2 + 26
         end
 
         dropBtn.MouseButton1Click:Connect(function()
             open = not open
             if open then
                 list2.Visible = true
-                Tween(list2, {Size = UDim2.new(0, 125, 0, math.min(totalH2, 130))}, 0.18)
+                local targetListH = listH + MARGIN
+                Tween(list2, {Size = UDim2.new(0, 125, 0, targetListH)}, 0.18)
                 Tween(arrow2, {Rotation = 180}, 0.18)
+                Tween(wrapper, {Size = UDim2.new(1, 0, 0, (isMobile and 38 or 30) + targetListH + 3)}, 0.18)
             else
                 Tween(list2, {Size = UDim2.new(0, 125, 0, 0)}, 0.18)
                 task.delay(0.18, function() list2.Visible = false end)
                 Tween(arrow2, {Rotation = 0}, 0.18)
+                Tween(wrapper, {Size = UDim2.new(1, 0, 0, isMobile and 38 or 30)}, 0.18)
             end
         end)
 
@@ -1577,11 +1828,208 @@ function Library._MakeSection(parent, name, lib)
     return S
 end
 
+-- ══ Floating Draggable Button / Toggle ══
+--[[
+    Win:AddFloatingDraggable({
+        mode      = "button" | "toggle"  -- default: "button"
+        label     = "string"             -- emoji or short text
+        position  = UDim2                -- starting position (default bottom-right)
+        size      = number               -- diameter in px (default 48)
+        callback  = function(state)      -- for toggle: receives bool; for button: receives nil
+    })
+]]
+function Library:AddFloatingDraggable(opts)
+    opts = opts or {}
+    local mode     = opts.mode     or "button"
+    local label    = opts.label    or (mode == "toggle" and "⚡" or "▶")
+    local btnSize  = opts.size     or 48
+    local startPos = opts.position or UDim2.new(1, -(btnSize + 16), 1, -(btnSize + 16))
+    local callback = opts.callback
+
+    local togState = false
+
+    -- Outer frame (the draggable container)
+    local fab = Instance.new("Frame")
+    fab.Name              = "FloatingDraggable"
+    fab.Size              = UDim2.new(0, btnSize, 0, btnSize)
+    fab.Position          = startPos
+    fab.BackgroundColor3  = T.Accent
+    fab.BorderSizePixel   = 0
+    fab.ZIndex            = 100
+    fab.Parent            = self.ScreenGui
+    Corner(fab, btnSize / 2)
+
+    -- Glow ring
+    local glow = Instance.new("UIStroke")
+    glow.Color     = T.AccentGlow
+    glow.Thickness = 2
+    glow.Parent    = fab
+
+    -- Inner gradient
+    local innerGrad = Instance.new("Frame")
+    innerGrad.Size             = UDim2.new(1, 0, 1, 0)
+    innerGrad.BackgroundTransparency = 0.35
+    innerGrad.BackgroundColor3 = Color3.new(1, 1, 1)
+    innerGrad.BorderSizePixel  = 0
+    innerGrad.ZIndex           = 101
+    innerGrad.Parent           = fab
+    Corner(innerGrad, btnSize / 2)
+    Gradient(innerGrad, Color3.fromRGB(255,255,255), Color3.fromRGB(0,0,0), 90)
+
+    -- Label / icon
+    local iconBtn = Instance.new("TextButton")
+    iconBtn.Size             = UDim2.new(1, 0, 1, 0)
+    iconBtn.BackgroundTransparency = 1
+    iconBtn.Text             = label
+    iconBtn.TextColor3       = Color3.new(1, 1, 1)
+    iconBtn.Font             = Enum.Font.GothamBold
+    iconBtn.TextSize         = math.floor(btnSize * 0.4)
+    iconBtn.BorderSizePixel  = 0
+    iconBtn.ZIndex           = 102
+    iconBtn.Parent           = fab
+
+    -- Toggle indicator dot (only for toggle mode)
+    local toggleDot
+    if mode == "toggle" then
+        toggleDot = Instance.new("Frame")
+        toggleDot.Size             = UDim2.new(0, 10, 0, 10)
+        toggleDot.Position         = UDim2.new(1, -12, 0, 2)
+        toggleDot.BackgroundColor3 = T.ToggleOff
+        toggleDot.BorderSizePixel  = 0
+        toggleDot.ZIndex           = 103
+        toggleDot.Parent           = fab
+        Corner(toggleDot, 5)
+        Stroke(toggleDot, Color3.new(0,0,0), 1)
+    end
+
+    -- Shadow
+    Shadow(fab, 20, 0.5)
+
+    -- ── Drag logic ──
+    local dragging2, dragStart2, fabStart2 = false, nil, nil
+
+    ConnectInputBegan(fab, function(inp)
+        dragging2  = true
+        dragStart2 = inp.Position
+        fabStart2  = fab.Position
+        Tween(fab, {BackgroundColor3 = T.AccentDark}, 0.08)
+    end)
+
+    UserInputService.InputChanged:Connect(function(inp)
+        if not dragging2 then return end
+        if inp.UserInputType == Enum.UserInputType.MouseMovement
+        or inp.UserInputType == Enum.UserInputType.Touch then
+            local d = inp.Position - dragStart2
+            fab.Position = UDim2.new(
+                fabStart2.X.Scale, fabStart2.X.Offset + d.X,
+                fabStart2.Y.Scale, fabStart2.Y.Offset + d.Y
+            )
+        end
+    end)
+
+    UserInputService.InputEnded:Connect(function(inp)
+        if inp.UserInputType == Enum.UserInputType.MouseButton1
+        or inp.UserInputType == Enum.UserInputType.Touch then
+            dragging2 = false
+            Tween(fab, {BackgroundColor3 = T.Accent}, 0.12)
+        end
+    end)
+
+    -- ── Click logic ──
+    iconBtn.MouseButton1Click:Connect(function()
+        if mode == "toggle" then
+            togState = not togState
+            if togState then
+                Tween(fab, {BackgroundColor3 = T.AccentDark}, 0.15)
+                if toggleDot then Tween(toggleDot, {BackgroundColor3 = T.Green}, 0.15) end
+                iconBtn.Text = label
+            else
+                Tween(fab, {BackgroundColor3 = T.Accent}, 0.15)
+                if toggleDot then Tween(toggleDot, {BackgroundColor3 = T.ToggleOff}, 0.15) end
+            end
+        end
+        if callback then task.spawn(callback, togState) end
+        -- bounce animation
+        TweenService:Create(fab, TweenInfo.new(0.08, Enum.EasingStyle.Back, Enum.EasingDirection.In), {
+            Size = UDim2.new(0, btnSize - 6, 0, btnSize - 6)
+        }):Play()
+        task.delay(0.08, function()
+            TweenService:Create(fab, TweenInfo.new(0.12, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {
+                Size = UDim2.new(0, btnSize, 0, btnSize)
+            }):Play()
+        end)
+    end)
+
+    -- Hover
+    iconBtn.MouseEnter:Connect(function()
+        if not dragging2 then
+            Tween(fab, {BackgroundColor3 = T.AccentGlow}, 0.12)
+        end
+    end)
+    iconBtn.MouseLeave:Connect(function()
+        if not dragging2 then
+            Tween(fab, {BackgroundColor3 = togState and T.AccentDark or T.Accent}, 0.12)
+        end
+    end)
+
+    local api = {}
+    function api:SetLabel(lbl) iconBtn.Text = lbl end
+    function api:GetState()    return togState    end
+    function api:SetState(v)
+        togState = v
+        Tween(fab, {BackgroundColor3 = v and T.AccentDark or T.Accent}, 0.15)
+        if toggleDot then Tween(toggleDot, {BackgroundColor3 = v and T.Green or T.ToggleOff}, 0.15) end
+    end
+    function api:Destroy() fab:Destroy() end
+    return api
+end
+
 -- ══ AddConfig ══
 function Library:AddConfig()
     local configTab = self:AddTab("⚙ Config", "⚙")
     local sec = configTab:AddSection("Interface")
     local win = self.Window
+
+    -- ── Tema ──
+    local secTheme = configTab:AddSection("Tema da UI")
+    secTheme:AddDropdown("Tema", ThemeNames, "Neon Blue", function(name)
+        ApplyTheme(name)
+        -- Re-tint all existing UI elements to new theme colours
+        local function recolor(obj)
+            if obj:IsA("Frame") or obj:IsA("ScrollingFrame") then
+                local bc = obj.BackgroundColor3
+                -- map old → new for common slots
+                for _, pair in ipairs({
+                    {T.Bg, "Bg"}, {T.Secondary, "Secondary"}, {T.Tertiary, "Tertiary"},
+                    {T.Section, "Section"}, {T.Element, "Element"}, {T.ElementHov, "ElementHov"},
+                    {T.Input, "Input"}, {T.SliderBar, "SliderBar"},
+                    {T.ToggleOn, "ToggleOn"}, {T.ToggleOff, "ToggleOff"},
+                    {T.Accent, "Accent"}, {T.AccentDark, "AccentDark"},
+                }) do
+                    if bc == pair[1] then
+                        obj.BackgroundColor3 = T[pair[2]]
+                        break
+                    end
+                end
+            elseif obj:IsA("TextLabel") or obj:IsA("TextButton") or obj:IsA("TextBox") then
+                local tc = obj.TextColor3
+                if tc == T.Text     then obj.TextColor3 = T.Text
+                elseif tc == T.TextMuted then obj.TextColor3 = T.TextMuted
+                elseif tc == T.Accent    then obj.TextColor3 = T.Accent
+                end
+            elseif obj:IsA("UIStroke") then
+                if obj.Color == T.Border      then obj.Color = T.Border
+                elseif obj.Color == T.BorderLight then obj.Color = T.BorderLight
+                end
+            end
+            for _, child in ipairs(obj:GetChildren()) do recolor(child) end
+        end
+        task.spawn(function()
+            -- slight delay so T is fully updated
+            task.wait()
+            recolor(win)
+        end)
+    end)
 
     -- ── Transparência ──
     sec:AddToggle("Transparência 60%", false, function(v)
@@ -1764,15 +2212,37 @@ return Library
 local Lib = loadstring(game:HttpGet("https://raw.githubusercontent.com/Elison999/Neon-Lira-V2-lib/refs/heads/main/Library.Lua"))()
 -- OU se for módulo local: local Lib = require(script.ModernUILibrary)
 
-local Win = Lib.new("ModernScript", "v2.0")
+local Win = Lib.new("ModernScript", "v3.0")
 
 -- Cria tabs com ícone (emoji ou texto)
 local tabMain   = Win:AddTab("Principal", "⚙")
 local tabVisual = Win:AddTab("Visual",    "👁")
 local tabPlayer = Win:AddTab("Player",    "👤")
 
--- Tab de configuração automática (transparência, efeitos, save/load)
+-- Tab de configuração automática (transparência, efeitos, save/load, TEMAS)
 Win:AddConfig()
+
+-- ── Floating Draggable Button ──
+local floatBtn = Win:AddFloatingDraggable({
+    mode     = "button",
+    label    = "🎮",
+    size     = 52,
+    position = UDim2.new(1, -68, 0.5, 0),
+    callback = function()
+        print("Floating button clicado!")
+    end
+})
+
+-- ── Floating Draggable Toggle ──
+local floatTog = Win:AddFloatingDraggable({
+    mode     = "toggle",
+    label    = "⚡",
+    size     = 48,
+    position = UDim2.new(0, 16, 0.5, 0),
+    callback = function(state)
+        print("Floating toggle:", state)
+    end
+})
 
 -- ── Seção na tab Principal ──
 local sec = tabMain:AddSection("Configurações Gerais")
@@ -1782,8 +2252,6 @@ sec:AddButton("Executar Script", function()
 end)
 
 local tog = sec:AddToggle("God Mode", false, function(v)
-    -- local char = game.Players.LocalPlayer.Character
-    -- char.Humanoid.MaxHealth = v and math.huge or 100
     print("God Mode:", v)
 end)
 
@@ -1792,39 +2260,18 @@ local spd = sec:AddSlider("WalkSpeed", 16, 250, 16, function(v)
     if char then char.Humanoid.WalkSpeed = v end
 end)
 
-local jmp = sec:AddSlider("JumpPower", 50, 300, 50, function(v)
-    local char = game.Players.LocalPlayer.Character
-    if char then char.Humanoid.JumpPower = v end
-end)
-
-local drop = sec:AddDropdown("Time", {"Vermelho","Azul","Verde"}, "Vermelho", function(v)
+-- Dropdown empurra elementos pra baixo + scroll automático
+local drop = sec:AddDropdown("Time", {"Vermelho","Azul","Verde","Amarelo","Roxo","Laranja"}, "Vermelho", function(v)
     print("Time:", v)
 end)
 
-local tb = sec:AddTextBox("Username", "Digite o nome...", function(v, enter)
-    print("Nome:", v)
+-- MultiDropdown também empurra pra baixo + scroll
+local multi = sec:AddMultiDropdown("Itens", {"Espada","Escudo","Poção","Armadura","Arco","Cajado","Amuleto"}, function(sel)
+    print("Selecionados:", sel)
 end)
 
 sec:AddSeparator("Extras")
-
-local cp = sec:AddColorPicker("Cor do ESP", Color3.fromRGB(100,200,100), function(c)
-    print("Cor:", c)
-end)
-
-local kb = sec:AddKeybind("Toggle UI", Enum.KeyCode.RightAlt, function(k)
-    print("Tecla:", k)
-end)
-
-sec:AddLabel("ModernUI Library  •  Feito para Roblox")
-
-sec:AddParagraph("Sobre", "Esta library oferece 12 elementos modernos com animações suaves, sistema de resize e minimize.")
-
-local prog = sec:AddProgressBar("Download", 72)
--- Para atualizar: prog:Set(100)
-
-local multi = sec:AddMultiDropdown("Itens", {"Espada","Escudo","Poção","Armadura","Arco"}, function(sel)
-    print("Selecionados:", sel)
-end)
+sec:AddLabel("ModernUI Library  •  v3.0  •  Roblox")
 
 -- ── Tab Visual ──
 local secVis = tabVisual:AddSection("ESP & Aimbot")
