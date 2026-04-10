@@ -42,6 +42,28 @@ local T = {
     Red         = Color3.fromRGB(220, 80, 80),
 }
 
+-- ══ Mobile Detection ══
+local isMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
+
+-- Helper: connect both Mouse and Touch input to a frame
+local function ConnectInputBegan(frame, callback)
+    frame.InputBegan:Connect(function(inp)
+        if inp.UserInputType == Enum.UserInputType.MouseButton1
+        or inp.UserInputType == Enum.UserInputType.Touch then
+            callback(inp)
+        end
+    end)
+end
+
+local function ConnectInputEnded(frame, callback)
+    frame.InputEnded:Connect(function(inp)
+        if inp.UserInputType == Enum.UserInputType.MouseButton1
+        or inp.UserInputType == Enum.UserInputType.Touch then
+            callback(inp)
+        end
+    end)
+end
+
 -- ══ Utilities ══
 local function Tween(obj, props, t, style, dir)
     TweenService:Create(obj,
@@ -113,8 +135,14 @@ function Library.new(title, subtitle)
     -- ── Main Window Frame ──
     local win = Instance.new("Frame")
     win.Name              = "Window"
-    win.Size              = UDim2.new(0, 580, 0, 420)
-    win.Position          = UDim2.new(0.5, -290, 0.5, -210)
+    -- Responsive: on mobile use near-fullscreen, on PC use fixed 580×420
+    if isMobile then
+        win.Size     = UDim2.new(0.95, 0, 0.85, 0)
+        win.Position = UDim2.new(0.025, 0, 0.075, 0)
+    else
+        win.Size     = UDim2.new(0, 580, 0, 420)
+        win.Position = UDim2.new(0.5, -290, 0.5, -210)
+    end
     win.BackgroundColor3  = T.Bg
     win.BorderSizePixel   = 0
     win.ClipsDescendants  = true
@@ -201,13 +229,13 @@ function Library.new(title, subtitle)
     -- minimize button
     local minBtn = Instance.new("TextButton")
     minBtn.Name              = "Minimize"
-    minBtn.Size              = UDim2.new(0, 26, 0, 26)
-    minBtn.Position          = UDim2.new(1, -34, 0.5, -13)
+    minBtn.Size              = isMobile and UDim2.new(0, 36, 0, 36) or UDim2.new(0, 26, 0, 26)
+    minBtn.Position          = isMobile and UDim2.new(1, -44, 0.5, -18) or UDim2.new(1, -34, 0.5, -13)
     minBtn.BackgroundColor3  = T.Element
     minBtn.Text              = "—"
     minBtn.TextColor3        = T.TextMuted
     minBtn.Font              = Enum.Font.GothamBold
-    minBtn.TextSize          = 11
+    minBtn.TextSize          = isMobile and 14 or 11
     minBtn.BorderSizePixel   = 0
     minBtn.ZIndex            = 3
     minBtn.Parent            = titleBar
@@ -221,6 +249,26 @@ function Library.new(title, subtitle)
         Tween(minBtn, {BackgroundColor3 = T.Element, TextColor3 = T.TextMuted}, 0.15)
     end)
 
+    -- mobile sidebar toggle button (☰) — only on mobile
+    local menuBtn
+    if isMobile then
+        menuBtn = Instance.new("TextButton")
+        menuBtn.Name              = "MenuToggle"
+        menuBtn.Size              = UDim2.new(0, 36, 0, 36)
+        menuBtn.Position          = UDim2.new(1, -88, 0.5, -18)
+        menuBtn.BackgroundColor3  = T.Element
+        menuBtn.Text              = "☰"
+        menuBtn.TextColor3        = T.TextMuted
+        menuBtn.Font              = Enum.Font.GothamBold
+        menuBtn.TextSize          = 16
+        menuBtn.BorderSizePixel   = 0
+        menuBtn.ZIndex            = 3
+        menuBtn.Parent            = titleBar
+        Corner(menuBtn, 6)
+        Stroke(menuBtn, T.BorderLight, 1)
+    end
+    self._MenuBtn = menuBtn
+
     -- ── Content (TabBar + Main) ──
     local content = Instance.new("Frame")
     content.Name             = "Content"
@@ -232,12 +280,15 @@ function Library.new(title, subtitle)
     self.Content = content
 
     -- ── Tab Sidebar ──
+    local SIDEBAR_W = isMobile and 110 or 140
     local sidebar = Instance.new("Frame")
     sidebar.Name             = "Sidebar"
-    sidebar.Size             = UDim2.new(0, 140, 1, 0)
+    sidebar.Size             = UDim2.new(0, SIDEBAR_W, 1, 0)
     sidebar.BackgroundColor3 = T.Secondary
     sidebar.BorderSizePixel  = 0
     sidebar.Parent           = content
+    self._Sidebar = sidebar
+    self._SidebarOpen = true
     -- right square corner fix
     local sidebarFix = Instance.new("Frame")
     sidebarFix.Size             = UDim2.new(0, 10, 1, 0)
@@ -297,8 +348,8 @@ function Library.new(title, subtitle)
     -- ── Main Content Area ──
     local mainArea = Instance.new("Frame")
     mainArea.Name             = "MainArea"
-    mainArea.Size             = UDim2.new(1, -140, 1, 0)
-    mainArea.Position         = UDim2.new(0, 140, 0, 0)
+    mainArea.Size             = UDim2.new(1, -SIDEBAR_W, 1, 0)
+    mainArea.Position         = UDim2.new(0, SIDEBAR_W, 0, 0)
     mainArea.BackgroundColor3 = T.Bg
     mainArea.BorderSizePixel  = 0
     mainArea.ClipsDescendants = true
@@ -332,22 +383,20 @@ function Library.new(title, subtitle)
     makeLine(4,  8,  6, 2)
     makeLine(4,  4,  2, 2)
 
-    -- ══ DRAGGING ══
+    -- ══ DRAGGING (Mouse + Touch) ══
     local dragging, dragStart, winStart = false, nil, nil
-    titleBar.InputBegan:Connect(function(inp)
-        if inp.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging  = true
-            dragStart = inp.Position
-            winStart  = win.Position
-        end
+    ConnectInputBegan(titleBar, function(inp)
+        dragging  = true
+        dragStart = inp.Position
+        winStart  = win.Position
     end)
-    titleBar.InputEnded:Connect(function(inp)
-        if inp.UserInputType == Enum.UserInputType.MouseButton1 then
-            dragging = false
-        end
+    ConnectInputEnded(titleBar, function()
+        dragging = false
     end)
     UserInputService.InputChanged:Connect(function(inp)
-        if dragging and inp.UserInputType == Enum.UserInputType.MouseMovement then
+        if not dragging then return end
+        if inp.UserInputType == Enum.UserInputType.MouseMovement
+        or inp.UserInputType == Enum.UserInputType.Touch then
             local d = inp.Position - dragStart
             win.Position = UDim2.new(
                 winStart.X.Scale, winStart.X.Offset + d.X,
@@ -356,24 +405,22 @@ function Library.new(title, subtitle)
         end
     end)
 
-    -- ══ RESIZE ══
+    -- ══ RESIZE (Mouse + Touch) ══
     local resizing, resizeStart, startSize = false, nil, nil
-    local MIN_W, MIN_H = 420, 300
+    local MIN_W, MIN_H = isMobile and 280 or 420, isMobile and 220 or 300
 
-    resizeHandle.InputBegan:Connect(function(inp)
-        if inp.UserInputType == Enum.UserInputType.MouseButton1 then
-            resizing    = true
-            resizeStart = inp.Position
-            startSize   = Vector2.new(win.AbsoluteSize.X, win.AbsoluteSize.Y)
-        end
+    ConnectInputBegan(resizeHandle, function(inp)
+        resizing    = true
+        resizeStart = inp.Position
+        startSize   = Vector2.new(win.AbsoluteSize.X, win.AbsoluteSize.Y)
     end)
-    resizeHandle.InputEnded:Connect(function(inp)
-        if inp.UserInputType == Enum.UserInputType.MouseButton1 then
-            resizing = false
-        end
+    ConnectInputEnded(resizeHandle, function()
+        resizing = false
     end)
     UserInputService.InputChanged:Connect(function(inp)
-        if resizing and inp.UserInputType == Enum.UserInputType.MouseMovement then
+        if not resizing then return end
+        if inp.UserInputType == Enum.UserInputType.MouseMovement
+        or inp.UserInputType == Enum.UserInputType.Touch then
             local d  = inp.Position - resizeStart
             local nw = math.max(MIN_W, startSize.X + d.X)
             local nh = math.max(MIN_H, startSize.Y + d.Y)
@@ -397,6 +444,20 @@ function Library.new(title, subtitle)
         end
     end)
 
+    -- ══ MOBILE SIDEBAR TOGGLE ══
+    if isMobile and menuBtn then
+        menuBtn.MouseButton1Click:Connect(function()
+            self._SidebarOpen = not self._SidebarOpen
+            if self._SidebarOpen then
+                Tween(sidebar,   {Size = UDim2.new(0, SIDEBAR_W, 1, 0)}, 0.22, Enum.EasingStyle.Quart)
+                Tween(mainArea,  {Size = UDim2.new(1, -SIDEBAR_W, 1, 0), Position = UDim2.new(0, SIDEBAR_W, 0, 0)}, 0.22, Enum.EasingStyle.Quart)
+            else
+                Tween(sidebar,   {Size = UDim2.new(0, 0, 1, 0)}, 0.22, Enum.EasingStyle.Quart)
+                Tween(mainArea,  {Size = UDim2.new(1, 0, 1, 0), Position = UDim2.new(0, 0, 0, 0)}, 0.22, Enum.EasingStyle.Quart)
+            end
+        end)
+    end
+
     return self
 end
 
@@ -407,7 +468,7 @@ function Library:AddTab(name, icon)
     -- tab button
     local btn = Instance.new("TextButton")
     btn.Name             = "Tab_" .. name
-    btn.Size             = UDim2.new(1, 0, 0, 34)
+    btn.Size             = isMobile and UDim2.new(1, 0, 0, 42) or UDim2.new(1, 0, 0, 34)
     btn.BackgroundColor3 = T.Element
     btn.Text             = ""
     btn.BorderSizePixel  = 0
@@ -589,7 +650,7 @@ function Library._MakeSection(parent, name)
 
     local function BaseElem(h)
         local f = Instance.new("Frame")
-        f.Size             = UDim2.new(1, 0, 0, h or 32)
+        f.Size             = UDim2.new(1, 0, 0, isMobile and math.max((h or 32) + 6, 38) or (h or 32))
         f.BackgroundColor3 = T.Element
         f.BorderSizePixel  = 0
         f.Parent           = holder
@@ -773,18 +834,24 @@ function Library._MakeSection(parent, name)
             if callback then task.spawn(callback, val) end
         end
 
-        track.InputBegan:Connect(function(inp)
-            if inp.UserInputType == Enum.UserInputType.MouseButton1 then
-                sliding = true; applyPos(inp)
-            end
+        ConnectInputBegan(track, function(inp)
+            sliding = true; applyPos(inp)
+        end)
+        ConnectInputEnded(track, function()
+            sliding = false
         end)
         UserInputService.InputChanged:Connect(function(inp)
-            if sliding and inp.UserInputType == Enum.UserInputType.MouseMovement then
+            if not sliding then return end
+            if inp.UserInputType == Enum.UserInputType.MouseMovement
+            or inp.UserInputType == Enum.UserInputType.Touch then
                 applyPos(inp)
             end
         end)
         UserInputService.InputEnded:Connect(function(inp)
-            if inp.UserInputType == Enum.UserInputType.MouseButton1 then sliding = false end
+            if inp.UserInputType == Enum.UserInputType.MouseButton1
+            or inp.UserInputType == Enum.UserInputType.Touch then
+                sliding = false
+            end
         end)
 
         local api = {}
@@ -1057,19 +1124,22 @@ function Library._MakeSection(parent, name)
             Corner(numBox, 3)
 
             local sliding = false
-            trackBg.InputBegan:Connect(function(inp)
-                if inp.UserInputType == Enum.UserInputType.MouseButton1 then
-                    sliding = true
-                    local rel = math.clamp((inp.Position.X - trackBg.AbsolutePosition.X)/trackBg.AbsoluteSize.X,0,1)
-                    local v   = math.floor(rel*255)
-                    tFill.Size = UDim2.new(rel,0,1,0)
-                    numBox.Text = tostring(v)
-                    if ch=="R" then r=v elseif ch=="G" then g=v else b=v end
-                    recalc()
-                end
+            ConnectInputBegan(trackBg, function(inp)
+                sliding = true
+                local rel = math.clamp((inp.Position.X - trackBg.AbsolutePosition.X)/trackBg.AbsoluteSize.X,0,1)
+                local v   = math.floor(rel*255)
+                tFill.Size = UDim2.new(rel,0,1,0)
+                numBox.Text = tostring(v)
+                if ch=="R" then r=v elseif ch=="G" then g=v else b=v end
+                recalc()
+            end)
+            ConnectInputEnded(trackBg, function()
+                sliding = false
             end)
             UserInputService.InputChanged:Connect(function(inp)
-                if sliding and inp.UserInputType == Enum.UserInputType.MouseMovement then
+                if not sliding then return end
+                if inp.UserInputType == Enum.UserInputType.MouseMovement
+                or inp.UserInputType == Enum.UserInputType.Touch then
                     local rel = math.clamp((inp.Position.X - trackBg.AbsolutePosition.X)/trackBg.AbsoluteSize.X,0,1)
                     local v   = math.floor(rel*255)
                     tFill.Size = UDim2.new(rel,0,1,0)
@@ -1079,7 +1149,10 @@ function Library._MakeSection(parent, name)
                 end
             end)
             UserInputService.InputEnded:Connect(function(inp)
-                if inp.UserInputType == Enum.UserInputType.MouseButton1 then sliding = false end
+                if inp.UserInputType == Enum.UserInputType.MouseButton1
+                or inp.UserInputType == Enum.UserInputType.Touch then
+                    sliding = false
+                end
             end)
             numBox.FocusLost:Connect(function()
                 local v = math.clamp(tonumber(numBox.Text) or 0, 0, 255)
