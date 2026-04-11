@@ -317,6 +317,65 @@ local function Shadow(frame, size, alpha)
     return s
 end
 
+-- ══ Theme Registry ══
+-- Toda vez que um objeto recebe uma cor de tema, registramos aqui.
+-- O recolor varre esta lista e atualiza direto — sem adivinhação de cor.
+local _themed = {}   -- { {obj, prop, key}, ... }
+
+-- Seta cor de tema em obj.BackgroundColor3 e registra para recolor futuro
+local function TC(obj, key)
+    obj.BackgroundColor3 = T[key]
+    table.insert(_themed, {obj=obj, prop="BackgroundColor3", key=key})
+    return obj
+end
+
+-- Seta cor de tema em TextColor3
+local function TT(obj, key)
+    obj.TextColor3 = T[key]
+    table.insert(_themed, {obj=obj, prop="TextColor3", key=key})
+    return obj
+end
+
+-- Seta cor de tema em UIStroke.Color
+local function TS(obj, key)
+    obj.Color = T[key]
+    table.insert(_themed, {obj=obj, prop="Color", key=key})
+    return obj
+end
+
+-- Seta ColorSequence de UIGradient com duas chaves de tema
+local function TG(obj, key0, key1)
+    obj.Color = ColorSequence.new(T[key0], T[key1])
+    table.insert(_themed, {obj=obj, prop="Gradient", key0=key0, key1=key1})
+    return obj
+end
+
+-- Aplica o tema em T e re-pinta todos os objetos registrados
+local function ApplyThemeAndRecolor(themeName)
+    local th = Themes[themeName]
+    if not th then return end
+    for k, v in pairs(th) do T[k] = v end
+    -- Limpa entradas de objetos destruídos e repinta os vivos
+    local alive = {}
+    for _, e in ipairs(_themed) do
+        local ok = pcall(function()
+            if not e.obj.Parent then return end  -- destruído
+            if e.prop == "BackgroundColor3" then
+                e.obj.BackgroundColor3 = T[e.key]
+            elseif e.prop == "TextColor3" then
+                e.obj.TextColor3 = T[e.key]
+            elseif e.prop == "Color" then
+                e.obj.Color = T[e.key]
+            elseif e.prop == "Gradient" then
+                e.obj.Color = ColorSequence.new(T[e.key0], T[e.key1])
+            end
+            table.insert(alive, e)
+        end)
+        if not ok then end -- objeto destruído, descarta
+    end
+    _themed = alive
+end
+
 -- ══ Create Window ══
 function Library.new(title, subtitle)
     local self = setmetatable({}, Library)
@@ -348,12 +407,12 @@ function Library.new(title, subtitle)
         win.Size     = UDim2.new(0, 580, 0, 420)
         win.Position = UDim2.new(0.5, -290, 0.5, -210)
     end
-    win.BackgroundColor3  = T.Bg
+    win.BackgroundColor3  = T.Bg; table.insert(_themed,{obj=win,prop="BackgroundColor3",key="Bg"})
     win.BorderSizePixel   = 0
     win.ClipsDescendants  = true
     win.Parent            = gui
     Corner(win, 10)
-    Stroke(win, T.Border, 1)
+    do local _s=Stroke(win,T.Border, 1); table.insert(_themed,{obj=_s,prop="Color",key="Border"}) end
     Shadow(win, 40, 0.35)
     self.Window = win
 
@@ -361,7 +420,7 @@ function Library.new(title, subtitle)
     local titleBar = Instance.new("Frame")
     titleBar.Name             = "TitleBar"
     titleBar.Size             = UDim2.new(1, 0, 0, 40)
-    titleBar.BackgroundColor3 = T.Secondary
+    titleBar.BackgroundColor3 = T.Secondary; table.insert(_themed,{obj=titleBar,prop="BackgroundColor3",key="Secondary"})
     titleBar.BorderSizePixel  = 0
     titleBar.ZIndex           = 2
     titleBar.Parent           = win
@@ -369,30 +428,26 @@ function Library.new(title, subtitle)
     -- patch bottom-left and bottom-right corners square (only top corners rounded)
     local tbBL = Instance.new("Frame")
     tbBL.Size = UDim2.new(0,10,0,10); tbBL.Position = UDim2.new(0,0,1,-10)
-    tbBL.BackgroundColor3 = T.Secondary; tbBL.BorderSizePixel = 0; tbBL.ZIndex = 2; tbBL.Parent = titleBar
+    tbBL.BackgroundColor3 = T.Secondary; table.insert(_themed,{obj=tbBL,prop="BackgroundColor3",key="Secondary"}); tbBL.BorderSizePixel = 0; tbBL.ZIndex = 2; tbBL.Parent = titleBar
     local tbBR = Instance.new("Frame")
     tbBR.Size = UDim2.new(0,10,0,10); tbBR.Position = UDim2.new(1,-10,1,-10)
-    tbBR.BackgroundColor3 = T.Secondary; tbBR.BorderSizePixel = 0; tbBR.ZIndex = 2; tbBR.Parent = titleBar
+    tbBR.BackgroundColor3 = T.Secondary; table.insert(_themed,{obj=tbBR,prop="BackgroundColor3",key="Secondary"}); tbBR.BorderSizePixel = 0; tbBR.ZIndex = 2; tbBR.Parent = titleBar
 
     -- accent underline
     local accentBar = Instance.new("Frame")
     accentBar.Size            = UDim2.new(1, 0, 0, 2)
     accentBar.Position        = UDim2.new(0, 0, 1, -1)
-    accentBar.BackgroundColor3 = T.Accent
+    accentBar.BackgroundColor3 = T.Accent; table.insert(_themed,{obj=accentBar,prop="BackgroundColor3",key="Accent"})
     accentBar.BorderSizePixel = 0
     accentBar.ZIndex          = 3
     accentBar.Parent          = titleBar
-    Gradient(accentBar,
-        Color3.fromRGB(90, 140, 255),
-        Color3.fromRGB(150, 90, 255),
-        0
-    )
+    do local g = Gradient(accentBar, T.Accent, T.AccentDark, 0); table.insert(_themed,{obj=g,prop="Gradient",key0="Accent",key1="AccentDark"}) end
 
     -- icon dot
     local dot = Instance.new("Frame")
     dot.Size             = UDim2.new(0, 8, 0, 8)
     dot.Position         = UDim2.new(0, 12, 0.5, -4)
-    dot.BackgroundColor3 = T.Accent
+    dot.BackgroundColor3 = T.Accent; table.insert(_themed,{obj=dot,prop="BackgroundColor3",key="Accent"})
     dot.BorderSizePixel  = 0
     dot.ZIndex           = 3
     dot.Parent           = titleBar
@@ -404,7 +459,7 @@ function Library.new(title, subtitle)
     titleLbl.Size             = UDim2.new(0, 200, 1, 0)
     titleLbl.Position         = UDim2.new(0, 28, 0, 0)
     titleLbl.BackgroundTransparency = 1
-    titleLbl.TextColor3       = T.Text
+    titleLbl.TextColor3       = T.Text; table.insert(_themed,{obj=titleLbl,prop="TextColor3",key="Text"})
     titleLbl.Font             = Enum.Font.GothamBold
     titleLbl.TextSize         = 14
     titleLbl.TextXAlignment   = Enum.TextXAlignment.Left
@@ -418,7 +473,7 @@ function Library.new(title, subtitle)
         subLbl.Size           = UDim2.new(0, 200, 1, 0)
         subLbl.Position       = UDim2.new(0, 28 + 90, 0, 0) -- placeholder, adjusted below
         subLbl.BackgroundTransparency = 1
-        subLbl.TextColor3     = T.TextMuted
+        subLbl.TextColor3     = T.TextMuted; table.insert(_themed,{obj=subLbl,prop="TextColor3",key="TextMuted"})
         subLbl.Font           = Enum.Font.Gotham
         subLbl.TextSize       = 11
         subLbl.TextXAlignment = Enum.TextXAlignment.Left
@@ -435,16 +490,16 @@ function Library.new(title, subtitle)
     minBtn.Name              = "Minimize"
     minBtn.Size              = isMobile and UDim2.new(0, 36, 0, 36) or UDim2.new(0, 26, 0, 26)
     minBtn.Position          = isMobile and UDim2.new(1, -44, 0.5, -18) or UDim2.new(1, -34, 0.5, -13)
-    minBtn.BackgroundColor3  = T.Element
+    minBtn.BackgroundColor3  = T.Element; table.insert(_themed,{obj=minBtn,prop="BackgroundColor3",key="Element"})
     minBtn.Text              = "—"
-    minBtn.TextColor3        = T.TextMuted
+    minBtn.TextColor3        = T.TextMuted; table.insert(_themed,{obj=minBtn,prop="TextColor3",key="TextMuted"})
     minBtn.Font              = Enum.Font.GothamBold
     minBtn.TextSize          = isMobile and 14 or 11
     minBtn.BorderSizePixel   = 0
     minBtn.ZIndex            = 3
     minBtn.Parent            = titleBar
     Corner(minBtn, 6)
-    Stroke(minBtn, T.BorderLight, 1)
+    do local _s=Stroke(minBtn,T.BorderLight, 1); table.insert(_themed,{obj=_s,prop="Color",key="BorderLight"}) end
 
     minBtn.MouseEnter:Connect(function()
         Tween(minBtn, {BackgroundColor3 = T.Accent, TextColor3 = T.Text}, 0.15)
@@ -460,16 +515,16 @@ function Library.new(title, subtitle)
         menuBtn.Name              = "MenuToggle"
         menuBtn.Size              = UDim2.new(0, 36, 0, 36)
         menuBtn.Position          = UDim2.new(1, -88, 0.5, -18)
-        menuBtn.BackgroundColor3  = T.Element
+        menuBtn.BackgroundColor3  = T.Element; table.insert(_themed,{obj=menuBtn,prop="BackgroundColor3",key="Element"})
         menuBtn.Text              = "☰"
-        menuBtn.TextColor3        = T.TextMuted
+        menuBtn.TextColor3        = T.TextMuted; table.insert(_themed,{obj=menuBtn,prop="TextColor3",key="TextMuted"})
         menuBtn.Font              = Enum.Font.GothamBold
         menuBtn.TextSize          = 16
         menuBtn.BorderSizePixel   = 0
         menuBtn.ZIndex            = 3
         menuBtn.Parent            = titleBar
         Corner(menuBtn, 6)
-        Stroke(menuBtn, T.BorderLight, 1)
+        do local _s=Stroke(menuBtn,T.BorderLight, 1); table.insert(_themed,{obj=_s,prop="Color",key="BorderLight"}) end
     end
     self._MenuBtn = menuBtn
 
@@ -488,7 +543,7 @@ function Library.new(title, subtitle)
     local sidebar = Instance.new("Frame")
     sidebar.Name             = "Sidebar"
     sidebar.Size             = UDim2.new(0, SIDEBAR_W, 1, 0)
-    sidebar.BackgroundColor3 = T.Secondary
+    sidebar.BackgroundColor3 = T.Secondary; table.insert(_themed,{obj=sidebar,prop="BackgroundColor3",key="Secondary"})
     sidebar.BorderSizePixel  = 0
     sidebar.Parent           = content
     self._Sidebar = sidebar
@@ -497,10 +552,10 @@ function Library.new(title, subtitle)
     Corner(sidebar, 10)
     local sbTR = Instance.new("Frame")
     sbTR.Size = UDim2.new(0,10,0,10); sbTR.Position = UDim2.new(1,-10,0,0)
-    sbTR.BackgroundColor3 = T.Secondary; sbTR.BorderSizePixel = 0; sbTR.Parent = sidebar
+    sbTR.BackgroundColor3 = T.Secondary; table.insert(_themed,{obj=sbTR,prop="BackgroundColor3",key="Secondary"}); sbTR.BorderSizePixel = 0; sbTR.Parent = sidebar
     local sbBR = Instance.new("Frame")
     sbBR.Size = UDim2.new(0,10,0,10); sbBR.Position = UDim2.new(1,-10,1,-10)
-    sbBR.BackgroundColor3 = T.Secondary; sbBR.BorderSizePixel = 0; sbBR.Parent = sidebar
+    sbBR.BackgroundColor3 = T.Secondary; table.insert(_themed,{obj=sbBR,prop="BackgroundColor3",key="Secondary"}); sbBR.BorderSizePixel = 0; sbBR.Parent = sidebar
 
     -- sidebar header
     local sideHeader = Instance.new("TextLabel")
@@ -508,7 +563,7 @@ function Library.new(title, subtitle)
     sideHeader.Size           = UDim2.new(1, -16, 0, 28)
     sideHeader.Position       = UDim2.new(0, 10, 0, 6)
     sideHeader.BackgroundTransparency = 1
-    sideHeader.TextColor3     = T.TextMuted
+    sideHeader.TextColor3     = T.TextMuted; table.insert(_themed,{obj=sideHeader,prop="TextColor3",key="TextMuted"})
     sideHeader.Font           = Enum.Font.GothamBold
     sideHeader.TextSize       = 9
     sideHeader.TextXAlignment = Enum.TextXAlignment.Left
@@ -518,7 +573,7 @@ function Library.new(title, subtitle)
     local sideDiv = Instance.new("Frame")
     sideDiv.Size             = UDim2.new(1, -16, 0, 1)
     sideDiv.Position         = UDim2.new(0, 8, 0, 34)
-    sideDiv.BackgroundColor3 = T.Border
+    sideDiv.BackgroundColor3 = T.Border; table.insert(_themed,{obj=sideDiv,prop="BackgroundColor3",key="Border"})
     sideDiv.BorderSizePixel  = 0
     sideDiv.Parent           = sidebar
 
@@ -555,7 +610,7 @@ function Library.new(title, subtitle)
     mainArea.Name             = "MainArea"
     mainArea.Size             = UDim2.new(1, -SIDEBAR_W, 1, 0)
     mainArea.Position         = UDim2.new(0, SIDEBAR_W, 0, 0)
-    mainArea.BackgroundColor3 = T.Bg
+    mainArea.BackgroundColor3 = T.Bg; table.insert(_themed,{obj=mainArea,prop="BackgroundColor3",key="Bg"})
     mainArea.BorderSizePixel  = 0
     mainArea.ClipsDescendants = true
     mainArea.Parent           = content
@@ -566,7 +621,7 @@ function Library.new(title, subtitle)
     resizeHandle.Name             = "ResizeHandle"
     resizeHandle.Size             = UDim2.new(0, 18, 0, 18)
     resizeHandle.Position         = UDim2.new(1, -18, 1, -18)
-    resizeHandle.BackgroundColor3 = T.Accent
+    resizeHandle.BackgroundColor3 = T.Accent; table.insert(_themed,{obj=resizeHandle,prop="BackgroundColor3",key="Accent"})
     resizeHandle.Text             = ""
     resizeHandle.BorderSizePixel  = 0
     resizeHandle.ZIndex           = 10
@@ -676,7 +731,7 @@ function Library:AddTab(name, icon)
     local btn = Instance.new("TextButton")
     btn.Name             = "Tab_" .. name
     btn.Size             = isMobile and UDim2.new(1, 0, 0, 42) or UDim2.new(1, 0, 0, 34)
-    btn.BackgroundColor3 = T.Element
+    btn.BackgroundColor3 = T.Element; table.insert(_themed,{obj=btn,prop="BackgroundColor3",key="Element"})
     btn.Text             = ""
     btn.BorderSizePixel  = 0
     btn.LayoutOrder      = idx
@@ -687,7 +742,7 @@ function Library:AddTab(name, icon)
     local bar = Instance.new("Frame")
     bar.Size             = UDim2.new(0, 3, 0.55, 0)
     bar.Position         = UDim2.new(0, 1, 0.225, 0)
-    bar.BackgroundColor3 = T.Accent
+    bar.BackgroundColor3 = T.Accent; table.insert(_themed,{obj=bar,prop="BackgroundColor3",key="Accent"})
     bar.BorderSizePixel  = 0
     bar.BackgroundTransparency = 1
     bar.Parent           = btn
@@ -699,7 +754,7 @@ function Library:AddTab(name, icon)
     iconLbl.Size             = UDim2.new(0, 22, 1, 0)
     iconLbl.Position         = UDim2.new(0, 10, 0, 0)
     iconLbl.BackgroundTransparency = 1
-    iconLbl.TextColor3       = T.TextMuted
+    iconLbl.TextColor3       = T.TextMuted; table.insert(_themed,{obj=iconLbl,prop="TextColor3",key="TextMuted"})
     iconLbl.Font             = Enum.Font.GothamBold
     iconLbl.TextSize         = 14
     iconLbl.Parent           = btn
@@ -710,7 +765,7 @@ function Library:AddTab(name, icon)
     nameLbl.Size             = UDim2.new(1, -36, 1, 0)
     nameLbl.Position         = UDim2.new(0, 34, 0, 0)
     nameLbl.BackgroundTransparency = 1
-    nameLbl.TextColor3       = T.TextMuted
+    nameLbl.TextColor3       = T.TextMuted; table.insert(_themed,{obj=nameLbl,prop="TextColor3",key="TextMuted"})
     nameLbl.Font             = Enum.Font.Gotham
     nameLbl.TextSize         = 13
     nameLbl.TextXAlignment   = Enum.TextXAlignment.Left
@@ -803,11 +858,11 @@ function Library._MakeSection(parent, name, lib)
     section.Name             = "Section_" .. name
     section.Size             = UDim2.new(1, 0, 0, 0)
     section.AutomaticSize    = Enum.AutomaticSize.Y
-    section.BackgroundColor3 = T.Section
+    section.BackgroundColor3 = T.Section; table.insert(_themed,{obj=section,prop="BackgroundColor3",key="Section"})
     section.BorderSizePixel  = 0
     section.Parent           = parent
     Corner(section, 8)
-    Stroke(section, T.Border, 1)
+    do local _s=Stroke(section,T.Border, 1); table.insert(_themed,{obj=_s,prop="Color",key="Border"}) end
 
     -- header
     local header = Instance.new("Frame")
@@ -820,7 +875,7 @@ function Library._MakeSection(parent, name, lib)
     headerLbl.Size          = UDim2.new(1, -16, 1, 0)
     headerLbl.Position      = UDim2.new(0, 12, 0, 0)
     headerLbl.BackgroundTransparency = 1
-    headerLbl.TextColor3    = T.Text
+    headerLbl.TextColor3    = T.Text; table.insert(_themed,{obj=headerLbl,prop="TextColor3",key="Text"})
     headerLbl.Font          = Enum.Font.GothamBold
     headerLbl.TextSize      = 12
     headerLbl.TextXAlignment = Enum.TextXAlignment.Left
@@ -830,7 +885,7 @@ function Library._MakeSection(parent, name, lib)
     local div = Instance.new("Frame")
     div.Size             = UDim2.new(1, -16, 0, 1)
     div.Position         = UDim2.new(0, 8, 0, 31)
-    div.BackgroundColor3 = T.Border
+    div.BackgroundColor3 = T.Border; table.insert(_themed,{obj=div,prop="BackgroundColor3",key="Border"})
     div.BorderSizePixel  = 0
     div.Parent           = section
 
@@ -868,7 +923,7 @@ function Library._MakeSection(parent, name, lib)
     local function BaseElem(h)
         local f = Instance.new("Frame")
         f.Size             = UDim2.new(1, 0, 0, isMobile and math.max((h or 32) + 6, 38) or (h or 32))
-        f.BackgroundColor3 = T.Element
+        f.BackgroundColor3 = T.Element; table.insert(_themed,{obj=f,prop="BackgroundColor3",key="Element"})
         f.BorderSizePixel  = 0
         f.Parent           = holder
         Corner(f, 6)
@@ -881,7 +936,7 @@ function Library._MakeSection(parent, name, lib)
         l.Size             = UDim2.new(0.55, 0, 1, 0)
         l.Position         = UDim2.new(0, 10, 0, 0)
         l.BackgroundTransparency = 1
-        l.TextColor3       = T.Text
+        l.TextColor3       = T.Text; table.insert(_themed,{obj=l,prop="TextColor3",key="Text"})
         l.Font             = Enum.Font.Gotham
         l.TextSize         = size or 13
         l.TextXAlignment   = Enum.TextXAlignment.Left
@@ -895,7 +950,7 @@ function Library._MakeSection(parent, name, lib)
     function S:AddButton(text, callback)
         local btn = Instance.new("TextButton")
         btn.Size             = UDim2.new(1, 0, 0, 30)
-        btn.BackgroundColor3 = T.Element
+        btn.BackgroundColor3 = T.Element; table.insert(_themed,{obj=btn,prop="BackgroundColor3",key="Element"})
         btn.Text             = ""
         btn.BorderSizePixel  = 0
         btn.Parent           = holder
@@ -906,7 +961,7 @@ function Library._MakeSection(parent, name, lib)
         lbl.Size             = UDim2.new(1, -16, 1, 0)
         lbl.Position         = UDim2.new(0, 8, 0, 0)
         lbl.BackgroundTransparency = 1
-        lbl.TextColor3       = T.Text
+        lbl.TextColor3       = T.Text; table.insert(_themed,{obj=lbl,prop="TextColor3",key="Text"})
         lbl.Font             = Enum.Font.Gotham
         lbl.TextSize         = 13
         lbl.TextXAlignment   = Enum.TextXAlignment.Center
@@ -999,7 +1054,7 @@ function Library._MakeSection(parent, name, lib)
         valLbl.Size           = UDim2.new(0, 44, 0, 18)
         valLbl.Position       = UDim2.new(1, -50, 0, 4)
         valLbl.BackgroundTransparency = 1
-        valLbl.TextColor3     = T.Accent
+        valLbl.TextColor3     = T.Accent; table.insert(_themed,{obj=valLbl,prop="TextColor3",key="Accent"})
         valLbl.Font           = Enum.Font.GothamBold
         valLbl.TextSize       = 11
         valLbl.TextXAlignment = Enum.TextXAlignment.Right
@@ -1008,22 +1063,18 @@ function Library._MakeSection(parent, name, lib)
         local track = Instance.new("Frame")
         track.Size             = UDim2.new(1, -20, 0, 6)
         track.Position         = UDim2.new(0, 10, 0, 32)
-        track.BackgroundColor3 = T.SliderBar
+        track.BackgroundColor3 = T.SliderBar; table.insert(_themed,{obj=track,prop="BackgroundColor3",key="SliderBar"})
         track.BorderSizePixel  = 0
         track.Parent           = elem
         Corner(track, 3)
 
         local fill = Instance.new("Frame")
         fill.Size             = UDim2.new((val-min)/(max-min), 0, 1, 0)
-        fill.BackgroundColor3 = T.Accent
+        fill.BackgroundColor3 = T.Accent; table.insert(_themed,{obj=fill,prop="BackgroundColor3",key="Accent"})
         fill.BorderSizePixel  = 0
         fill.Parent           = track
         Corner(fill, 3)
-        Gradient(fill,
-            Color3.fromRGB(90,140,255),
-            Color3.fromRGB(150,100,255),
-            0
-        )
+        do local g = Gradient(fill, T.Accent, T.AccentDark, 0); table.insert(_themed,{obj=g,prop="Gradient",key0="Accent",key1="AccentDark"}) end
 
         local handle = Instance.new("Frame")
         handle.Size             = UDim2.new(0, 14, 0, 14)
@@ -1097,7 +1148,7 @@ function Library._MakeSection(parent, name, lib)
 
         local elem = Instance.new("Frame")
         elem.Size             = UDim2.new(1, 0, 0, isMobile and 38 or 30)
-        elem.BackgroundColor3 = T.Element
+        elem.BackgroundColor3 = T.Element; table.insert(_themed,{obj=elem,prop="BackgroundColor3",key="Element"})
         elem.BorderSizePixel  = 0
         elem.ZIndex           = 6
         elem.Parent           = wrapper
@@ -1107,23 +1158,23 @@ function Library._MakeSection(parent, name, lib)
         local dropBtn = Instance.new("TextButton")
         dropBtn.Size             = UDim2.new(0, 108, 0, 22)
         dropBtn.Position         = UDim2.new(1, -114, 0.5, -11)
-        dropBtn.BackgroundColor3 = T.Input
+        dropBtn.BackgroundColor3 = T.Input; table.insert(_themed,{obj=dropBtn,prop="BackgroundColor3",key="Input"})
         dropBtn.Text             = val
-        dropBtn.TextColor3       = T.Text
+        dropBtn.TextColor3       = T.Text; table.insert(_themed,{obj=dropBtn,prop="TextColor3",key="Text"})
         dropBtn.Font             = Enum.Font.Gotham
         dropBtn.TextSize         = 12
         dropBtn.BorderSizePixel  = 0
         dropBtn.ZIndex           = 6
         dropBtn.Parent           = elem
         Corner(dropBtn, 5)
-        Stroke(dropBtn, T.BorderLight, 1)
+        do local _s=Stroke(dropBtn,T.BorderLight, 1); table.insert(_themed,{obj=_s,prop="Color",key="BorderLight"}) end
 
         local arrow = Instance.new("TextLabel")
         arrow.Text           = "▾"
         arrow.Size           = UDim2.new(0, 18, 1, 0)
         arrow.Position       = UDim2.new(1, -18, 0, 0)
         arrow.BackgroundTransparency = 1
-        arrow.TextColor3     = T.Accent
+        arrow.TextColor3     = T.Accent; table.insert(_themed,{obj=arrow,prop="TextColor3",key="Accent"})
         arrow.Font           = Enum.Font.GothamBold
         arrow.TextSize       = 11
         arrow.ZIndex         = 7
@@ -1138,7 +1189,7 @@ function Library._MakeSection(parent, name, lib)
         local list = Instance.new("ScrollingFrame")
         list.Size                  = UDim2.new(0, 108, 0, 0)
         list.Position              = UDim2.new(1, -114, 0, (isMobile and 38 or 30) + 3)
-        list.BackgroundColor3      = T.Secondary
+        list.BackgroundColor3      = T.Secondary; table.insert(_themed,{obj=list,prop="BackgroundColor3",key="Secondary"})
         list.BorderSizePixel       = 0
         list.ScrollBarThickness    = 3
         list.ScrollBarImageColor3  = T.Accent
@@ -1148,7 +1199,7 @@ function Library._MakeSection(parent, name, lib)
         list.Visible               = false
         list.Parent                = wrapper  -- parent to wrapper so it escapes elem clip
         Corner(list, 5)
-        Stroke(list, T.BorderLight, 1)
+        do local _s=Stroke(list,T.BorderLight, 1); table.insert(_themed,{obj=_s,prop="Color",key="BorderLight"}) end
 
         local listLayout = Instance.new("UIListLayout")
         listLayout.SortOrder = Enum.SortOrder.LayoutOrder
@@ -1159,7 +1210,7 @@ function Library._MakeSection(parent, name, lib)
             ob.Size             = UDim2.new(1, 0, 0, ITEM_H)
             ob.BackgroundTransparency = 1
             ob.Text             = opt
-            ob.TextColor3       = T.TextMuted
+            ob.TextColor3       = T.TextMuted; table.insert(_themed,{obj=ob,prop="TextColor3",key="TextMuted"})
             ob.Font             = Enum.Font.Gotham
             ob.TextSize         = 12
             ob.BorderSizePixel  = 0
@@ -1167,7 +1218,7 @@ function Library._MakeSection(parent, name, lib)
             ob.Parent           = list
             ob.MouseEnter:Connect(function()
                 Tween(ob, {TextColor3 = T.Text, BackgroundTransparency = 0.88}, 0.1)
-                ob.BackgroundColor3 = T.Accent
+                ob.BackgroundColor3 = T.Accent; table.insert(_themed,{obj=ob,prop="BackgroundColor3",key="Accent"})
             end)
             ob.MouseLeave:Connect(function()
                 Tween(ob, {TextColor3 = T.TextMuted, BackgroundTransparency = 1}, 0.1)
@@ -1219,11 +1270,11 @@ function Library._MakeSection(parent, name, lib)
         local inputWrap = Instance.new("Frame")
         inputWrap.Size             = UDim2.new(0, 118, 0, 22)
         inputWrap.Position         = UDim2.new(1, -124, 0.5, -11)
-        inputWrap.BackgroundColor3 = T.Input
+        inputWrap.BackgroundColor3 = T.Input; table.insert(_themed,{obj=inputWrap,prop="BackgroundColor3",key="Input"})
         inputWrap.BorderSizePixel  = 0
         inputWrap.Parent           = elem
         Corner(inputWrap, 5)
-        Stroke(inputWrap, T.BorderLight, 1)
+        do local _s=Stroke(inputWrap,T.BorderLight, 1); table.insert(_themed,{obj=_s,prop="Color",key="BorderLight"}) end
 
         local tb = Instance.new("TextBox")
         tb.Size              = UDim2.new(1, -8, 1, 0)
@@ -1232,7 +1283,7 @@ function Library._MakeSection(parent, name, lib)
         tb.Text              = ""
         tb.PlaceholderText   = placeholder or "Type here..."
         tb.PlaceholderColor3 = T.TextMuted
-        tb.TextColor3        = T.Text
+        tb.TextColor3        = T.Text; table.insert(_themed,{obj=tb,prop="TextColor3",key="Text"})
         tb.Font              = Enum.Font.Gotham
         tb.TextSize          = 12
         tb.TextXAlignment    = Enum.TextXAlignment.Left
@@ -1275,19 +1326,19 @@ function Library._MakeSection(parent, name, lib)
         preview.ZIndex           = 5
         preview.Parent           = elem
         Corner(preview, 5)
-        Stroke(preview, T.BorderLight, 1)
+        do local _s=Stroke(preview,T.BorderLight, 1); table.insert(_themed,{obj=_s,prop="Color",key="BorderLight"}) end
 
         local picker = Instance.new("Frame")
         picker.Size             = UDim2.new(0, 190, 0, 0)
         picker.Position         = UDim2.new(1, -198, 1, 4)
-        picker.BackgroundColor3 = T.Secondary
+        picker.BackgroundColor3 = T.Secondary; table.insert(_themed,{obj=picker,prop="BackgroundColor3",key="Secondary"})
         picker.BorderSizePixel  = 0
         picker.ClipsDescendants = true
         picker.ZIndex           = 30
         picker.Visible          = false
         picker.Parent           = elem
         Corner(picker, 8)
-        Stroke(picker, T.BorderLight, 1)
+        do local _s=Stroke(picker,T.BorderLight, 1); table.insert(_themed,{obj=_s,prop="Color",key="BorderLight"}) end
 
         local pLayout = Instance.new("UIListLayout")
         pLayout.Padding   = UDim.new(0, 5)
@@ -1332,7 +1383,7 @@ function Library._MakeSection(parent, name, lib)
             local trackBg = Instance.new("Frame")
             trackBg.Size         = UDim2.new(1, -50, 0, 6)
             trackBg.Position     = UDim2.new(0, 16, 0.5, -3)
-            trackBg.BackgroundColor3 = T.SliderBar
+            trackBg.BackgroundColor3 = T.SliderBar; table.insert(_themed,{obj=trackBg,prop="BackgroundColor3",key="SliderBar"})
             trackBg.BorderSizePixel  = 0
             trackBg.ZIndex       = 31
             trackBg.Parent       = row
@@ -1351,9 +1402,9 @@ function Library._MakeSection(parent, name, lib)
             local numBox = Instance.new("TextBox")
             numBox.Size          = UDim2.new(0, 30, 1, 0)
             numBox.Position      = UDim2.new(1, -30, 0, 0)
-            numBox.BackgroundColor3 = T.Input
+            numBox.BackgroundColor3 = T.Input; table.insert(_themed,{obj=numBox,prop="BackgroundColor3",key="Input"})
             numBox.Text          = tostring(cval)
-            numBox.TextColor3    = T.Text
+            numBox.TextColor3    = T.Text; table.insert(_themed,{obj=numBox,prop="TextColor3",key="Text"})
             numBox.Font          = Enum.Font.Gotham
             numBox.TextSize      = 10
             numBox.BorderSizePixel = 0
@@ -1436,15 +1487,15 @@ function Library._MakeSection(parent, name, lib)
         local keyBtn = Instance.new("TextButton")
         keyBtn.Size             = UDim2.new(0, 68, 0, 22)
         keyBtn.Position         = UDim2.new(1, -74, 0.5, -11)
-        keyBtn.BackgroundColor3 = T.Input
+        keyBtn.BackgroundColor3 = T.Input; table.insert(_themed,{obj=keyBtn,prop="BackgroundColor3",key="Input"})
         keyBtn.Text             = key == Enum.KeyCode.Unknown and "NONE" or key.Name
-        keyBtn.TextColor3       = T.Text
+        keyBtn.TextColor3       = T.Text; table.insert(_themed,{obj=keyBtn,prop="TextColor3",key="Text"})
         keyBtn.Font             = Enum.Font.GothamBold
         keyBtn.TextSize         = 11
         keyBtn.BorderSizePixel  = 0
         keyBtn.Parent           = elem
         Corner(keyBtn, 5)
-        Stroke(keyBtn, T.BorderLight, 1)
+        do local _s=Stroke(keyBtn,T.BorderLight, 1); table.insert(_themed,{obj=_s,prop="Color",key="BorderLight"}) end
 
         keyBtn.MouseButton1Click:Connect(function()
             if listening then return end
@@ -1487,7 +1538,7 @@ function Library._MakeSection(parent, name, lib)
         lbl.Size             = UDim2.new(1, -16, 1, 0)
         lbl.Position         = UDim2.new(0, 8, 0, 0)
         lbl.BackgroundTransparency = 1
-        lbl.TextColor3       = T.TextMuted
+        lbl.TextColor3       = T.TextMuted; table.insert(_themed,{obj=lbl,prop="TextColor3",key="TextMuted"})
         lbl.Font             = Enum.Font.Gotham
         lbl.TextSize         = 12
         lbl.TextXAlignment   = Enum.TextXAlignment.Left
@@ -1507,7 +1558,7 @@ function Library._MakeSection(parent, name, lib)
         local elem = Instance.new("Frame")
         elem.Size             = UDim2.new(1, 0, 0, 0)
         elem.AutomaticSize    = Enum.AutomaticSize.Y
-        elem.BackgroundColor3 = T.Input
+        elem.BackgroundColor3 = T.Input; table.insert(_themed,{obj=elem,prop="BackgroundColor3",key="Input"})
         elem.BorderSizePixel  = 0
         elem.Parent           = holder
         Corner(elem, 6)
@@ -1526,7 +1577,7 @@ function Library._MakeSection(parent, name, lib)
         tLbl.Text           = title or "Title"
         tLbl.Size           = UDim2.new(1, 0, 0, 16)
         tLbl.BackgroundTransparency = 1
-        tLbl.TextColor3     = T.Text
+        tLbl.TextColor3     = T.Text; table.insert(_themed,{obj=tLbl,prop="TextColor3",key="Text"})
         tLbl.Font           = Enum.Font.GothamBold
         tLbl.TextSize       = 12
         tLbl.TextXAlignment = Enum.TextXAlignment.Left
@@ -1537,7 +1588,7 @@ function Library._MakeSection(parent, name, lib)
         bLbl.Size           = UDim2.new(1, 0, 0, 0)
         bLbl.AutomaticSize  = Enum.AutomaticSize.Y
         bLbl.BackgroundTransparency = 1
-        bLbl.TextColor3     = T.TextMuted
+        bLbl.TextColor3     = T.TextMuted; table.insert(_themed,{obj=bLbl,prop="TextColor3",key="TextMuted"})
         bLbl.Font           = Enum.Font.Gotham
         bLbl.TextSize       = 11
         bLbl.TextXAlignment = Enum.TextXAlignment.Left
@@ -1566,7 +1617,7 @@ function Library._MakeSection(parent, name, lib)
             local l1 = Instance.new("Frame")
             l1.Size             = UDim2.new(0.3, 0, 0, 1)
             l1.Position         = UDim2.new(0, 0, 0.5, 0)
-            l1.BackgroundColor3 = T.Border
+            l1.BackgroundColor3 = T.Border; table.insert(_themed,{obj=l1,prop="BackgroundColor3",key="Border"})
             l1.BorderSizePixel  = 0
             l1.Parent           = elem
 
@@ -1575,7 +1626,7 @@ function Library._MakeSection(parent, name, lib)
             txt.Size            = UDim2.new(0.4, 0, 1, 0)
             txt.Position        = UDim2.new(0.3, 0, 0, 0)
             txt.BackgroundTransparency = 1
-            txt.TextColor3      = T.TextMuted
+            txt.TextColor3      = T.TextMuted; table.insert(_themed,{obj=txt,prop="TextColor3",key="TextMuted"})
             txt.Font            = Enum.Font.Gotham
             txt.TextSize        = 10
             txt.Parent          = elem
@@ -1583,14 +1634,14 @@ function Library._MakeSection(parent, name, lib)
             local l2 = Instance.new("Frame")
             l2.Size             = UDim2.new(0.3, 0, 0, 1)
             l2.Position         = UDim2.new(0.7, 0, 0.5, 0)
-            l2.BackgroundColor3 = T.Border
+            l2.BackgroundColor3 = T.Border; table.insert(_themed,{obj=l2,prop="BackgroundColor3",key="Border"})
             l2.BorderSizePixel  = 0
             l2.Parent           = elem
         else
             local line = Instance.new("Frame")
             line.Size           = UDim2.new(1, 0, 0, 1)
             line.Position       = UDim2.new(0, 0, 0.5, 0)
-            line.BackgroundColor3 = T.Border
+            line.BackgroundColor3 = T.Border; table.insert(_themed,{obj=line,prop="BackgroundColor3",key="Border"})
             line.BorderSizePixel  = 0
             line.Parent         = elem
         end
@@ -1610,7 +1661,7 @@ function Library._MakeSection(parent, name, lib)
         pctLbl.Size           = UDim2.new(0, 44, 0, 18)
         pctLbl.Position       = UDim2.new(1, -50, 0, 4)
         pctLbl.BackgroundTransparency = 1
-        pctLbl.TextColor3     = T.Accent
+        pctLbl.TextColor3     = T.Accent; table.insert(_themed,{obj=pctLbl,prop="TextColor3",key="Accent"})
         pctLbl.Font           = Enum.Font.GothamBold
         pctLbl.TextSize       = 11
         pctLbl.TextXAlignment = Enum.TextXAlignment.Right
@@ -1619,22 +1670,18 @@ function Library._MakeSection(parent, name, lib)
         local barBg = Instance.new("Frame")
         barBg.Size            = UDim2.new(1, -20, 0, 8)
         barBg.Position        = UDim2.new(0, 10, 0, 30)
-        barBg.BackgroundColor3 = T.SliderBar
+        barBg.BackgroundColor3 = T.SliderBar; table.insert(_themed,{obj=barBg,prop="BackgroundColor3",key="SliderBar"})
         barBg.BorderSizePixel  = 0
         barBg.Parent          = elem
         Corner(barBg, 4)
 
         local barFill = Instance.new("Frame")
         barFill.Size          = UDim2.new(val/100, 0, 1, 0)
-        barFill.BackgroundColor3 = T.Accent
+        barFill.BackgroundColor3 = T.Accent; table.insert(_themed,{obj=barFill,prop="BackgroundColor3",key="Accent"})
         barFill.BorderSizePixel  = 0
         barFill.Parent        = barBg
         Corner(barFill, 4)
-        Gradient(barFill,
-            Color3.fromRGB(90,140,255),
-            Color3.fromRGB(140,90,255),
-            0
-        )
+        do local g = Gradient(barFill, T.Accent, T.AccentDark, 0); table.insert(_themed,{obj=g,prop="Gradient",key0="Accent",key1="AccentDark"}) end
 
         -- shine
         local shine = Instance.new("Frame")
@@ -1675,7 +1722,7 @@ function Library._MakeSection(parent, name, lib)
 
         local elem = Instance.new("Frame")
         elem.Size             = UDim2.new(1, 0, 0, isMobile and 38 or 30)
-        elem.BackgroundColor3 = T.Element
+        elem.BackgroundColor3 = T.Element; table.insert(_themed,{obj=elem,prop="BackgroundColor3",key="Element"})
         elem.BorderSizePixel  = 0
         elem.ZIndex           = 4
         elem.Parent           = wrapper
@@ -1685,23 +1732,23 @@ function Library._MakeSection(parent, name, lib)
         local dropBtn = Instance.new("TextButton")
         dropBtn.Size             = UDim2.new(0, 108, 0, 22)
         dropBtn.Position         = UDim2.new(1, -114, 0.5, -11)
-        dropBtn.BackgroundColor3 = T.Input
+        dropBtn.BackgroundColor3 = T.Input; table.insert(_themed,{obj=dropBtn,prop="BackgroundColor3",key="Input"})
         dropBtn.Text             = "Select..."
-        dropBtn.TextColor3       = T.TextMuted
+        dropBtn.TextColor3       = T.TextMuted; table.insert(_themed,{obj=dropBtn,prop="TextColor3",key="TextMuted"})
         dropBtn.Font             = Enum.Font.Gotham
         dropBtn.TextSize         = 11
         dropBtn.BorderSizePixel  = 0
         dropBtn.ZIndex           = 4
         dropBtn.Parent           = elem
         Corner(dropBtn, 5)
-        Stroke(dropBtn, T.BorderLight, 1)
+        do local _s=Stroke(dropBtn,T.BorderLight, 1); table.insert(_themed,{obj=_s,prop="Color",key="BorderLight"}) end
 
         local arrow2 = Instance.new("TextLabel")
         arrow2.Text           = "▾"
         arrow2.Size           = UDim2.new(0, 18, 1, 0)
         arrow2.Position       = UDim2.new(1, -18, 0, 0)
         arrow2.BackgroundTransparency = 1
-        arrow2.TextColor3     = T.Accent
+        arrow2.TextColor3     = T.Accent; table.insert(_themed,{obj=arrow2,prop="TextColor3",key="Accent"})
         arrow2.Font           = Enum.Font.GothamBold
         arrow2.TextSize       = 11
         arrow2.ZIndex         = 5
@@ -1716,7 +1763,7 @@ function Library._MakeSection(parent, name, lib)
         local list2 = Instance.new("ScrollingFrame")
         list2.Size                  = UDim2.new(0, 125, 0, 0)
         list2.Position              = UDim2.new(1, -131, 0, (isMobile and 38 or 30) + 3)
-        list2.BackgroundColor3      = T.Secondary
+        list2.BackgroundColor3      = T.Secondary; table.insert(_themed,{obj=list2,prop="BackgroundColor3",key="Secondary"})
         list2.BorderSizePixel       = 0
         list2.ScrollBarThickness    = 3
         list2.ScrollBarImageColor3  = T.Accent
@@ -1726,7 +1773,7 @@ function Library._MakeSection(parent, name, lib)
         list2.Visible               = false
         list2.Parent                = wrapper
         Corner(list2, 5)
-        Stroke(list2, T.BorderLight, 1)
+        do local _s=Stroke(list2,T.BorderLight, 1); table.insert(_themed,{obj=_s,prop="Color",key="BorderLight"}) end
 
         local l2Layout = Instance.new("UIListLayout")
         l2Layout.SortOrder = Enum.SortOrder.LayoutOrder
@@ -1749,18 +1796,18 @@ function Library._MakeSection(parent, name, lib)
             local box = Instance.new("Frame")
             box.Size             = UDim2.new(0, 14, 0, 14)
             box.Position         = UDim2.new(0, 6, 0.5, -7)
-            box.BackgroundColor3 = T.SliderBar
+            box.BackgroundColor3 = T.SliderBar; table.insert(_themed,{obj=box,prop="BackgroundColor3",key="SliderBar"})
             box.BorderSizePixel  = 0
             box.ZIndex           = 30
             box.Parent           = row
             Corner(box, 3)
-            Stroke(box, T.BorderLight, 1)
+            do local _s=Stroke(box,T.BorderLight, 1); table.insert(_themed,{obj=_s,prop="Color",key="BorderLight"}) end
 
             local check = Instance.new("TextLabel")
             check.Text           = "✓"
             check.Size           = UDim2.new(1, 0, 1, 0)
             check.BackgroundTransparency = 1
-            check.TextColor3     = T.Accent
+            check.TextColor3     = T.Accent; table.insert(_themed,{obj=check,prop="TextColor3",key="Accent"})
             check.Font           = Enum.Font.GothamBold
             check.TextSize       = 10
             check.Visible        = false
@@ -1772,7 +1819,7 @@ function Library._MakeSection(parent, name, lib)
             optLbl.Size          = UDim2.new(1, -28, 1, 0)
             optLbl.Position      = UDim2.new(0, 26, 0, 0)
             optLbl.BackgroundTransparency = 1
-            optLbl.TextColor3    = T.TextMuted
+            optLbl.TextColor3    = T.TextMuted; table.insert(_themed,{obj=optLbl,prop="TextColor3",key="TextMuted"})
             optLbl.Font          = Enum.Font.Gotham
             optLbl.TextSize      = 12
             optLbl.TextXAlignment = Enum.TextXAlignment.Left
@@ -1790,13 +1837,13 @@ function Library._MakeSection(parent, name, lib)
                 if selected[opt] then
                     selected[opt]    = nil
                     check.Visible    = false
-                    box.BackgroundColor3 = T.SliderBar
-                    optLbl.TextColor3 = T.TextMuted
+                    box.BackgroundColor3 = T.SliderBar; table.insert(_themed,{obj=box,prop="BackgroundColor3",key="SliderBar"})
+                    optLbl.TextColor3 = T.TextMuted; table.insert(_themed,{obj=optLbl,prop="TextColor3",key="TextMuted"})
                 else
                     selected[opt]    = true
                     check.Visible    = true
                     box.BackgroundColor3 = Color3.fromRGB(25, 45, 90)
-                    optLbl.TextColor3 = T.Text
+                    optLbl.TextColor3 = T.Text; table.insert(_themed,{obj=optLbl,prop="TextColor3",key="Text"})
                 end
                 refreshLabel()
                 if callback then task.spawn(callback, selected) end
@@ -1847,7 +1894,7 @@ function Library._MakeSection(parent, name, lib)
         local trackBg = Instance.new("Frame")
         trackBg.Size             = UDim2.new(0, 38, 0, 20)
         trackBg.Position         = UDim2.new(1, -46, 0.5, -10)
-        trackBg.BackgroundColor3 = T.ToggleOff
+        trackBg.BackgroundColor3 = T.ToggleOff; table.insert(_themed,{obj=trackBg,prop="BackgroundColor3",key="ToggleOff"})
         trackBg.BorderSizePixel  = 0
         trackBg.Parent           = elem
         Corner(trackBg, 10)
@@ -1880,7 +1927,7 @@ function Library._MakeSection(parent, name, lib)
             Corner(fab, size / 2)
 
             local glow = Instance.new("UIStroke")
-            glow.Color     = T.AccentGlow
+            glow.Color     = T.AccentGlow; table.insert(_themed,{obj=glow,prop="Color",key="AccentGlow"})
             glow.Thickness = 2
             glow.Parent    = fab
 
@@ -2000,7 +2047,7 @@ function Library._MakeSection(parent, name, lib)
         local trackBg = Instance.new("Frame")
         trackBg.Size             = UDim2.new(0, 38, 0, 20)
         trackBg.Position         = UDim2.new(1, -46, 0.5, -10)
-        trackBg.BackgroundColor3 = T.ToggleOff
+        trackBg.BackgroundColor3 = T.ToggleOff; table.insert(_themed,{obj=trackBg,prop="BackgroundColor3",key="ToggleOff"})
         trackBg.BorderSizePixel  = 0
         trackBg.Parent           = elem
         Corner(trackBg, 10)
@@ -2033,7 +2080,7 @@ function Library._MakeSection(parent, name, lib)
             Corner(fab, size / 2)
 
             local glow = Instance.new("UIStroke")
-            glow.Color     = T.AccentGlow
+            glow.Color     = T.AccentGlow; table.insert(_themed,{obj=glow,prop="Color",key="AccentGlow"})
             glow.Thickness = 2
             glow.Parent    = fab
 
@@ -2337,74 +2384,7 @@ function Library:AddConfig()
     -- ── Tema ──
     local secTheme = configTab:AddSection("Tema da UI")
     secTheme:AddDropdown("Tema", ThemeNames, "Neon Blue", function(themeName)
-        -- 1) Snapshot das cores ANTIGAS antes de sobrescrever T
-        local old = {}
-        for k, v in pairs(T) do old[k] = v end
-
-        -- 2) Aplica o novo tema em T
-        ApplyTheme(themeName)
-
-        -- 3) Compara por aproximação de cor (evita falhas de float)
-        local function colorEq(a, b)
-            return math.abs(a.R - b.R) < 0.004
-               and math.abs(a.G - b.G) < 0.004
-               and math.abs(a.B - b.B) < 0.004
-        end
-
-        -- Monta mapa: {oldColor -> chave} para busca rapida
-        local bgKeys = {"Bg","Secondary","Tertiary","Section","Element","ElementHov",
-                        "Input","SliderBar","ToggleOn","ToggleOff","Accent","AccentDark",
-                        "AccentGlow","Border","BorderLight","Green","Red","Text","TextMuted"}
-
-        local function recolor(obj)
-            if obj:IsA("Frame") or obj:IsA("ScrollingFrame") then
-                if obj.BackgroundTransparency < 1 then
-                    local bc = obj.BackgroundColor3
-                    for _, k in ipairs(bgKeys) do
-                        if old[k] and colorEq(bc, old[k]) then
-                            obj.BackgroundColor3 = T[k]
-                            break
-                        end
-                    end
-                end
-            elseif obj:IsA("TextLabel") or obj:IsA("TextButton") or obj:IsA("TextBox") then
-                local tc = obj.TextColor3
-                if     colorEq(tc, old.Text)       then obj.TextColor3 = T.Text
-                elseif colorEq(tc, old.TextMuted)  then obj.TextColor3 = T.TextMuted
-                elseif colorEq(tc, old.Accent)     then obj.TextColor3 = T.Accent
-                elseif colorEq(tc, old.AccentGlow) then obj.TextColor3 = T.AccentGlow
-                end
-            elseif obj:IsA("UIStroke") then
-                local sc = obj.Color
-                if     colorEq(sc, old.Border)      then obj.Color = T.Border
-                elseif colorEq(sc, old.BorderLight) then obj.Color = T.BorderLight
-                elseif colorEq(sc, old.Accent)      then obj.Color = T.Accent
-                elseif colorEq(sc, old.AccentGlow)  then obj.Color = T.AccentGlow
-                end
-            elseif obj:IsA("UIGradient") then
-                local cs = obj.ColorSequence
-                local kp = cs.Keypoints
-                if kp and #kp >= 2 then
-                    local c0, c1 = kp[1].Value, kp[#kp].Value
-                    local n0 = c0; local n1 = c1
-                    for _, k in ipairs(bgKeys) do
-                        if old[k] then
-                            if colorEq(c0, old[k]) then n0 = T[k] end
-                            if colorEq(c1, old[k]) then n1 = T[k] end
-                        end
-                    end
-                    if n0 ~= c0 or n1 ~= c1 then
-                        obj.ColorSequence = ColorSequence.new(n0, n1)
-                    end
-                end
-            end
-            for _, child in ipairs(obj:GetChildren()) do recolor(child) end
-        end
-
-        task.spawn(function()
-            task.wait()
-            recolor(win)
-        end)
+        ApplyThemeAndRecolor(themeName)
     end)
 
     -- ── Transparência ──
