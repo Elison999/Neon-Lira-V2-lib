@@ -2408,7 +2408,8 @@ function Library:AddConfig()
         local p = Instance.new("Frame")
         p.Size             = UDim2.new(0, math.random(3,8), 0, math.random(3,8))
         p.Position         = UDim2.new(math.random()*0.9, 0, math.random()*0.85 + 0.1, 0)
-        p.BackgroundColor3 = Color3.fromHSV(0.62 + math.random()*0.1, 0.85, 1)
+        local h, s, v = Color3.toHSV(T.Accent)
+        p.BackgroundColor3 = Color3.fromHSV(h, s, math.clamp(v + math.random()*0.2 - 0.1, 0, 1))
         p.BackgroundTransparency = 0.15
         p.BorderSizePixel  = 0
         p.ZIndex           = 50
