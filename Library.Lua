@@ -2153,6 +2153,181 @@ function Library._MakeSection(parent, name, lib)
     return S
 end
 
+-- ══ Notify ══
+-- lib:Notify(message, type, duration)
+-- type: "info" | "warning" | "error"   (padrão: "info")
+-- duration: segundos até sumir        (padrão: 5)
+do
+    local _notifyGui     = nil   -- ScreenGui dedicada
+    local _notifyFrame   = nil   -- frame atual
+    local _notifyThread  = nil   -- thread do timer atual
+
+    local COLORS = {
+        info    = { bg = Color3.fromRGB(28, 40, 70),  border = Color3.fromRGB(90,140,255),  icon = "ℹ",  iconColor = Color3.fromRGB(90,140,255)  },
+        warning = { bg = Color3.fromRGB(50, 38, 10),  border = Color3.fromRGB(240,180, 40), icon = "⚠",  iconColor = Color3.fromRGB(240,180, 40) },
+        error   = { bg = Color3.fromRGB(55, 12, 12),  border = Color3.fromRGB(220, 60, 60), icon = "✕",  iconColor = Color3.fromRGB(220, 60, 60)  },
+    }
+
+    local function getGui()
+        if _notifyGui and _notifyGui.Parent then return _notifyGui end
+        local sg = Instance.new("ScreenGui")
+        sg.Name           = "ModernUI_Notify"
+        sg.ResetOnSpawn   = false
+        sg.DisplayOrder   = 1000
+        sg.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+        pcall(function() sg.Parent = game:GetService("CoreGui") end)
+        if not sg.Parent then sg.Parent = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui") end
+        _notifyGui = sg
+        return sg
+    end
+
+    local function killCurrent()
+        if _notifyThread then
+            task.cancel(_notifyThread)
+            _notifyThread = nil
+        end
+        if _notifyFrame and _notifyFrame.Parent then
+            -- fade out imediato ao ser substituído
+            local old = _notifyFrame
+            TweenService:Create(old, TweenInfo.new(0.2, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+                BackgroundTransparency = 1,
+                Position = UDim2.new(1, -20, 1, old.Position.Y.Offset),
+            }):Play()
+            for _, d in ipairs(old:GetDescendants()) do
+                if d:IsA("TextLabel") or d:IsA("TextButton") then
+                    TweenService:Create(d, TweenInfo.new(0.2), {TextTransparency = 1}):Play()
+                elseif d:IsA("UIStroke") then
+                    TweenService:Create(d, TweenInfo.new(0.2), {Transparency = 1}):Play()
+                elseif d:IsA("Frame") and d.BackgroundTransparency < 1 then
+                    TweenService:Create(d, TweenInfo.new(0.2), {BackgroundTransparency = 1}):Play()
+                end
+            end
+            task.delay(0.22, function() if old and old.Parent then old:Destroy() end end)
+            _notifyFrame = nil
+        end
+    end
+
+    function Library:Notify(message, notifType, duration)
+        notifType = notifType or "info"
+        duration  = duration  or 5
+        local cfg = COLORS[notifType] or COLORS.info
+
+        killCurrent()
+
+        local sg = getGui()
+        local W  = isMobile and 240 or 290
+        local H  = 56
+
+        -- Frame principal
+        local frame = Instance.new("Frame")
+        frame.Name               = "Notification"
+        frame.Size               = UDim2.new(0, W, 0, H)
+        frame.Position           = UDim2.new(1, 20, 1, -(H + 16))  -- começa fora da tela (direita)
+        frame.BackgroundColor3   = cfg.bg
+        frame.BackgroundTransparency = 0
+        frame.BorderSizePixel    = 0
+        frame.ZIndex             = 50
+        frame.ClipsDescendants   = false
+        frame.Parent             = sg
+        Corner(frame, 8)
+
+        local stroke = Instance.new("UIStroke")
+        stroke.Color     = cfg.border
+        stroke.Thickness = 1.5
+        stroke.Parent    = frame
+
+        -- Barra colorida na esquerda
+        local bar = Instance.new("Frame")
+        bar.Size             = UDim2.new(0, 3, 1, -16)
+        bar.Position         = UDim2.new(0, 8, 0, 8)
+        bar.BackgroundColor3 = cfg.border
+        bar.BorderSizePixel  = 0
+        bar.ZIndex           = 51
+        bar.Parent           = frame
+        Corner(bar, 2)
+
+        -- Ícone
+        local iconLbl = Instance.new("TextLabel")
+        iconLbl.Text                = cfg.icon
+        iconLbl.Size                = UDim2.new(0, 20, 0, 20)
+        iconLbl.Position            = UDim2.new(0, 18, 0.5, -10)
+        iconLbl.BackgroundTransparency = 1
+        iconLbl.TextColor3          = cfg.iconColor
+        iconLbl.Font                = Enum.Font.GothamBold
+        iconLbl.TextSize            = 14
+        iconLbl.ZIndex              = 51
+        iconLbl.Parent              = frame
+
+        -- Mensagem
+        local msgLbl = Instance.new("TextLabel")
+        msgLbl.Text                 = message or ""
+        msgLbl.Size                 = UDim2.new(1, -50, 1, 0)
+        msgLbl.Position             = UDim2.new(0, 44, 0, 0)
+        msgLbl.BackgroundTransparency = 1
+        msgLbl.TextColor3           = Color3.fromRGB(235, 235, 250)
+        msgLbl.Font                 = Enum.Font.Gotham
+        msgLbl.TextSize             = isMobile and 11 or 12
+        msgLbl.TextXAlignment       = Enum.TextXAlignment.Left
+        msgLbl.TextWrapped          = true
+        msgLbl.ZIndex               = 51
+        msgLbl.Parent               = frame
+
+        -- Barra de progresso (fundo)
+        local progBg = Instance.new("Frame")
+        progBg.Size             = UDim2.new(1, 0, 0, 2)
+        progBg.Position         = UDim2.new(0, 0, 1, -2)
+        progBg.BackgroundColor3 = Color3.fromRGB(40, 40, 60)
+        progBg.BackgroundTransparency = 0
+        progBg.BorderSizePixel  = 0
+        progBg.ZIndex           = 52
+        progBg.Parent           = frame
+        Corner(progBg, 1)
+
+        local progFill = Instance.new("Frame")
+        progFill.Size             = UDim2.new(1, 0, 1, 0)
+        progFill.BackgroundColor3 = cfg.border
+        progFill.BackgroundTransparency = 0
+        progFill.BorderSizePixel  = 0
+        progFill.ZIndex           = 53
+        progFill.Parent           = progBg
+        Corner(progFill, 1)
+
+        _notifyFrame = frame
+
+        -- Slide in da direita
+        local targetX = -(W + 16)
+        TweenService:Create(frame, TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+            Position = UDim2.new(1, targetX, 1, -(H + 16))
+        }):Play()
+
+        -- Barra de progresso encolhe ao longo do duration
+        TweenService:Create(progFill, TweenInfo.new(duration, Enum.EasingStyle.Linear), {
+            Size = UDim2.new(0, 0, 1, 0)
+        }):Play()
+
+        -- Timer: fade out suave após duration
+        _notifyThread = task.spawn(function()
+            task.wait(duration)
+            if _notifyFrame ~= frame then return end
+            -- Fade out (transparência suave)
+            TweenService:Create(frame, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {
+                BackgroundTransparency = 1,
+                Position = UDim2.new(1, targetX + 10, 1, -(H + 16)),
+            }):Play()
+            TweenService:Create(stroke, TweenInfo.new(0.5), {Transparency = 1}):Play()
+            TweenService:Create(bar,    TweenInfo.new(0.5), {BackgroundTransparency = 1}):Play()
+            TweenService:Create(iconLbl,TweenInfo.new(0.5), {TextTransparency = 1}):Play()
+            TweenService:Create(msgLbl, TweenInfo.new(0.5), {TextTransparency = 1}):Play()
+            TweenService:Create(progBg, TweenInfo.new(0.5), {BackgroundTransparency = 1}):Play()
+            TweenService:Create(progFill,TweenInfo.new(0.5),{BackgroundTransparency = 1}):Play()
+            task.wait(0.52)
+            if frame and frame.Parent then frame:Destroy() end
+            if _notifyFrame == frame then _notifyFrame = nil end
+            _notifyThread = nil
+        end)
+    end
+end
+
 -- ══ AddConfig ══
 function Library:AddConfig()
     local configTab = self:AddTab("⚙ Config", "⚙")
@@ -2161,40 +2336,72 @@ function Library:AddConfig()
 
     -- ── Tema ──
     local secTheme = configTab:AddSection("Tema da UI")
-    secTheme:AddDropdown("Tema", ThemeNames, "Neon Blue", function(name)
-        ApplyTheme(name)
-        -- Re-tint all existing UI elements to new theme colours
+    secTheme:AddDropdown("Tema", ThemeNames, "Neon Blue", function(themeName)
+        -- 1) Snapshot das cores ANTIGAS antes de sobrescrever T
+        local old = {}
+        for k, v in pairs(T) do old[k] = v end
+
+        -- 2) Aplica o novo tema em T
+        ApplyTheme(themeName)
+
+        -- 3) Compara por aproximação de cor (evita falhas de float)
+        local function colorEq(a, b)
+            return math.abs(a.R - b.R) < 0.004
+               and math.abs(a.G - b.G) < 0.004
+               and math.abs(a.B - b.B) < 0.004
+        end
+
+        -- Monta mapa: {oldColor -> chave} para busca rapida
+        local bgKeys = {"Bg","Secondary","Tertiary","Section","Element","ElementHov",
+                        "Input","SliderBar","ToggleOn","ToggleOff","Accent","AccentDark",
+                        "AccentGlow","Border","BorderLight","Green","Red","Text","TextMuted"}
+
         local function recolor(obj)
             if obj:IsA("Frame") or obj:IsA("ScrollingFrame") then
-                local bc = obj.BackgroundColor3
-                -- map old → new for common slots
-                for _, pair in ipairs({
-                    {T.Bg, "Bg"}, {T.Secondary, "Secondary"}, {T.Tertiary, "Tertiary"},
-                    {T.Section, "Section"}, {T.Element, "Element"}, {T.ElementHov, "ElementHov"},
-                    {T.Input, "Input"}, {T.SliderBar, "SliderBar"},
-                    {T.ToggleOn, "ToggleOn"}, {T.ToggleOff, "ToggleOff"},
-                    {T.Accent, "Accent"}, {T.AccentDark, "AccentDark"},
-                }) do
-                    if bc == pair[1] then
-                        obj.BackgroundColor3 = T[pair[2]]
-                        break
+                if obj.BackgroundTransparency < 1 then
+                    local bc = obj.BackgroundColor3
+                    for _, k in ipairs(bgKeys) do
+                        if old[k] and colorEq(bc, old[k]) then
+                            obj.BackgroundColor3 = T[k]
+                            break
+                        end
                     end
                 end
             elseif obj:IsA("TextLabel") or obj:IsA("TextButton") or obj:IsA("TextBox") then
                 local tc = obj.TextColor3
-                if tc == T.Text     then obj.TextColor3 = T.Text
-                elseif tc == T.TextMuted then obj.TextColor3 = T.TextMuted
-                elseif tc == T.Accent    then obj.TextColor3 = T.Accent
+                if     colorEq(tc, old.Text)       then obj.TextColor3 = T.Text
+                elseif colorEq(tc, old.TextMuted)  then obj.TextColor3 = T.TextMuted
+                elseif colorEq(tc, old.Accent)     then obj.TextColor3 = T.Accent
+                elseif colorEq(tc, old.AccentGlow) then obj.TextColor3 = T.AccentGlow
                 end
             elseif obj:IsA("UIStroke") then
-                if obj.Color == T.Border      then obj.Color = T.Border
-                elseif obj.Color == T.BorderLight then obj.Color = T.BorderLight
+                local sc = obj.Color
+                if     colorEq(sc, old.Border)      then obj.Color = T.Border
+                elseif colorEq(sc, old.BorderLight) then obj.Color = T.BorderLight
+                elseif colorEq(sc, old.Accent)      then obj.Color = T.Accent
+                elseif colorEq(sc, old.AccentGlow)  then obj.Color = T.AccentGlow
+                end
+            elseif obj:IsA("UIGradient") then
+                local cs = obj.ColorSequence
+                local kp = cs.Keypoints
+                if kp and #kp >= 2 then
+                    local c0, c1 = kp[1].Value, kp[#kp].Value
+                    local n0 = c0; local n1 = c1
+                    for _, k in ipairs(bgKeys) do
+                        if old[k] then
+                            if colorEq(c0, old[k]) then n0 = T[k] end
+                            if colorEq(c1, old[k]) then n1 = T[k] end
+                        end
+                    end
+                    if n0 ~= c0 or n1 ~= c1 then
+                        obj.ColorSequence = ColorSequence.new(n0, n1)
+                    end
                 end
             end
             for _, child in ipairs(obj:GetChildren()) do recolor(child) end
         end
+
         task.spawn(function()
-            -- slight delay so T is fully updated
             task.wait()
             recolor(win)
         end)
@@ -2267,102 +2474,208 @@ function Library:AddConfig()
         ensureFolder()
         local names = {}
         local ok, lst = pcall(listfiles, FOLDER)
-        if ok then
+        if ok and lst then
             for _, path in ipairs(lst) do
                 local n = (path:match("([^/\\]+)$") or path):gsub("%.json$","")
-                table.insert(names, n)
+                if n ~= "" then table.insert(names, n) end
             end
         end
+        table.sort(names)
         return names
     end
 
-    local saveNameApi  = secSave:AddTextBox("Nome da Save", "minha-config")
-    local savesDropApi = secSave:AddDropdown("Saves", listSaves(), nil, nil)
-
-    -- Simple JSON encoder
-    local function encode(v)
+    -- ── JSON encoder robusto ──
+    local function jsonEncode(v)
         local t = type(v)
-        if t == "string"  then return '"'..v:gsub('\\','\\\\'):gsub('"','\\"')..'"'
-        elseif t == "number"  then return tostring(v)
-        elseif t == "boolean" then return v and "true" or "false"
-        elseif t == "table"   then
-            if #v > 0 then
-                local p = {}; for _,i in ipairs(v) do table.insert(p, encode(i)) end
-                return "["..table.concat(p,",").."]"
+        if t == "string" then
+            return '"' .. v:gsub('\\\\','\\\\\\\\'):gsub('"','\\\\"'):gsub('\n','\\n'):gsub('\r','\\r') .. '"' 
+        elseif t == "number" then
+            return tostring(v)
+        elseif t == "boolean" then
+            return v and "true" or "false"
+        elseif t == "table" then
+            local isArr = true
+            local maxN  = 0
+            for k in pairs(v) do
+                if type(k) ~= "number" or k ~= math.floor(k) or k < 1 then
+                    isArr = false; break
+                end
+                if k > maxN then maxN = k end
+            end
+            if isArr and maxN == #v then
+                local parts = {}
+                for _, item in ipairs(v) do table.insert(parts, jsonEncode(item)) end
+                return "[" .. table.concat(parts, ",") .. "]"
             else
-                local p = {}; for k,i in pairs(v) do table.insert(p,'"'..k..'":'..encode(i)) end
-                return "{"..table.concat(p,",").."}"
+                local parts = {}
+                for k, item in pairs(v) do
+                    table.insert(parts, '"' .. tostring(k) .. '":'  .. jsonEncode(item))
+                end
+                return "{" .. table.concat(parts, ",") .. "}"
             end
         end
         return "null"
     end
 
+    -- ── JSON decoder (parser manual) ──
+    local function jsonDecode(s)
+        local pos = 1
+        local function skipWS()
+            while pos <= #s and s:sub(pos,pos):match("%s") do pos = pos + 1 end
+        end
+        local parseValue
+        local function parseString()
+            pos = pos + 1
+            local res = {}
+            while pos <= #s do
+                local c = s:sub(pos,pos)
+                if c == '"' then pos = pos + 1; break
+                elseif c == '\\\\' then
+                    pos = pos + 1
+                    local esc = s:sub(pos,pos)
+                    local map = {['"']='"', ['\\\\']='\\\\', ['n']='\n', ['r']='\r', ['t']='\t'}
+                    table.insert(res, map[esc] or esc)
+                    pos = pos + 1
+                else
+                    table.insert(res, c); pos = pos + 1
+                end
+            end
+            return table.concat(res)
+        end
+        local function parseNumber()
+            local numStr = s:match("^-?%d+%.?%d*[eE]?[+-]?%d*", pos)
+            pos = pos + #numStr
+            return tonumber(numStr)
+        end
+        local function parseArray()
+            pos = pos + 1
+            local arr = {}
+            skipWS()
+            if s:sub(pos,pos) == ']' then pos = pos + 1; return arr end
+            while true do
+                skipWS(); table.insert(arr, parseValue()); skipWS()
+                local c = s:sub(pos,pos)
+                if c == ']' then pos = pos + 1; break
+                elseif c == ',' then pos = pos + 1
+                else break end
+            end
+            return arr
+        end
+        local function parseObject()
+            pos = pos + 1
+            local obj = {}
+            skipWS()
+            if s:sub(pos,pos) == '}' then pos = pos + 1; return obj end
+            while true do
+                skipWS()
+                if s:sub(pos,pos) ~= '"' then break end
+                local key = parseString(); skipWS()
+                if s:sub(pos,pos) == ':' then pos = pos + 1 end
+                skipWS()
+                obj[key] = parseValue(); skipWS()
+                local c = s:sub(pos,pos)
+                if c == '}' then pos = pos + 1; break
+                elseif c == ',' then pos = pos + 1
+                else break end
+            end
+            return obj
+        end
+        parseValue = function()
+            skipWS()
+            local c = s:sub(pos,pos)
+            if c == '"' then return parseString()
+            elseif c == '{' then return parseObject()
+            elseif c == '[' then return parseArray()
+            elseif c == 't' then pos = pos + 4; return true
+            elseif c == 'f' then pos = pos + 5; return false
+            elseif c == 'n' then pos = pos + 4; return nil
+            else return parseNumber() end
+        end
+        local ok, result = pcall(parseValue)
+        return ok and result or nil
+    end
+
+    local saveNameApi  = secSave:AddTextBox("Nome da Save", "minha-config")
+    local savesDropApi = secSave:AddDropdown("Saves", listSaves(), nil, nil)
+
+    -- Atualiza lista de saves na dropdown
+    local function refreshSavesDrop(selectName)
+        local names = listSaves()
+        local opts = savesDropApi:GetOptions()
+        for i = #opts, 1, -1 do table.remove(opts, i) end
+        for _, n in ipairs(names) do table.insert(opts, n) end
+        if selectName then savesDropApi:Set(selectName) end
+    end
+
     secSave:AddButton("💾 Salvar", function()
         local name = saveNameApi:Get()
         if not name or name == "" then name = "config" end
+        name = name:gsub('[/\\\\:*?"<>|]', "_")
         ensureFolder()
         local data = {}
         for _, entry in ipairs(self._Elements) do
             local ok, val = pcall(function() return entry.api:Get() end)
             if ok and val ~= nil then
                 local et = entry.elemType
-                if et == "Toggle"   then data[entry.id] = {t=et, v=val}
-                elseif et == "Slider"   then data[entry.id] = {t=et, v=val}
-                elseif et == "Dropdown" then data[entry.id] = {t=et, v=val}
-                elseif et == "TextBox"  then data[entry.id] = {t=et, v=val}
+                if et == "Toggle" then
+                    data[entry.id] = {t=et, v=(val == true)}
+                elseif et == "Slider" then
+                    data[entry.id] = {t=et, v=tonumber(val) or 0}
+                elseif et == "Dropdown" then
+                    data[entry.id] = {t=et, v=tostring(val)}
+                elseif et == "TextBox" then
+                    data[entry.id] = {t=et, v=tostring(val)}
                 elseif et == "ColorPicker" then
-                    data[entry.id] = {t=et, r=math.floor(val.R*255), g=math.floor(val.G*255), b=math.floor(val.B*255)}
+                    data[entry.id] = {t=et,
+                        r=math.floor(val.R*255),
+                        g=math.floor(val.G*255),
+                        b=math.floor(val.B*255)}
                 elseif et == "Keybind" then
                     data[entry.id] = {t=et, v=tostring(val)}
                 elseif et == "MultiDropdown" then
-                    local arr = {}; for k in pairs(val) do table.insert(arr,k) end
+                    local arr = {}
+                    for k in pairs(val) do table.insert(arr, k) end
                     data[entry.id] = {t=et, v=arr}
                 end
             end
         end
-        pcall(writefile, FOLDER.."/"..name..".json", encode(data))
-        -- Refresh saves list
-        local saves = listSaves()
-        savesDropApi:Set(name)
-        _ = saves -- list refreshed next open
+        local writeOk = pcall(writefile, FOLDER.."/"..name..".json", jsonEncode(data))
+        if writeOk then refreshSavesDrop(name) end
     end)
 
     secSave:AddButton("📂 Carregar", function()
         local name = savesDropApi:Get()
         if not name or name == "" then return end
         local ok, content = pcall(readfile, FOLDER.."/"..name..".json")
-        if not ok or not content then return end
-
-        -- Decode: convert JSON to Lua table via string transforms
-        local s = content
-        -- replace "key": -> ["key"]=
-        s = s:gsub('"([^"]+)"%s*:', '["$1"]=')
-        -- fix booleans
-        s = s:gsub(': ?true',  '=true')
-        s = s:gsub(': ?false', '=false')
-        -- wrap in return
-        local fn = loadstring("return "..s)
-        if not fn then return end
-        local ok2, data = pcall(fn)
-        if not ok2 or type(data) ~= "table" then return end
-
+        if not ok or not content or content == "" then return end
+        local data = jsonDecode(content)
+        if type(data) ~= "table" then return end
         for _, entry in ipairs(self._Elements) do
             local saved = data[entry.id]
-            if saved then
+            if saved and type(saved) == "table" then
                 pcall(function()
                     local et = saved.t
-                    if et == "Toggle"   then entry.api:Set(saved.v == true)
-                    elseif et == "Slider"   then entry.api:Set(tonumber(saved.v) or 0)
-                    elseif et == "Dropdown" then entry.api:Set(tostring(saved.v or ""))
-                    elseif et == "TextBox"  then entry.api:Set(tostring(saved.v or ""))
+                    if et == "Toggle" then
+                        entry.api:Set(saved.v == true)
+                    elseif et == "Slider" then
+                        entry.api:Set(tonumber(saved.v) or 0)
+                    elseif et == "Dropdown" then
+                        entry.api:Set(tostring(saved.v or ""))
+                    elseif et == "TextBox" then
+                        entry.api:Set(tostring(saved.v or ""))
                     elseif et == "ColorPicker" then
-                        entry.api:Set(Color3.fromRGB(tonumber(saved.r) or 0, tonumber(saved.g) or 0, tonumber(saved.b) or 0))
+                        entry.api:Set(Color3.fromRGB(
+                            tonumber(saved.r) or 0,
+                            tonumber(saved.g) or 0,
+                            tonumber(saved.b) or 0))
                     elseif et == "Keybind" then
                         local kc = Enum.KeyCode[tostring(saved.v)]
                         if kc then entry.api:Set(kc) end
                     elseif et == "MultiDropdown" then
                         local tbl = {}
-                        if type(saved.v) == "table" then for _,k in ipairs(saved.v) do tbl[k]=true end end
+                        if type(saved.v) == "table" then
+                            for _, k in ipairs(saved.v) do tbl[k] = true end
+                        end
                         entry.api:Set(tbl)
                     end
                 end)
@@ -2370,7 +2683,6 @@ function Library:AddConfig()
         end
     end)
 end
-
 return Library
 
 --[[
