@@ -1137,7 +1137,7 @@ function Library._MakeSection(parent, name, lib)
 
         local list = Instance.new("ScrollingFrame")
         list.Size                  = UDim2.new(0, 108, 0, 0)
-        list.Position              = UDim2.new(1, -114, 1, 3)
+        list.Position              = UDim2.new(1, -114, 0, (isMobile and 38 or 30) + 3)
         list.BackgroundColor3      = T.Secondary
         list.BorderSizePixel       = 0
         list.ScrollBarThickness    = 3
@@ -1715,7 +1715,7 @@ function Library._MakeSection(parent, name, lib)
 
         local list2 = Instance.new("ScrollingFrame")
         list2.Size                  = UDim2.new(0, 125, 0, 0)
-        list2.Position              = UDim2.new(1, -131, 1, 3)
+        list2.Position              = UDim2.new(1, -131, 0, (isMobile and 38 or 30) + 3)
         list2.BackgroundColor3      = T.Secondary
         list2.BorderSizePixel       = 0
         list2.ScrollBarThickness    = 3
