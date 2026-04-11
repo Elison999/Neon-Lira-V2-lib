@@ -845,7 +845,7 @@ function Library:_SelectTab(tab)
         Tween(t.Bar,    {BackgroundTransparency = 1}, 0.15)
     end
     tab.Page.Visible = true
-    Tween(tab.Button, {BackgroundColor3 = Color3.fromRGB(28, 45, 85)}, 0.18)
+    Tween(tab.Button, {BackgroundColor3 = T.AccentDark}, 0.18)
     Tween(tab.Label,  {TextColor3 = T.Accent}, 0.18)
     Tween(tab.Icon,   {TextColor3 = T.AccentGlow}, 0.18)
     Tween(tab.Bar,    {BackgroundTransparency = 0}, 0.18)
